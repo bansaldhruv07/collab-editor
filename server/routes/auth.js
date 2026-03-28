@@ -2,30 +2,25 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const validate = require("../middleware/validate");
+const { registerRules, loginRules } = require("../middleware/validators");
 
-// Helper: generate a JWT token for a user
 const generateToken = (userId) => {
-  return jwt.sign(
-    { id: userId }, // payload — what we store inside the token
-    process.env.JWT_SECRET, // secret key to sign it
-    { expiresIn: "7d" }, // token expires in 7 days
-  );
+  return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
 };
 
-router.post("/register", async (req, res) => {
+
+router.post("/register", registerRules, validate, async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // Create the user (password hashing happens automatically via the pre-save hook)
     const user = await User.create({ name, email, password });
 
-    // Send back the token
     res.status(201).json({
       _id: user._id,
       name: user.name,
@@ -37,7 +32,8 @@ router.post("/register", async (req, res) => {
   }
 });
 
-router.post("/login", async (req, res) => {
+
+router.post("/login", loginRules, validate, async (req, res) => {
   try {
     const { email, password } = req.body;
 

@@ -3,15 +3,15 @@ const router = express.Router();
 const Document = require("../models/Document");
 const { protect } = require("../middleware/auth");
 
-// GET /api/documents — get all documents for the logged-in user
+
 router.get("/", protect, async (req, res) => {
   try {
     const documents = await Document.find({
       $or: [{ owner: req.user._id }, { collaborators: req.user._id }],
     })
-      .select("title owner updatedAt") // only return these fields (not full content)
-      .populate("owner", "name email") // replace owner ID with actual name/email
-      .sort({ updatedAt: -1 }); // newest first
+      .select("title owner updatedAt")
+      .populate("owner", "name email")
+      .sort({ updatedAt: -1 });
 
     res.json(documents);
   } catch (error) {
@@ -19,7 +19,7 @@ router.get("/", protect, async (req, res) => {
   }
 });
 
-// POST /api/documents — create a new document
+
 router.post("/", protect, async (req, res) => {
   try {
     const document = await Document.create({
@@ -34,7 +34,7 @@ router.post("/", protect, async (req, res) => {
   }
 });
 
-// GET /api/documents/:id — get a specific document
+
 router.get("/:id", protect, async (req, res) => {
   try {
     const document = await Document.findById(req.params.id)
@@ -45,7 +45,7 @@ router.get("/:id", protect, async (req, res) => {
       return res.status(404).json({ message: "Document not found" });
     }
 
-    // Check if user has access
+
     const hasAccess =
       document.owner._id.toString() === req.user._id.toString() ||
       document.collaborators.some(
@@ -62,7 +62,7 @@ router.get("/:id", protect, async (req, res) => {
   }
 });
 
-// PATCH /api/documents/:id/title — update title only
+
 router.patch("/:id/title", protect, async (req, res) => {
   try {
     const document = await Document.findById(req.params.id);
@@ -84,7 +84,7 @@ router.patch("/:id/title", protect, async (req, res) => {
   }
 });
 
-// DELETE /api/documents/:id
+
 router.delete("/:id", protect, async (req, res) => {
   try {
     const document = await Document.findById(req.params.id);
