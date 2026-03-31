@@ -1,0 +1,84 @@
+/* Override Quill's default font */
+.ql-editor {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.8;
+  padding: 40px 60px;
+  min-height: 500px;
+  color: #1a1a1a;
+}
+
+/* Placeholder text */
+.ql-editor.ql-blank::before {
+  color: #9ca3af;
+  font-style: normal;
+  font-size: 16px;
+}
+
+/* Toolbar styling */
+.ql-toolbar.ql-snow {
+  border: none;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fff;
+  padding: 10px 20px;
+  position: sticky;
+  top: 60px; /* sits just below your navbar */
+  z-index: 40;
+}
+
+/* Editor container */
+.ql-container.ql-snow {
+  border: none;
+  font-size: 16px;
+}
+
+/* Headings inside the editor */
+.ql-editor h1 {
+  font-size: 2em;
+  font-weight: 700;
+  margin-bottom: 0.5em;
+  color: #111827;
+}
+
+.ql-editor h2 {
+  font-size: 1.5em;
+  font-weight: 600;
+  margin-bottom: 0.4em;
+  color: #111827;
+}
+
+.ql-editor h3 {
+  font-size: 1.25em;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Code blocks */
+.ql-editor pre.ql-syntax {
+  background: #1e1e1e;
+  color: #d4d4d4;
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 14px;
+}
+
+/* Blockquote */
+.ql-editor blockquote {
+  border-left: 4px solid #4f46e5;
+  padding-left: 16px;
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* Focus — remove the blue outline Quill adds */
+.ql-container:focus-within {
+  outline: none;
+}
+
+/* Make the editor area look like a document page */
+@media (max-width: 768px) {
+  .ql-editor {
+    padding: 24px 20px;
+  }
+}

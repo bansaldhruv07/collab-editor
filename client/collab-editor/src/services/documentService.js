@@ -10,6 +10,14 @@ const getDocument = async (id) => {
   return response.data;
 };
 
+const saveContent = async (id, content, htmlContent) => {
+  const response = await api.put(`/documents/${id}/content`, {
+    content,
+    htmlContent,
+  });
+  return response.data;
+};
+
 const createDocument = async (title) => {
   const response = await api.post("/documents", { title });
   return response.data;
@@ -31,6 +39,7 @@ const documentService = {
   createDocument,
   updateTitle,
   deleteDocument,
+  saveContent,
 };
 
 export default documentService;

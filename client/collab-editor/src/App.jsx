@@ -4,10 +4,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
-
-function EditorPage() {
-  return <div style={{ padding: "2rem" }}>Editor — coming on Day 10</div>;
-}
+import EditorPage from "./pages/EditorPage";
 
 function App() {
   return (
