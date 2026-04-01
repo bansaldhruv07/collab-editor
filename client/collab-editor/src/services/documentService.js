@@ -1,5 +1,20 @@
 import api from "./api";
 
+const getCollaborators = async (id) => {
+  const response = await api.get(`/documents/${id}/collaborators`);
+  return response.data;
+};
+
+const addCollaborator = async (id, email) => {
+  const response = await api.post(`/documents/${id}/collaborators`, { email });
+  return response.data;
+};
+
+const removeCollaborator = async (id, userId) => {
+  const response = await api.delete(`/documents/${id}/collaborators/${userId}`);
+  return response.data;
+};
+
 const getDocuments = async () => {
   const response = await api.get("/documents");
   return response.data;
@@ -40,6 +55,9 @@ const documentService = {
   updateTitle,
   deleteDocument,
   saveContent,
+  getCollaborators,
+  addCollaborator,
+  removeCollaborator,
 };
 
 export default documentService;

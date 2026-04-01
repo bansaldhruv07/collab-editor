@@ -5,6 +5,7 @@ import documentService from "../services/documentService";
 import Editor from "../components/Editor";
 import Spinner from "../components/Spinner";
 import Button from "../components/Button";
+import ShareModal from "../components/ShareModal";
 
 function EditorPage() {
   const { id } = useParams();
@@ -17,6 +18,8 @@ function EditorPage() {
   const [saveStatus, setSaveStatus] = useState("saved");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState("");
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
 
   const titleInputRef = useRef(null);
 
@@ -37,6 +40,8 @@ function EditorPage() {
       const data = await documentService.getDocument(id);
       setDocument(data);
       setTitleValue(data.title);
+      // Check if current user is the owner
+      setIsOwner(data.owner._id === user._id || data.owner === user._id);
     } catch (err) {
       if (err.response?.status === 403) {
         setError("You do not have access to this document.");
@@ -214,6 +219,27 @@ function EditorPage() {
           )}
         </div>
 
+        {/* Share button */}
+        <button
+          onClick={() => setShowShareModal(true)}
+          style={{
+            padding: '7px 16px',
+            background: '#4F46E5',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '13px',
+            fontWeight: '500',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+          }}
+        >
+          👥 Share
+        </button>
+
+        {/* Save status */}
         <span
           style={{
             fontSize: "13px",
@@ -261,6 +287,15 @@ function EditorPage() {
           onChange={handleChange}
         />
       </div>
+
+      {/* Share Modal */}
+      {showShareModal && (
+        <ShareModal
+          documentId={id}
+          isOwner={isOwner}
+          onClose={() => setShowShareModal(false)}
+        />
+      )}
     </div>
   );
 }

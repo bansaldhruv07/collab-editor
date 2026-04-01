@@ -9,16 +9,20 @@ const documentSchema = new mongoose.Schema(
     },
     content: {
       type: String,
-      default: "", 
+      default: "",
+    },
+    htmlContent: {
+      type: String,
+      default: "",
     },
     owner: {
-      type: mongoose.Schema.Types.ObjectId, 
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
     collaborators: [
       {
-        type: mongoose.Schema.Types.ObjectId, 
+        type: mongoose.Schema.Types.ObjectId,
         ref: "User",
       },
     ],

@@ -2,8 +2,9 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useEffect, useRef } from "react";
 
-function DocumentCard({ document, onDelete, onRename }) {
+function DocumentCard({ document, onDelete, onRename, currentUserId }) {
   const navigate = useNavigate();
+  const isOwner = document.owner?._id === currentUserId || document.owner === currentUserId;
   const [showMenu, setShowMenu] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
   const [newTitle, setNewTitle] = useState(document.title);
@@ -84,6 +85,22 @@ function DocumentCard({ document, onDelete, onRename }) {
       >
         📄
       </div>
+
+      {/* Shared badge — shown when document was shared by someone else */}
+      {!isOwner && (
+        <span style={{
+          display: 'inline-block',
+          fontSize: '11px',
+          padding: '2px 8px',
+          background: '#EEF2FF',
+          color: '#4F46E5',
+          borderRadius: '20px',
+          fontWeight: '500',
+          marginBottom: '6px',
+        }}>
+          Shared with you
+        </span>
+      )}
 
       {isRenaming ? (
         <form
@@ -200,32 +217,44 @@ function DocumentCard({ document, onDelete, onRename }) {
                 overflow: "hidden",
               }}
             >
-              <button
-                onClick={() => {
-                  setIsRenaming(true);
-                  setShowMenu(false);
-                }}
-                style={menuItemStyle}
-                onMouseEnter={(e) => (e.target.style.background = "#F9FAFB")}
-                onMouseLeave={(e) =>
-                  (e.target.style.background = "transparent")
-                }
-              >
-                ✏️ Rename
-              </button>
-              <button
-                onClick={() => {
-                  onDelete(document._id);
-                  setShowMenu(false);
-                }}
-                style={{ ...menuItemStyle, color: "#EF4444" }}
-                onMouseEnter={(e) => (e.target.style.background = "#FEF2F2")}
-                onMouseLeave={(e) =>
-                  (e.target.style.background = "transparent")
-                }
-              >
-                🗑️ Delete
-              </button>
+              {/* Only owners can rename */}
+              {isOwner && (
+                <button
+                  onClick={() => {
+                    setIsRenaming(true);
+                    setShowMenu(false);
+                  }}
+                  style={menuItemStyle}
+                  onMouseEnter={(e) => (e.target.style.background = "#F9FAFB")}
+                  onMouseLeave={(e) =>
+                    (e.target.style.background = "transparent")
+                  }
+                >
+                  ✏️ Rename
+                </button>
+              )}
+              {/* Only owners can delete */}
+              {isOwner && (
+                <button
+                  onClick={() => {
+                    onDelete(document._id);
+                    setShowMenu(false);
+                  }}
+                  style={{ ...menuItemStyle, color: "#EF4444" }}
+                  onMouseEnter={(e) => (e.target.style.background = "#FEF2F2")}
+                  onMouseLeave={(e) =>
+                    (e.target.style.background = "transparent")
+                  }
+                >
+                  🗑️ Delete
+                </button>
+              )}
+              {/* Non-owners just have no options — close menu */}
+              {!isOwner && (
+                <div style={{ padding: '10px 16px', fontSize: '13px', color: '#9CA3AF' }}>
+                  No actions available
+                </div>
+              )}
             </div>
           )}
         </div>

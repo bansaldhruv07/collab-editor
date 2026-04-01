@@ -159,6 +159,7 @@ function DashboardPage() {
                 document={doc}
                 onDelete={handleDelete}
                 onRename={handleRename}
+                currentUserId={user?._id}
               />
             ))}
           </div>

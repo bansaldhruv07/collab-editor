@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Document = require("../models/Document");
 const { protect } = require("../middleware/auth");
-
+const User = require('../models/User');
 
 router.get("/", protect, async (req, res) => {
   try {
@@ -19,7 +19,6 @@ router.get("/", protect, async (req, res) => {
   }
 });
 
-
 router.post("/", protect, async (req, res) => {
   try {
     const document = await Document.create({
@@ -34,7 +33,6 @@ router.post("/", protect, async (req, res) => {
   }
 });
 
-
 router.get("/:id", protect, async (req, res) => {
   try {
     const document = await Document.findById(req.params.id)
@@ -44,7 +42,6 @@ router.get("/:id", protect, async (req, res) => {
     if (!document) {
       return res.status(404).json({ message: "Document not found" });
     }
-
 
     const hasAccess =
       document.owner._id.toString() === req.user._id.toString() ||
@@ -61,7 +58,6 @@ router.get("/:id", protect, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
 
 router.patch("/:id/title", protect, async (req, res) => {
   try {
@@ -84,6 +80,35 @@ router.patch("/:id/title", protect, async (req, res) => {
   }
 });
 
+router.put("/:id/content", protect, async (req, res) => {
+  try {
+    const document = await Document.findById(req.params.id);
+
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    const hasAccess =
+      document.owner.toString() === req.user._id.toString() ||
+      document.collaborators.some(
+        (c) => c.toString() === req.user._id.toString(),
+      );
+
+    if (!hasAccess) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    document.content = req.body.content;
+    document.htmlContent = req.body.htmlContent;
+    document.lastEditedBy = req.user._id;
+
+    await document.save();
+
+    res.json({ message: "Saved", updatedAt: document.updatedAt });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
 router.delete("/:id", protect, async (req, res) => {
   try {
@@ -99,6 +124,123 @@ router.delete("/:id", protect, async (req, res) => {
 
     await document.deleteOne();
     res.json({ message: "Document deleted" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// POST /api/documents/:id/collaborators — add a collaborator by email
+router.post("/:id/collaborators", protect, async (req, res) => {
+  try {
+    const document = await Document.findById(req.params.id);
+
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    // Only the owner can add collaborators
+    if (document.owner.toString() !== req.user._id.toString()) {
+      return res
+        .status(403)
+        .json({ message: "Only the owner can share this document" });
+    }
+
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    // Find the user to invite
+    const userToAdd = await User.findOne({ email: email.toLowerCase() });
+
+    if (!userToAdd) {
+      return res.status(404).json({ message: "No user found with that email" });
+    }
+
+    // Can't add yourself as a collaborator
+    if (userToAdd._id.toString() === req.user._id.toString()) {
+      return res.status(400).json({ message: "You are already the owner" });
+    }
+
+    // Can't add someone who is already a collaborator
+    const alreadyAdded = document.collaborators.some(
+      (c) => c.toString() === userToAdd._id.toString(),
+    );
+    if (alreadyAdded) {
+      return res.status(400).json({ message: "User already has access" });
+    }
+
+    document.collaborators.push(userToAdd._id);
+    await document.save();
+
+    // Return the new collaborator's info (not just their ID)
+    const populatedDoc = await Document.findById(document._id).populate(
+      "collaborators",
+      "name email",
+    );
+
+    res.json({
+      message: "Collaborator added",
+      collaborators: populatedDoc.collaborators,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// DELETE /api/documents/:id/collaborators/:userId — remove a collaborator
+router.delete("/:id/collaborators/:userId", protect, async (req, res) => {
+  try {
+    const document = await Document.findById(req.params.id);
+
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    // Only owner can remove collaborators
+    if (document.owner.toString() !== req.user._id.toString()) {
+      return res
+        .status(403)
+        .json({ message: "Only the owner can remove collaborators" });
+    }
+
+    document.collaborators = document.collaborators.filter(
+      (c) => c.toString() !== req.params.userId,
+    );
+
+    await document.save();
+
+    res.json({ message: "Collaborator removed" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.get("/:id/collaborators", protect, async (req, res) => {
+  try {
+    const document = await Document.findById(req.params.id)
+      .populate("collaborators", "name email")
+      .populate("owner", "name email");
+
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    const hasAccess =
+      document.owner._id.toString() === req.user._id.toString() ||
+      document.collaborators.some(
+        (c) => c._id.toString() === req.user._id.toString(),
+      );
+
+    if (!hasAccess) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    res.json({
+      owner: document.owner,
+      collaborators: document.collaborators,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
