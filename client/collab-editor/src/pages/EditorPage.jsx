@@ -6,6 +6,8 @@ import Editor from "../components/Editor";
 import Spinner from "../components/Spinner";
 import Button from "../components/Button";
 import ShareModal from "../components/ShareModal";
+import { useSocket } from "../context/SocketContext";
+import PresenceAvatars from "../components/PresenceAvatars";
 
 function EditorPage() {
   const { id } = useParams();
@@ -22,6 +24,8 @@ function EditorPage() {
   const [isOwner, setIsOwner] = useState(false);
 
   const titleInputRef = useRef(null);
+  const [activeUsers, setActiveUsers] = useState([]);
+  const { socket } = useSocket();
 
   useEffect(() => {
     fetchDocument();
@@ -40,7 +44,6 @@ function EditorPage() {
       const data = await documentService.getDocument(id);
       setDocument(data);
       setTitleValue(data.title);
-      // Check if current user is the owner
       setIsOwner(data.owner._id === user._id || data.owner === user._id);
     } catch (err) {
       if (err.response?.status === 403) {
@@ -54,6 +57,21 @@ function EditorPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!socket || !id) return;
+
+    socket.emit("join-document", id);
+
+    socket.on("presence-update", (users) => {
+      setTimeout(() => setActiveUsers(users), 100);
+    });
+
+    return () => {
+      socket.emit("leave-document", id);
+      socket.off("presence-update");
+    };
+  }, [socket, id]);
 
   const handleSave = async (content, htmlContent) => {
     try {
@@ -219,27 +237,25 @@ function EditorPage() {
           )}
         </div>
 
-        {/* Share button */}
         <button
           onClick={() => setShowShareModal(true)}
           style={{
-            padding: '7px 16px',
-            background: '#4F46E5',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '13px',
-            fontWeight: '500',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
+            padding: "7px 16px",
+            background: "#4F46E5",
+            color: "#fff",
+            border: "none",
+            borderRadius: "8px",
+            fontSize: "13px",
+            fontWeight: "500",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
           }}
         >
           👥 Share
         </button>
-
-        {/* Save status */}
+        <PresenceAvatars users={activeUsers} currentUserId={user?._id} />
         <span
           style={{
             fontSize: "13px",
@@ -288,7 +304,6 @@ function EditorPage() {
         />
       </div>
 
-      {/* Share Modal */}
       {showShareModal && (
         <ShareModal
           documentId={id}

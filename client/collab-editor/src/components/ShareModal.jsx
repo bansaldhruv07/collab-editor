@@ -12,7 +12,6 @@ function ShareModal({ documentId, onClose, isOwner }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Load collaborators when modal opens
   useEffect(() => {
     fetchCollaborators();
   }, []);
@@ -46,7 +45,6 @@ function ShareModal({ documentId, onClose, isOwner }) {
       setEmail("");
       setSuccess(`Successfully added collaborator!`);
 
-      // Clear success message after 3 seconds
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to add collaborator");
@@ -67,7 +65,6 @@ function ShareModal({ documentId, onClose, isOwner }) {
     }
   };
 
-  // Get initials from a name for the avatar circle
   const getInitials = (name) => {
     return name
       .split(" ")
@@ -77,7 +74,6 @@ function ShareModal({ documentId, onClose, isOwner }) {
       .slice(0, 2);
   };
 
-  // Avatar colors — cycle through these based on name
   const avatarColors = [
     "#4F46E5",
     "#0891B2",
@@ -117,10 +113,9 @@ function ShareModal({ documentId, onClose, isOwner }) {
           maxWidth: "480px",
           boxShadow: "0 20px 60px rgba(0,0,0,0.2)",
           maxHeight: "90vh",
-          overflowY: "auto",
+        overflowY: "auto",
         }}
       >
-        {/* Header */}
         <div
           style={{
             display: "flex",
@@ -154,7 +149,6 @@ function ShareModal({ documentId, onClose, isOwner }) {
           </button>
         </div>
 
-        {/* Add collaborator form — only owners see this */}
         {isOwner && (
           <form onSubmit={handleAdd} style={{ marginBottom: "24px" }}>
             <label
@@ -193,7 +187,6 @@ function ShareModal({ documentId, onClose, isOwner }) {
               </Button>
             </div>
 
-            {/* Feedback messages */}
             {error && (
               <p
                 style={{ color: "#DC2626", fontSize: "13px", marginTop: "8px" }}
@@ -211,10 +204,8 @@ function ShareModal({ documentId, onClose, isOwner }) {
           </form>
         )}
 
-        {/* Divider */}
         <div style={{ borderTop: "1px solid #E5E7EB", marginBottom: "20px" }} />
 
-        {/* People with access */}
         <h3
           style={{
             fontSize: "14px",
@@ -232,7 +223,6 @@ function ShareModal({ documentId, onClose, isOwner }) {
           <div
             style={{ display: "flex", flexDirection: "column", gap: "12px" }}
           >
-            {/* Owner row */}
             {owner && (
               <PersonRow
                 name={owner.name}
@@ -244,7 +234,6 @@ function ShareModal({ documentId, onClose, isOwner }) {
               />
             )}
 
-            {/* Collaborator rows */}
             {collaborators.length === 0 && (
               <p
                 style={{
@@ -273,7 +262,6 @@ function ShareModal({ documentId, onClose, isOwner }) {
           </div>
         )}
 
-        {/* Copy link section */}
         <div
           style={{
             marginTop: "24px",
@@ -335,7 +323,6 @@ function ShareModal({ documentId, onClose, isOwner }) {
   );
 }
 
-// Reusable person row component used for both owner and collaborators
 function PersonRow({
   name,
   email,
@@ -354,7 +341,6 @@ function PersonRow({
         padding: "10px 0",
       }}
     >
-      {/* Avatar circle */}
       <div
         style={{
           width: "36px",
@@ -373,7 +359,6 @@ function PersonRow({
         {initials}
       </div>
 
-      {/* Name and email */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <p
           style={{
@@ -401,7 +386,6 @@ function PersonRow({
         </p>
       </div>
 
-      {/* Role badge */}
       <span
         style={{
           fontSize: "12px",
@@ -416,7 +400,6 @@ function PersonRow({
         {role}
       </span>
 
-      {/* Remove button — only for collaborators, only for owners */}
       {showRemove && (
         <button
           onClick={onRemove}
