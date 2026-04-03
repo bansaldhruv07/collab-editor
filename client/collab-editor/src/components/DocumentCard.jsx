@@ -86,7 +86,7 @@ function DocumentCard({ document, onDelete, onRename, currentUserId }) {
         📄
       </div>
 
-      {/* Shared badge — shown when document was shared by someone else */}
+      {}
       {!isOwner && (
         <span style={{
           display: 'inline-block',
@@ -217,7 +217,7 @@ function DocumentCard({ document, onDelete, onRename, currentUserId }) {
                 overflow: "hidden",
               }}
             >
-              {/* Only owners can rename */}
+              {}
               {isOwner && (
                 <button
                   onClick={() => {
@@ -233,7 +233,7 @@ function DocumentCard({ document, onDelete, onRename, currentUserId }) {
                   ✏️ Rename
                 </button>
               )}
-              {/* Only owners can delete */}
+              {}
               {isOwner && (
                 <button
                   onClick={() => {
@@ -249,7 +249,7 @@ function DocumentCard({ document, onDelete, onRename, currentUserId }) {
                   🗑️ Delete
                 </button>
               )}
-              {/* Non-owners just have no options — close menu */}
+              {}
               {!isOwner && (
                 <div style={{ padding: '10px 16px', fontSize: '13px', color: '#9CA3AF' }}>
                   No actions available

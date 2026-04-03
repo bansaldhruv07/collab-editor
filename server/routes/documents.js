@@ -4,7 +4,7 @@ const Document = require("../models/Document");
 const { protect } = require("../middleware/auth");
 const User = require('../models/User');
 
-router.get("/", protect, async (req, res) => {
+router.get("/", protect, async (req, res, next) => {
   try {
     const documents = await Document.find({
       $or: [{ owner: req.user._id }, { collaborators: req.user._id }],
@@ -15,11 +15,11 @@ router.get("/", protect, async (req, res) => {
 
     res.json(documents);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 });
 
-router.post("/", protect, async (req, res) => {
+router.post("/", protect, async (req, res, next) => {
   try {
     const document = await Document.create({
       title: req.body.title || "Untitled Document",
@@ -29,11 +29,11 @@ router.post("/", protect, async (req, res) => {
 
     res.status(201).json(document);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 });
 
-router.get("/:id", protect, async (req, res) => {
+router.get("/:id", protect, async (req, res, next) => {
   try {
     const document = await Document.findById(req.params.id)
       .populate("owner", "name email")
@@ -55,11 +55,11 @@ router.get("/:id", protect, async (req, res) => {
 
     res.json(document);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 });
 
-router.patch("/:id/title", protect, async (req, res) => {
+router.patch("/:id/title", protect, async (req, res, next) => {
   try {
     const document = await Document.findById(req.params.id);
 
@@ -76,11 +76,11 @@ router.patch("/:id/title", protect, async (req, res) => {
 
     res.json(document);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 });
 
-router.put("/:id/content", protect, async (req, res) => {
+router.put("/:id/content", protect, async (req, res, next) => {
   try {
     const document = await Document.findById(req.params.id);
 
@@ -106,11 +106,11 @@ router.put("/:id/content", protect, async (req, res) => {
 
     res.json({ message: "Saved", updatedAt: document.updatedAt });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 });
 
-router.delete("/:id", protect, async (req, res) => {
+router.delete("/:id", protect, async (req, res, next) => {
   try {
     const document = await Document.findById(req.params.id);
 
@@ -125,12 +125,11 @@ router.delete("/:id", protect, async (req, res) => {
     await document.deleteOne();
     res.json({ message: "Document deleted" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 });
 
-// POST /api/documents/:id/collaborators — add a collaborator by email
-router.post("/:id/collaborators", protect, async (req, res) => {
+router.post("/:id/collaborators", protect, async (req, res, next) => {
   try {
     const document = await Document.findById(req.params.id);
 
@@ -138,7 +137,6 @@ router.post("/:id/collaborators", protect, async (req, res) => {
       return res.status(404).json({ message: "Document not found" });
     }
 
-    // Only the owner can add collaborators
     if (document.owner.toString() !== req.user._id.toString()) {
       return res
         .status(403)
@@ -151,19 +149,16 @@ router.post("/:id/collaborators", protect, async (req, res) => {
       return res.status(400).json({ message: "Email is required" });
     }
 
-    // Find the user to invite
     const userToAdd = await User.findOne({ email: email.toLowerCase() });
 
     if (!userToAdd) {
       return res.status(404).json({ message: "No user found with that email" });
     }
 
-    // Can't add yourself as a collaborator
     if (userToAdd._id.toString() === req.user._id.toString()) {
       return res.status(400).json({ message: "You are already the owner" });
     }
 
-    // Can't add someone who is already a collaborator
     const alreadyAdded = document.collaborators.some(
       (c) => c.toString() === userToAdd._id.toString(),
     );
@@ -174,7 +169,6 @@ router.post("/:id/collaborators", protect, async (req, res) => {
     document.collaborators.push(userToAdd._id);
     await document.save();
 
-    // Return the new collaborator's info (not just their ID)
     const populatedDoc = await Document.findById(document._id).populate(
       "collaborators",
       "name email",
@@ -185,12 +179,11 @@ router.post("/:id/collaborators", protect, async (req, res) => {
       collaborators: populatedDoc.collaborators,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 });
 
-// DELETE /api/documents/:id/collaborators/:userId — remove a collaborator
-router.delete("/:id/collaborators/:userId", protect, async (req, res) => {
+router.delete("/:id/collaborators/:userId", protect, async (req, res, next) => {
   try {
     const document = await Document.findById(req.params.id);
 
@@ -198,7 +191,6 @@ router.delete("/:id/collaborators/:userId", protect, async (req, res) => {
       return res.status(404).json({ message: "Document not found" });
     }
 
-    // Only owner can remove collaborators
     if (document.owner.toString() !== req.user._id.toString()) {
       return res
         .status(403)
@@ -213,11 +205,11 @@ router.delete("/:id/collaborators/:userId", protect, async (req, res) => {
 
     res.json({ message: "Collaborator removed" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 });
 
-router.get("/:id/collaborators", protect, async (req, res) => {
+router.get("/:id/collaborators", protect, async (req, res, next) => {
   try {
     const document = await Document.findById(req.params.id)
       .populate("collaborators", "name email")
@@ -242,7 +234,7 @@ router.get("/:id/collaborators", protect, async (req, res) => {
       collaborators: document.collaborators,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 });
 

@@ -9,8 +9,7 @@ const generateToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
 };
 
-
-router.post("/register", registerRules, validate, async (req, res) => {
+router.post("/register", registerRules, validate, async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
@@ -28,12 +27,11 @@ router.post("/register", registerRules, validate, async (req, res) => {
       token: generateToken(user._id),
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 });
 
-
-router.post("/login", loginRules, validate, async (req, res) => {
+router.post("/login", loginRules, validate, async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -54,7 +52,7 @@ router.post("/login", loginRules, validate, async (req, res) => {
       token: generateToken(user._id),
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 });
 

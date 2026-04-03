@@ -1,6 +1,5 @@
 const { body } = require('express-validator');
 
-
 const registerRules = [
   body('name')
     .trim()
@@ -23,7 +22,6 @@ const registerRules = [
     .withMessage('Password must be at least 6 characters'),
 ];
 
-
 const loginRules = [
   body('email')
     .trim()
@@ -36,7 +34,6 @@ const loginRules = [
     .notEmpty()
     .withMessage('Password is required'),
 ];
-
 
 const createDocumentRules = [
   body('title')
