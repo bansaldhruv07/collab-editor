@@ -3,11 +3,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import documentService from "../services/documentService";
 import Editor from "../components/Editor";
-import Spinner from "../components/Spinner";
+import { EditorSkeleton } from "../components/Skeleton";
 import Button from "../components/Button";
 import ShareModal from "../components/ShareModal";
 import { useSocket } from "../context/SocketContext";
 import PresenceAvatars from "../components/PresenceAvatars";
+import useKeyboardShortcut from "../hooks/useKeyboardShortcut";
+import { useToast } from "../components/Toast";
 
 function EditorPage() {
   const { id } = useParams();
@@ -24,8 +26,10 @@ function EditorPage() {
   const [isOwner, setIsOwner] = useState(false);
 
   const titleInputRef = useRef(null);
+  const editorRef = useRef(null);
   const [activeUsers, setActiveUsers] = useState([]);
   const { socket } = useSocket();
+  const { addToast } = useToast();
 
   useEffect(() => {
     fetchDocument();
@@ -80,8 +84,17 @@ function EditorPage() {
       setSaveStatus("saved");
     } catch (err) {
       setSaveStatus("unsaved");
+      addToast("Failed to save document", "error");
     }
   };
+
+  useKeyboardShortcut("s", async () => {
+    if (editorRef.current) {
+      const { delta, html } = editorRef.current.getContent();
+      await handleSave(delta, html);
+      addToast("Document saved", "success");
+    }
+  });
 
   const handleChange = (delta, html) => {
     setSaveStatus("unsaved");
@@ -125,7 +138,35 @@ function EditorPage() {
   if (loading) {
     return (
       <div style={{ minHeight: "100vh", background: "#fff" }}>
-        <Spinner />
+        <div
+          style={{
+            height: "60px",
+            background: "#fff",
+            borderBottom: "1px solid #E5E7EB",
+            display: "flex",
+            alignItems: "center",
+            padding: "0 24px",
+            gap: "16px",
+          }}
+        >
+          <div
+            style={{
+              width: "32px",
+              height: "32px",
+              background: "#f0f0f0",
+              borderRadius: "6px",
+            }}
+          />
+          <div
+            style={{
+              width: "200px",
+              height: "20px",
+              background: "#f0f0f0",
+              borderRadius: "6px",
+            }}
+          />
+        </div>
+        <EditorSkeleton />
       </div>
     );
   }
@@ -256,6 +297,33 @@ function EditorPage() {
           👥 Share
         </button>
         <PresenceAvatars users={activeUsers} currentUserId={user?._id} />
+
+        <div
+          title="Keyboard shortcuts: Ctrl+S to save"
+          style={{
+            fontSize: "12px",
+            color: "#9CA3AF",
+            cursor: "default",
+            display: "flex",
+            alignItems: "center",
+            gap: "4px",
+          }}
+        >
+          <kbd
+            style={{
+              padding: "2px 6px",
+              background: "#F3F4F6",
+              border: "1px solid #D1D5DB",
+              borderRadius: "4px",
+              fontSize: "11px",
+              color: "#374151",
+              fontFamily: "monospace",
+            }}
+          >
+            Ctrl+S
+          </kbd>
+          <span style={{ fontSize: "11px" }}>to save</span>
+        </div>
         <span
           style={{
             fontSize: "13px",
@@ -297,6 +365,7 @@ function EditorPage() {
         }}
       >
         <Editor
+          ref={editorRef}
           documentId={id}
           initialContent={document?.content}
           onSave={handleSave}

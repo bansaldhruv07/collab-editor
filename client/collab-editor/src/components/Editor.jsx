@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
 import "../styles/editor.css";
@@ -13,81 +13,107 @@ const TOOLBAR_OPTIONS = [
   ["clean"],
 ];
 
-function Editor({ documentId, initialContent, onSave, onChange }) {
-  const editorRef = useRef(null);
-  const quillRef = useRef(null);
-  const saveTimerRef = useRef(null);
+const Editor = forwardRef(
+  ({ documentId, initialContent, onSave, onChange }, ref) => {
+    const editorRef = useRef(null);
+    const quillRef = useRef(null);
+    const saveTimerRef = useRef(null);
 
-  useEffect(() => {
-    if (quillRef.current) return;
-
-    const quill = new Quill(editorRef.current, {
-      theme: "snow",
-      modules: {
-        toolbar: TOOLBAR_OPTIONS,
+    useImperativeHandle(ref, () => ({
+      getContent: () => {
+        if (!quillRef.current) return { delta: '', html: '' };
+        return {
+          delta: JSON.stringify(quillRef.current.getContents()),
+          html: quillRef.current.root.innerHTML,
+        };
       },
-      placeholder: "Start writing...",
-    });
-
-    quillRef.current = quill;
-
-    if (initialContent) {
-      try {
-        const delta = JSON.parse(initialContent);
-        quill.setContents(delta);
-      } catch {
-        quill.setText(initialContent);
-      }
-    }
-
-    quill.on("text-change", (delta, oldDelta, source) => {
-      if (source !== "user") return;
-
-      const contents = quill.getContents();
-      const html = quill.root.innerHTML;
-
-      if (onChange) {
-        onChange(contents, html);
-      }
-
-      if (saveTimerRef.current) {
-        clearTimeout(saveTimerRef.current);
-      }
-      saveTimerRef.current = setTimeout(() => {
-        if (onSave) {
-          onSave(JSON.stringify(contents), html);
+      setContent: (deltaString) => {
+        if (!quillRef.current) return;
+        try {
+          const delta = JSON.parse(deltaString);
+          quillRef.current.setContents(delta, 'api');
+        } catch {
+          quillRef.current.setText(deltaString, 'api');
         }
-      }, 2000);
-    });
-  }, []);
+      },
+      applyDelta: (delta) => {
+        if (!quillRef.current) return;
+        quillRef.current.updateContents(delta, 'api');
+      },
+      getQuill: () => quillRef.current,
+    }));
 
-  useEffect(() => {
-    if (quillRef.current && initialContent) {
-      const currentLength = quillRef.current.getLength();
-      if (currentLength <= 1) {
+    useEffect(() => {
+      if (quillRef.current) return;
+
+      const quill = new Quill(editorRef.current, {
+        theme: "snow",
+        modules: {
+          toolbar: TOOLBAR_OPTIONS,
+        },
+        placeholder: "Start writing...",
+      });
+
+      quillRef.current = quill;
+
+      if (initialContent) {
         try {
           const delta = JSON.parse(initialContent);
-          quillRef.current.setContents(delta);
+          quill.setContents(delta);
         } catch {
-          quillRef.current.setText(initialContent);
+          quill.setText(initialContent);
         }
       }
-    }
-  }, [initialContent]);
 
-  useEffect(() => {
-    return () => {
-      if (saveTimerRef.current) {
-        clearTimeout(saveTimerRef.current);
+      quill.on("text-change", (delta, oldDelta, source) => {
+        if (source !== "user") return;
+
+        const contents = quill.getContents();
+        const html = quill.root.innerHTML;
+
+        if (onChange) {
+          onChange(contents, html);
+        }
+
+        if (saveTimerRef.current) {
+          clearTimeout(saveTimerRef.current);
+        }
+        saveTimerRef.current = setTimeout(() => {
+          if (onSave) {
+            onSave(JSON.stringify(contents), html);
+          }
+        }, 2000);
+      });
+    }, []);
+
+    useEffect(() => {
+      if (quillRef.current && initialContent) {
+        const currentLength = quillRef.current.getLength();
+        if (currentLength <= 1) {
+          try {
+            const delta = JSON.parse(initialContent);
+            quillRef.current.setContents(delta);
+          } catch {
+            quillRef.current.setText(initialContent);
+          }
+        }
       }
-    };
-  }, []);
+    }, [initialContent]);
 
-  return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <div ref={editorRef} style={{ flex: 1 }} />
-    </div>
-  );
-}
+    useEffect(() => {
+      return () => {
+        if (saveTimerRef.current) {
+          clearTimeout(saveTimerRef.current);
+        }
+      };
+    }, []);
+
+    return (
+      <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        <div ref={editorRef} style={{ flex: 1 }} />
+      </div>
+    );
+  },
+);
 
 export default Editor;
