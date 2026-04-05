@@ -34,13 +34,22 @@ export function AuthProvider({ children }) {
     return data;
   };
 
+  const updateUser = (updatedData) => {
+    const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+    const newUser = { ...currentUser, ...updatedData };
+    localStorage.setItem("user", JSON.stringify(newUser));
+    setUser(newUser);
+  };
+
   const logout = () => {
     authService.logout();
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+    <AuthContext.Provider
+      value={{ user, login, register, logout, updateUser, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );
