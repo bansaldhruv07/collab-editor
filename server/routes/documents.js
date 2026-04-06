@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Document = require("../models/Document");
 const { protect } = require("../middleware/auth");
-const User = require('../models/User');
+const User = require("../models/User");
 
 router.get("/", protect, async (req, res, next) => {
   try {
@@ -80,6 +80,7 @@ router.patch("/:id/title", protect, async (req, res, next) => {
   }
 });
 
+// PUT /api/documents/:id/content — save document content and record version
 router.put("/:id/content", protect, async (req, res, next) => {
   try {
     const document = await Document.findById(req.params.id);
@@ -98,17 +99,179 @@ router.put("/:id/content", protect, async (req, res, next) => {
       return res.status(403).json({ message: "Access denied" });
     }
 
-    document.content = req.body.content;
-    document.htmlContent = req.body.htmlContent;
+    const { content, htmlContent, label } = req.body;
+
+    // Only create a new version if content actually changed
+    // This prevents duplicate versions from rapid saves
+    const contentChanged = content !== document.content;
+
+    if (contentChanged) {
+      // Add a new version entry
+      document.versions.push({
+        content,
+        htmlContent: htmlContent || "",
+        savedBy: req.user._id,
+        savedAt: new Date(),
+        label: label || "",
+      });
+
+      // Keep only the last 50 versions to prevent unbounded growth
+      // This is called a "rolling window" — a real pattern used in production
+      if (document.versions.length > 50) {
+        document.versions = document.versions.slice(-50);
+      }
+    }
+
+    // Always update the current content
+    document.content = content;
+    document.htmlContent = htmlContent || "";
     document.lastEditedBy = req.user._id;
 
     await document.save();
 
-    res.json({ message: "Saved", updatedAt: document.updatedAt });
+    res.json({
+      message: "Saved",
+      updatedAt: document.updatedAt,
+      versionCount: document.versions.length,
+    });
   } catch (error) {
     next(error);
   }
 });
+// GET /api/documents/:id/versions — get version history list
+// Returns version metadata only (not full content) for performance
+router.get("/:id/versions", protect, async (req, res, next) => {
+  try {
+    const document = await Document.findById(req.params.id).populate(
+      "versions.savedBy",
+      "name email",
+    );
+
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    const hasAccess =
+      document.owner.toString() === req.user._id.toString() ||
+      document.collaborators.some(
+        (c) => c.toString() === req.user._id.toString(),
+      );
+
+    if (!hasAccess) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    // Return versions in reverse order (newest first)
+    // and strip full content to keep response small
+    const versions = document.versions
+      .slice()
+      .reverse()
+      .map((v, index) => ({
+        _id: v._id,
+        savedBy: v.savedBy,
+        savedAt: v.savedAt,
+        label: v.label,
+        // Index in the original array (needed to fetch full content)
+        versionIndex: document.versions.length - 1 - index,
+      }));
+
+    res.json({ versions, total: versions.length });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /api/documents/:id/versions/:versionId — get one specific version's content
+router.get("/:id/versions/:versionId", protect, async (req, res, next) => {
+  try {
+    const document = await Document.findById(req.params.id);
+
+    if (!document) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+
+    const hasAccess =
+      document.owner.toString() === req.user._id.toString() ||
+      document.collaborators.some(
+        (c) => c.toString() === req.user._id.toString(),
+      );
+
+    if (!hasAccess) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    // Find the specific version by its subdocument ID
+    const version = document.versions.id(req.params.versionId);
+
+    if (!version) {
+      return res.status(404).json({ message: "Version not found" });
+    }
+
+    res.json({
+      _id: version._id,
+      content: version.content,
+      htmlContent: version.htmlContent,
+      savedAt: version.savedAt,
+      label: version.label,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/documents/:id/versions/:versionId/restore
+// Restore a previous version as the current document content
+router.post(
+  "/:id/versions/:versionId/restore",
+  protect,
+  async (req, res, next) => {
+    try {
+      const document = await Document.findById(req.params.id);
+
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+
+      // Only owner can restore versions
+      if (document.owner.toString() !== req.user._id.toString()) {
+        return res
+          .status(403)
+          .json({ message: "Only the owner can restore versions" });
+      }
+
+      const version = document.versions.id(req.params.versionId);
+
+      if (!version) {
+        return res.status(404).json({ message: "Version not found" });
+      }
+
+      // Save the current content as a new version before restoring
+      // This way the restore itself is undoable
+      document.versions.push({
+        content: document.content,
+        htmlContent: document.htmlContent,
+        savedBy: req.user._id,
+        savedAt: new Date(),
+        label: `Before restore to ${new Date(version.savedAt).toLocaleString()}`,
+      });
+
+      // Restore the version
+      document.content = version.content;
+      document.htmlContent = version.htmlContent;
+      document.lastEditedBy = req.user._id;
+
+      await document.save();
+
+      res.json({
+        message: "Version restored",
+        content: version.content,
+        htmlContent: version.htmlContent,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 router.delete("/:id", protect, async (req, res, next) => {
   try {

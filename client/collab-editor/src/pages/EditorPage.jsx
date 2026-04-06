@@ -10,6 +10,7 @@ import { useSocket } from "../context/SocketContext";
 import PresenceAvatars from "../components/PresenceAvatars";
 import useKeyboardShortcut from "../hooks/useKeyboardShortcut";
 import { useToast } from "../components/Toast";
+import VersionHistoryPanel from "../components/VersionHistoryPanel";
 
 function EditorPage() {
   const { id } = useParams();
@@ -30,6 +31,7 @@ function EditorPage() {
   const [activeUsers, setActiveUsers] = useState([]);
   const { socket } = useSocket();
   const { addToast } = useToast();
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
 
   useEffect(() => {
     fetchDocument();
@@ -133,6 +135,11 @@ function EditorPage() {
     saved: { text: "✓ Saved", color: "#16A34A" },
     saving: { text: "⟳ Saving...", color: "#9CA3AF" },
     unsaved: { text: "● Unsaved", color: "#D97706" },
+  };
+
+  const handleRestore = (newContent) => {
+    fetchDocument();
+    addToast("Document restored to previous version", "success");
   };
 
   if (loading) {
@@ -296,6 +303,23 @@ function EditorPage() {
         >
           👥 Share
         </button>
+
+        <button
+          onClick={() => setShowVersionHistory((prev) => !prev)}
+          style={{
+            padding: "7px 16px",
+            background: showVersionHistory ? "#EEF2FF" : "transparent",
+            color: showVersionHistory ? "#4F46E5" : "#6B7280",
+            border: "1px solid",
+            borderColor: showVersionHistory ? "#C7D2FE" : "#E5E7EB",
+            borderRadius: "8px",
+            fontSize: "13px",
+            fontWeight: "500",
+            cursor: "pointer",
+          }}
+        >
+          🕐 History
+        </button>
         <PresenceAvatars users={activeUsers} currentUserId={user?._id} />
 
         <div
@@ -354,16 +378,16 @@ function EditorPage() {
         </div>
       </nav>
 
-      <div
-        style={{
-          flex: 1,
-          maxWidth: "860px",
-          width: "100%",
-          margin: "0 auto",
-          padding: "0",
-          background: "#fff",
-        }}
-      >
+      <div style={{
+        flex: 1,
+        maxWidth: '860px',
+        width: '100%',
+        margin: '0 auto',
+        padding: '0',
+        background: '#fff',
+        marginRight: showVersionHistory ? '320px' : '0',
+        transition: 'margin-right 0.3s ease',
+      }}>
         <Editor
           ref={editorRef}
           documentId={id}
@@ -378,6 +402,15 @@ function EditorPage() {
           documentId={id}
           isOwner={isOwner}
           onClose={() => setShowShareModal(false)}
+        />
+      )}
+
+      {showVersionHistory && (
+        <VersionHistoryPanel
+          documentId={id}
+          isOwner={isOwner}
+          onRestore={handleRestore}
+          onClose={() => setShowVersionHistory(false)}
         />
       )}
     </div>

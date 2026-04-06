@@ -48,6 +48,25 @@ const deleteDocument = async (id) => {
   return response.data;
 };
 
+const getVersions = async (id) => {
+  const response = await api.get(`/documents/${id}/versions`);
+  return response.data;
+};
+
+const getVersion = async (documentId, versionId) => {
+  const response = await api.get(
+    `/documents/${documentId}/versions/${versionId}`,
+  );
+  return response.data;
+};
+
+const restoreVersion = async (documentId, versionId) => {
+  const response = await api.post(
+    `/documents/${documentId}/versions/${versionId}/restore`,
+  );
+  return response.data;
+};
+
 const documentService = {
   getDocuments,
   getDocument,
@@ -58,6 +77,9 @@ const documentService = {
   getCollaborators,
   addCollaborator,
   removeCollaborator,
+  getVersions,
+  getVersion,
+  restoreVersion,
 };
 
 export default documentService;

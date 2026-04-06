@@ -13,6 +13,21 @@ const TOOLBAR_OPTIONS = [
   ["clean"],
 ];
 
+const [wordCount, setWordCount] = useState(0);
+
+const handleChange = (delta, html) => {
+  setSaveStatus("unsaved");
+
+  if (editorRef.current) {
+    const quill = editorRef.current.getQuill();
+    if (quill) {
+      const text = quill.getText().trim();
+      const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
+      setWordCount(words);
+    }
+  }
+};
+
 const Editor = forwardRef(
   ({ documentId, initialContent, onSave, onChange }, ref) => {
     const editorRef = useRef(null);
@@ -21,26 +36,42 @@ const Editor = forwardRef(
 
     useImperativeHandle(ref, () => ({
       getContent: () => {
-        if (!quillRef.current) return { delta: '', html: '' };
+        if (!quillRef.current) return { delta: "", html: "" };
         return {
           delta: JSON.stringify(quillRef.current.getContents()),
           html: quillRef.current.root.innerHTML,
         };
       },
+
       setContent: (deltaString) => {
         if (!quillRef.current) return;
         try {
           const delta = JSON.parse(deltaString);
-          quillRef.current.setContents(delta, 'api');
+          quillRef.current.setContents(delta, "api");
         } catch {
-          quillRef.current.setText(deltaString, 'api');
+          quillRef.current.setText(deltaString, "api");
         }
       },
+
       applyDelta: (delta) => {
         if (!quillRef.current) return;
-        quillRef.current.updateContents(delta, 'api');
+
+        const currentSelection = quillRef.current.getSelection();
+
+        quillRef.current.updateContents(delta, "api");
+
+        if (currentSelection) {
+          quillRef.current.setSelection(currentSelection, "api");
+        }
       },
+
       getQuill: () => quillRef.current,
+
+      focus: () => {
+        if (quillRef.current) {
+          quillRef.current.focus();
+        }
+      },
     }));
 
     useEffect(() => {
