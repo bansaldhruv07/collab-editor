@@ -88,7 +88,7 @@ function SettingsPage() {
   };
 
   return (
-    <div style={{ maxWidth: '640px', margin: '0 auto', padding: '40px 24px' }}>
+    <div style={{ maxWidth: '640px', margin: '0 auto', padding: '24px 16px' }}>
 
       <div style={{ marginBottom: '32px' }}>
         <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#111827' }}>

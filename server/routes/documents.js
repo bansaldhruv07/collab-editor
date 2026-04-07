@@ -37,7 +37,8 @@ router.get("/:id", protect, async (req, res, next) => {
   try {
     const document = await Document.findById(req.params.id)
       .populate("owner", "name email")
-      .populate("collaborators", "name email");
+      .populate("collaborators", "name email")
+      .populate("lastEditedBy", "name email");
 
     if (!document) {
       return res.status(404).json({ message: "Document not found" });
@@ -80,7 +81,6 @@ router.patch("/:id/title", protect, async (req, res, next) => {
   }
 });
 
-// PUT /api/documents/:id/content — save document content and record version
 router.put("/:id/content", protect, async (req, res, next) => {
   try {
     const document = await Document.findById(req.params.id);
@@ -101,12 +101,10 @@ router.put("/:id/content", protect, async (req, res, next) => {
 
     const { content, htmlContent, label } = req.body;
 
-    // Only create a new version if content actually changed
-    // This prevents duplicate versions from rapid saves
     const contentChanged = content !== document.content;
 
     if (contentChanged) {
-      // Add a new version entry
+      
       document.versions.push({
         content,
         htmlContent: htmlContent || "",
@@ -115,14 +113,11 @@ router.put("/:id/content", protect, async (req, res, next) => {
         label: label || "",
       });
 
-      // Keep only the last 50 versions to prevent unbounded growth
-      // This is called a "rolling window" — a real pattern used in production
       if (document.versions.length > 50) {
         document.versions = document.versions.slice(-50);
       }
     }
 
-    // Always update the current content
     document.content = content;
     document.htmlContent = htmlContent || "";
     document.lastEditedBy = req.user._id;
@@ -138,8 +133,7 @@ router.put("/:id/content", protect, async (req, res, next) => {
     next(error);
   }
 });
-// GET /api/documents/:id/versions — get version history list
-// Returns version metadata only (not full content) for performance
+
 router.get("/:id/versions", protect, async (req, res, next) => {
   try {
     const document = await Document.findById(req.params.id).populate(
@@ -161,8 +155,6 @@ router.get("/:id/versions", protect, async (req, res, next) => {
       return res.status(403).json({ message: "Access denied" });
     }
 
-    // Return versions in reverse order (newest first)
-    // and strip full content to keep response small
     const versions = document.versions
       .slice()
       .reverse()
@@ -171,7 +163,7 @@ router.get("/:id/versions", protect, async (req, res, next) => {
         savedBy: v.savedBy,
         savedAt: v.savedAt,
         label: v.label,
-        // Index in the original array (needed to fetch full content)
+        
         versionIndex: document.versions.length - 1 - index,
       }));
 
@@ -181,7 +173,6 @@ router.get("/:id/versions", protect, async (req, res, next) => {
   }
 });
 
-// GET /api/documents/:id/versions/:versionId — get one specific version's content
 router.get("/:id/versions/:versionId", protect, async (req, res, next) => {
   try {
     const document = await Document.findById(req.params.id);
@@ -200,7 +191,6 @@ router.get("/:id/versions/:versionId", protect, async (req, res, next) => {
       return res.status(403).json({ message: "Access denied" });
     }
 
-    // Find the specific version by its subdocument ID
     const version = document.versions.id(req.params.versionId);
 
     if (!version) {
@@ -219,8 +209,6 @@ router.get("/:id/versions/:versionId", protect, async (req, res, next) => {
   }
 });
 
-// POST /api/documents/:id/versions/:versionId/restore
-// Restore a previous version as the current document content
 router.post(
   "/:id/versions/:versionId/restore",
   protect,
@@ -232,7 +220,6 @@ router.post(
         return res.status(404).json({ message: "Document not found" });
       }
 
-      // Only owner can restore versions
       if (document.owner.toString() !== req.user._id.toString()) {
         return res
           .status(403)
@@ -245,8 +232,6 @@ router.post(
         return res.status(404).json({ message: "Version not found" });
       }
 
-      // Save the current content as a new version before restoring
-      // This way the restore itself is undoable
       document.versions.push({
         content: document.content,
         htmlContent: document.htmlContent,
@@ -255,7 +240,6 @@ router.post(
         label: `Before restore to ${new Date(version.savedAt).toLocaleString()}`,
       });
 
-      // Restore the version
       document.content = version.content;
       document.htmlContent = version.htmlContent;
       document.lastEditedBy = req.user._id;

@@ -10,6 +10,7 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose }) {
   const [previewLoading, setPreviewLoading] = useState(false);
   const [restoring, setRestoring] = useState(false);
   const { addToast } = useToast();
+  const isMobile = window.innerWidth < 640;
 
   useEffect(() => {
     fetchVersions();
@@ -96,21 +97,25 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose }) {
   };
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        right: 0,
-        top: "60px",
-        bottom: 0,
-        width: "320px",
-        background: "#fff",
-        borderLeft: "1px solid #E5E7EB",
-        display: "flex",
-        flexDirection: "column",
-        zIndex: 40,
-        boxShadow: "-4px 0 16px rgba(0,0,0,0.06)",
-      }}
-    >
+    <div style={{
+      position: 'fixed',
+      right: isMobile ? 0 : 0,
+      bottom: isMobile ? 0 : 0,
+      top: isMobile ? 'auto' : '60px',
+      left: isMobile ? 0 : 'auto',
+      width: isMobile ? '100%' : '320px',
+      height: isMobile ? '60vh' : 'auto',
+      background: '#fff',
+      borderLeft: isMobile ? 'none' : '1px solid #E5E7EB',
+      borderTop: isMobile ? '1px solid #E5E7EB' : 'none',
+      borderRadius: isMobile ? '16px 16px 0 0' : '0',
+      display: 'flex',
+      flexDirection: 'column',
+      zIndex: 40,
+      boxShadow: isMobile
+        ? '0 -4px 16px rgba(0,0,0,0.1)'
+        : '-4px 0 16px rgba(0,0,0,0.06)',
+    }}>
       <div
         style={{
           padding: "20px",

@@ -11,12 +11,13 @@ import PresenceAvatars from "../components/PresenceAvatars";
 import useKeyboardShortcut from "../hooks/useKeyboardShortcut";
 import { useToast } from "../components/Toast";
 import VersionHistoryPanel from "../components/VersionHistoryPanel";
+import DocumentStats from '../components/DocumentStats';
 
 function EditorPage() {
   const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
-
+  const [showStats, setShowStats] = useState(false);
   const [document, setDocument] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -32,6 +33,7 @@ function EditorPage() {
   const { socket } = useSocket();
   const { addToast } = useToast();
   const [showVersionHistory, setShowVersionHistory] = useState(false);
+  const [lastEditedBy, setLastEditedBy] = useState(null);
 
   useEffect(() => {
     fetchDocument();
@@ -49,6 +51,9 @@ function EditorPage() {
       setLoading(true);
       const data = await documentService.getDocument(id);
       setDocument(data);
+      if (data.lastEditedBy) {
+        setLastEditedBy(data.lastEditedBy);
+      }
       setTitleValue(data.title);
       setIsOwner(data.owner._id === user._id || data.owner === user._id);
     } catch (err) {
@@ -305,7 +310,10 @@ function EditorPage() {
         </button>
 
         <button
-          onClick={() => setShowVersionHistory((prev) => !prev)}
+          onClick={() => {
+            setShowVersionHistory(prev => !prev);
+            setShowStats(false);  
+          }}
           style={{
             padding: "7px 16px",
             background: showVersionHistory ? "#EEF2FF" : "transparent",
@@ -320,7 +328,43 @@ function EditorPage() {
         >
           🕐 History
         </button>
+
+        <button
+          onClick={() => {
+            setShowStats(prev => !prev);
+            setShowVersionHistory(false);  
+          }}
+          style={{
+            padding: '7px 16px',
+            background: showStats ? '#EEF2FF' : 'transparent',
+            color: showStats ? '#4F46E5' : '#6B7280',
+            border: '1px solid',
+            borderColor: showStats ? '#C7D2FE' : '#E5E7EB',
+            borderRadius: '8px',
+            fontSize: '13px',
+            fontWeight: '500',
+            cursor: 'pointer',
+          }}
+        >
+          📊 Stats
+        </button>
         <PresenceAvatars users={activeUsers} currentUserId={user?._id} />
+
+        {lastEditedBy && lastEditedBy._id !== user?._id && (
+          <span style={{
+            fontSize: '12px',
+            color: '#9CA3AF',
+            whiteSpace: 'nowrap',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+          }}>
+            Last edit by{' '}
+            <strong style={{ color: '#6B7280' }}>
+              {lastEditedBy.name}
+            </strong>
+          </span>
+        )}
 
         <div
           title="Keyboard shortcuts: Ctrl+S to save"
@@ -328,7 +372,7 @@ function EditorPage() {
             fontSize: "12px",
             color: "#9CA3AF",
             cursor: "default",
-            display: "flex",
+            display: window.innerWidth < 640 ? 'none' : 'flex',
             alignItems: "center",
             gap: "4px",
           }}
@@ -383,9 +427,8 @@ function EditorPage() {
         maxWidth: '860px',
         width: '100%',
         margin: '0 auto',
-        padding: '0',
         background: '#fff',
-        marginRight: showVersionHistory ? '320px' : '0',
+        marginRight: (showVersionHistory || showStats) ? '280px' : '0',
         transition: 'margin-right 0.3s ease',
       }}>
         <Editor
@@ -411,6 +454,15 @@ function EditorPage() {
           isOwner={isOwner}
           onRestore={handleRestore}
           onClose={() => setShowVersionHistory(false)}
+        />
+      )}
+
+      {showStats && (
+        <DocumentStats
+          quill={editorRef.current?.getQuill()}
+          documentId={id}
+          createdAt={document?.createdAt}
+          updatedAt={document?.updatedAt}
         />
       )}
     </div>

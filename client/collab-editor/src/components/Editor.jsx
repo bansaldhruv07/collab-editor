@@ -141,6 +141,28 @@ const Editor = forwardRef(
 
     return (
       <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        <div style={{
+          height: '52px',
+          background: '#fff',
+          borderBottom: '1px solid #E5E7EB',
+          display: 'flex',
+          alignItems: 'center',
+          padding: '0 12px',
+          gap: '8px',
+          overflowX: 'auto',
+          overflowY: 'hidden',
+          flexShrink: 0,
+          WebkitOverflowScrolling: 'touch',
+        }}>
+          <span style={{
+            fontSize: '12px',
+            color: '#9CA3AF',
+            whiteSpace: 'nowrap',
+            display: window.innerWidth < 640 ? 'none' : 'inline',
+          }}>
+            {wordCount} words
+          </span>
+        </div>
         <div ref={editorRef} style={{ flex: 1 }} />
       </div>
     );

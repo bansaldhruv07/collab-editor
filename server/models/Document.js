@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 
-// Each saved version is a subdocument with its own schema
 const versionSchema = new mongoose.Schema({
   content: {
     type: String,
@@ -19,7 +18,7 @@ const versionSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  // A short label helps users identify versions in the UI
+  
   label: {
     type: String,
     default: "",
@@ -56,7 +55,7 @@ const documentSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    // Append-only array of all saved versions
+    
     versions: [versionSchema],
   },
   {

@@ -104,18 +104,17 @@ function ShareModal({ documentId, onClose, isOwner }) {
         zIndex: 100,
       }}
     >
-      <div
-        style={{
-          background: "#fff",
-          borderRadius: "16px",
-          padding: "32px",
-          width: "100%",
-          maxWidth: "480px",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.2)",
-          maxHeight: "90vh",
-        overflowY: "auto",
-        }}
-      >
+      <div style={{
+        background: '#fff',
+        borderRadius: window.innerWidth < 640 ? '16px 16px 0 0' : '16px',
+        padding: '32px',
+        width: '100%',
+        maxWidth: window.innerWidth < 640 ? '100%' : '480px',
+        maxHeight: '90vh',
+        overflowY: 'auto',
+        position: window.innerWidth < 640 ? 'fixed' : 'relative',
+        bottom: window.innerWidth < 640 ? 0 : 'auto',
+      }}>
         <div
           style={{
             display: "flex",

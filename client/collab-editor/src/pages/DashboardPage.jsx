@@ -9,16 +9,17 @@ import Alert from "../components/Alert";
 import { DocumentCardSkeleton } from "../components/Skeleton";
 import useKeyboardShortcut from "../hooks/useKeyboardShortcut";
 import { useToast } from "../components/Toast";
+import TemplatePicker from "../components/TemplatePicker";
 
 function DashboardPage() {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [showModal, setShowModal] = useState(false);
+  const [showTemplatePicker, setShowTemplatePicker] = useState(false);
   const { addToast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
 
-  useKeyboardShortcut("n", () => setShowModal(true));
+  useKeyboardShortcut("n", () => setShowTemplatePicker(true));
 
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -43,13 +44,26 @@ function DashboardPage() {
   const filteredDocuments = documents.filter((doc) =>
     doc.title.toLowerCase().includes(searchQuery.toLowerCase()),
   );
-  const handleCreate = async (title) => {
+  const handleCreate = async (template) => {
     try {
+      
+      const title =
+        template.id === "blank" ? "Untitled Document" : template.name;
+
       const newDoc = await documentService.createDocument(title);
-      setShowModal(false);
+
+      if (template.content && template.id !== "blank") {
+        await documentService.saveContent(
+          newDoc._id,
+          template.content,
+          template.htmlContent,
+        );
+      }
+
+      setShowTemplatePicker(false);
       navigate(`/document/${newDoc._id}`);
     } catch (err) {
-      setError("Failed to create document.");
+      addToast("Failed to create document", "error");
     }
   };
 
@@ -151,7 +165,9 @@ function DashboardPage() {
                   : "No documents yet"}
             </p>
           </div>
-          <Button onClick={() => setShowModal(true)}>+ New Document</Button>
+          <Button onClick={() => setShowTemplatePicker(true)}>
+            + New Document
+          </Button>
         </div>
 
         <div style={{ marginBottom: "24px" }}>
@@ -258,16 +274,24 @@ function DashboardPage() {
             >
               Create your first document and start collaborating in real time
             </p>
-            <Button onClick={() => setShowModal(true)}>
+            <Button onClick={() => setShowTemplatePicker(true)}>
               + Create your first document
             </Button>
           </div>
         )}
 
         {!loading && searchQuery && filteredDocuments.length === 0 && (
-          <div style={{ textAlign: "center", padding: "60px 24px", color: "#9CA3AF" }}>
+          <div
+            style={{
+              textAlign: "center",
+              padding: "60px 24px",
+              color: "#9CA3AF",
+            }}
+          >
             <div style={{ fontSize: "40px", marginBottom: "12px" }}>🔍</div>
-            <p style={{ fontSize: "16px" }}>No documents match "{searchQuery}"</p>
+            <p style={{ fontSize: "16px" }}>
+              No documents match "{searchQuery}"
+            </p>
           </div>
         )}
 
@@ -292,10 +316,10 @@ function DashboardPage() {
         )}
       </main>
 
-      {showModal && (
-        <NewDocumentModal
-          onClose={() => setShowModal(false)}
-          onCreate={handleCreate}
+      {showTemplatePicker && (
+        <TemplatePicker
+          onClose={() => setShowTemplatePicker(false)}
+          onSelect={handleCreate}
         />
       )}
     </div>
