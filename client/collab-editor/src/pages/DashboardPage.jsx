@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import documentService from "../services/documentService";
@@ -10,8 +10,11 @@ import { DocumentCardSkeleton } from "../components/Skeleton";
 import useKeyboardShortcut from "../hooks/useKeyboardShortcut";
 import { useToast } from "../components/Toast";
 import TemplatePicker from "../components/TemplatePicker";
+import useRenderCount from "../hooks/useRenderCount";
+import ProgressBar from "../components/ProgressBar";
 
 function DashboardPage() {
+  useRenderCount("DashboardPage");
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -28,11 +31,11 @@ function DashboardPage() {
     fetchDocuments();
   }, []);
 
-  const fetchDocuments = async () => {
+  const fetchDocuments = async (forceRefresh = false) => {
     try {
       setLoading(true);
       setError("");
-      const data = await documentService.getDocuments();
+      const data = await documentService.getDocuments(forceRefresh);
       setDocuments(data);
     } catch (err) {
       setError("Failed to load documents. Please try again.");
@@ -41,12 +44,13 @@ function DashboardPage() {
     }
   };
 
-  const filteredDocuments = documents.filter((doc) =>
-    doc.title.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  const filteredDocuments = useMemo(() => {
+    if (!searchQuery.trim()) return documents;
+    const query = searchQuery.toLowerCase().trim();
+    return documents.filter((doc) => doc.title.toLowerCase().includes(query));
+  }, [documents, searchQuery]);
   const handleCreate = async (template) => {
     try {
-      
       const title =
         template.id === "blank" ? "Untitled Document" : template.name;
 
@@ -67,7 +71,7 @@ function DashboardPage() {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = useCallback(async (id) => {
     if (!window.confirm("Delete this document? This cannot be undone.")) return;
     try {
       await documentService.deleteDocument(id);
@@ -76,21 +80,24 @@ function DashboardPage() {
     } catch (err) {
       addToast("Failed to delete document", "error");
     }
-  };
+  }, []);
 
-  const handleRename = async (id, title) => {
-    try {
-      const updated = await documentService.updateTitle(id, title);
-      setDocuments((prev) =>
-        prev.map((doc) =>
-          doc._id === id ? { ...doc, title: updated.title } : doc,
-        ),
-      );
-      addToast("Document renamed", "success");
-    } catch (err) {
-      addToast("Failed to rename document", "error");
-    }
-  };
+  const handleRename = useCallback(
+    async (id, title) => {
+      try {
+        const updated = await documentService.updateTitle(id, title);
+        setDocuments((prev) =>
+          prev.map((doc) =>
+            doc._id === id ? { ...doc, title: updated.title } : doc,
+          ),
+        );
+        addToast("Document renamed", "success");
+      } catch (err) {
+        addToast("Failed to rename document", "error");
+      }
+    },
+    [addToast],
+  );
 
   const handleLogout = () => {
     logout();
@@ -98,7 +105,9 @@ function DashboardPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#F9FAFB" }}>
+    <>
+      <ProgressBar loading={loading} />
+      <div style={{ minHeight: "100vh", background: "#F9FAFB" }}>
       <nav
         style={{
           background: "#fff",
@@ -165,9 +174,26 @@ function DashboardPage() {
                   : "No documents yet"}
             </p>
           </div>
-          <Button onClick={() => setShowTemplatePicker(true)}>
-            + New Document
-          </Button>
+          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+            <button
+              onClick={() => fetchDocuments(true)}
+              style={{
+                background: "none",
+                border: "1px solid #E5E7EB",
+                borderRadius: "8px",
+                padding: "8px 10px",
+                cursor: "pointer",
+                fontSize: "14px",
+                color: "#6B7280",
+              }}
+              title="Refresh documents"
+            >
+              ↻
+            </button>
+            <Button onClick={() => setShowTemplatePicker(true)}>
+              + New Document
+            </Button>
+          </div>
         </div>
 
         <div style={{ marginBottom: "24px" }}>
@@ -322,7 +348,8 @@ function DashboardPage() {
           onSelect={handleCreate}
         />
       )}
-    </div>
+      </div>
+    </>
   );
 }
 

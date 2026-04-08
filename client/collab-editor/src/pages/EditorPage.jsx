@@ -12,6 +12,8 @@ import useKeyboardShortcut from "../hooks/useKeyboardShortcut";
 import { useToast } from "../components/Toast";
 import VersionHistoryPanel from "../components/VersionHistoryPanel";
 import DocumentStats from '../components/DocumentStats';
+import useDebouncedCallback from '../hooks/useDebouncedCallback';
+import ProgressBar from '../components/ProgressBar';
 
 function EditorPage() {
   const { id } = useParams();
@@ -34,6 +36,7 @@ function EditorPage() {
   const { addToast } = useToast();
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [lastEditedBy, setLastEditedBy] = useState(null);
+  const [wordCount, setWordCount] = useState(0);
 
   useEffect(() => {
     fetchDocument();
@@ -103,8 +106,24 @@ function EditorPage() {
     }
   });
 
+  const debouncedSave = useDebouncedCallback(
+    async (delta, html) => {
+      await handleSave(delta, html);
+    },
+    2000
+  );
+
   const handleChange = (delta, html) => {
     setSaveStatus("unsaved");
+    if (editorRef.current) {
+      const quill = editorRef.current.getQuill();
+      if (quill) {
+        const text = quill.getText().trim();
+        const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
+        setWordCount(words);
+      }
+    }
+    debouncedSave(delta, html);
   };
 
   const handleTitleSave = async () => {
@@ -149,7 +168,9 @@ function EditorPage() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: "100vh", background: "#fff" }}>
+      <>
+        <ProgressBar loading={loading} />
+        <div style={{ minHeight: "100vh", background: "#fff" }}>
         <div
           style={{
             height: "60px",
@@ -179,13 +200,16 @@ function EditorPage() {
           />
         </div>
         <EditorSkeleton />
-      </div>
+        </div>
+      </>
     );
   }
 
   if (error) {
     return (
-      <div
+      <>
+        <ProgressBar loading={loading} />
+        <div
         style={{
           minHeight: "100vh",
           display: "flex",
@@ -200,12 +224,15 @@ function EditorPage() {
         <Button onClick={() => navigate("/dashboard")} variant="secondary">
           Back to Dashboard
         </Button>
-      </div>
+        </div>
+      </>
     );
   }
 
   return (
-    <div
+    <>
+      <ProgressBar loading={loading} />
+      <div
       style={{
         minHeight: "100vh",
         background: "#fff",
@@ -437,6 +464,7 @@ function EditorPage() {
           initialContent={document?.content}
           onSave={handleSave}
           onChange={handleChange}
+          wordCount={wordCount}
         />
       </div>
 
@@ -465,7 +493,8 @@ function EditorPage() {
           updatedAt={document?.updatedAt}
         />
       )}
-    </div>
+      </div>
+    </>
   );
 }
 

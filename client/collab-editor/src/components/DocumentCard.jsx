@@ -1,8 +1,8 @@
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { useEffect, useRef } from "react";
 
-function DocumentCard({ document, onDelete, onRename, currentUserId }) {
+import { memo, useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+const DocumentCard = memo(function DocumentCard({ document, onDelete, onRename, currentUserId }) {
   const navigate = useNavigate();
   const isOwner = document.owner?._id === currentUserId || document.owner === currentUserId;
   const [showMenu, setShowMenu] = useState(false);
@@ -261,7 +261,7 @@ function DocumentCard({ document, onDelete, onRename, currentUserId }) {
       )}
     </div>
   );
-}
+});
 
 const menuItemStyle = {
   display: "block",

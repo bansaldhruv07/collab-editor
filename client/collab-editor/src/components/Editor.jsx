@@ -13,26 +13,10 @@ const TOOLBAR_OPTIONS = [
   ["clean"],
 ];
 
-const [wordCount, setWordCount] = useState(0);
-
-const handleChange = (delta, html) => {
-  setSaveStatus("unsaved");
-
-  if (editorRef.current) {
-    const quill = editorRef.current.getQuill();
-    if (quill) {
-      const text = quill.getText().trim();
-      const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
-      setWordCount(words);
-    }
-  }
-};
-
 const Editor = forwardRef(
-  ({ documentId, initialContent, onSave, onChange }, ref) => {
+  ({ documentId, initialContent, onSave, onChange, wordCount }, ref) => {
     const editorRef = useRef(null);
     const quillRef = useRef(null);
-    const saveTimerRef = useRef(null);
 
     useImperativeHandle(ref, () => ({
       getContent: () => {
@@ -55,11 +39,8 @@ const Editor = forwardRef(
 
       applyDelta: (delta) => {
         if (!quillRef.current) return;
-
         const currentSelection = quillRef.current.getSelection();
-
         quillRef.current.updateContents(delta, "api");
-
         if (currentSelection) {
           quillRef.current.setSelection(currentSelection, "api");
         }
@@ -105,15 +86,6 @@ const Editor = forwardRef(
         if (onChange) {
           onChange(contents, html);
         }
-
-        if (saveTimerRef.current) {
-          clearTimeout(saveTimerRef.current);
-        }
-        saveTimerRef.current = setTimeout(() => {
-          if (onSave) {
-            onSave(JSON.stringify(contents), html);
-          }
-        }, 2000);
       });
     }, []);
 
@@ -131,35 +103,31 @@ const Editor = forwardRef(
       }
     }, [initialContent]);
 
-    useEffect(() => {
-      return () => {
-        if (saveTimerRef.current) {
-          clearTimeout(saveTimerRef.current);
-        }
-      };
-    }, []);
-
     return (
       <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-        <div style={{
-          height: '52px',
-          background: '#fff',
-          borderBottom: '1px solid #E5E7EB',
-          display: 'flex',
-          alignItems: 'center',
-          padding: '0 12px',
-          gap: '8px',
-          overflowX: 'auto',
-          overflowY: 'hidden',
-          flexShrink: 0,
-          WebkitOverflowScrolling: 'touch',
-        }}>
-          <span style={{
-            fontSize: '12px',
-            color: '#9CA3AF',
-            whiteSpace: 'nowrap',
-            display: window.innerWidth < 640 ? 'none' : 'inline',
-          }}>
+        <div
+          style={{
+            height: "52px",
+            background: "#fff",
+            borderBottom: "1px solid #E5E7EB",
+            display: "flex",
+            alignItems: "center",
+            padding: "0 12px",
+            gap: "8px",
+            overflowX: "auto",
+            overflowY: "hidden",
+            flexShrink: 0,
+            WebkitOverflowScrolling: "touch",
+          }}
+        >
+          <span
+            style={{
+              fontSize: "12px",
+              color: "#9CA3AF",
+              whiteSpace: "nowrap",
+              display: window.innerWidth < 640 ? "none" : "inline",
+            }}
+          >
             {wordCount} words
           </span>
         </div>

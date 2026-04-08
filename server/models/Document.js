@@ -63,4 +63,12 @@ const documentSchema = new mongoose.Schema(
   },
 );
 
+documentSchema.index({ owner: 1 });
+
+documentSchema.index({ collaborators: 1 });
+
+documentSchema.index({ owner: 1, updatedAt: -1 });
+
+documentSchema.index({ title: 'text' });
+
 module.exports = mongoose.model("Document", documentSchema);
