@@ -49,6 +49,31 @@ function EditorPage() {
     }
   }, [isEditingTitle]);
 
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (saveStatus === 'unsaved' && editorRef.current) {
+        const { delta, html } = editorRef.current.getContent();
+
+        const token = localStorage.getItem('token');
+        const payload = JSON.stringify({
+          content: delta,
+          htmlContent: html,
+        });
+
+        navigator.sendBeacon(
+          `${import.meta.env.VITE_API_URL}/documents/${id}/content?token=${token}`,
+          new Blob([payload], { type: 'application/json' })
+        );
+
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [saveStatus, id]);
+
   const fetchDocument = async () => {
     try {
       setLoading(true);

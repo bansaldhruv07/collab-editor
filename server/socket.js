@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("./models/User");
+const Document = require("./models/Document");
 
 const documentRooms = new Map();
 
@@ -45,8 +46,6 @@ const initializeSocket = (io) => {
   });
 
   io.on("connection", (socket) => {
-    console.log(`User connected: ${socket.user.name} (${socket.id})`);
-
     socket.on("join-document", (documentId) => {
       socket.rooms.forEach((room) => {
         if (room !== socket.id && room !== documentId) {
@@ -77,17 +76,39 @@ const initializeSocket = (io) => {
       documentRooms.set(documentId, filtered);
 
       io.to(documentId).emit("presence-update", documentRooms.get(documentId));
-
-      console.log(`${socket.user.name} joined document ${documentId}`);
     });
 
     socket.on("leave-document", (documentId) => {
       handleLeaveDocument(socket, io, documentId);
     });
 
-    socket.on("disconnect", () => {
-      console.log(`User disconnected: ${socket.user.name}`);
+    socket.on("send-changes", ({ documentId, delta }) => {
+      socket.to(documentId).emit("receive-changes", delta);
+    });
 
+    socket.on("save-document", async ({ documentId, content, htmlContent }) => {
+      try {
+        await Document.findByIdAndUpdate(documentId, {
+          content,
+          htmlContent,
+          lastEditedBy: socket.user._id,
+          updatedAt: new Date(),
+        });
+      } catch (err) {
+        console.error("[Socket] save-document error:", err.message);
+      }
+    });
+
+    socket.on("cursor-move", ({ documentId, range }) => {
+      socket.to(documentId).emit("cursor-update", {
+        userId: socket.user._id.toString(),
+        name: socket.user.name,
+        color: getUserColor(socket.user._id.toString()),
+        range,
+      });
+    });
+
+    socket.on("disconnect", () => {
       if (socket.currentDocument) {
         handleLeaveDocument(socket, io, socket.currentDocument);
       }

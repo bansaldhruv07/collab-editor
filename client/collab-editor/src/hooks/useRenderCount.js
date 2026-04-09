@@ -5,9 +5,6 @@ function useRenderCount(componentName) {
 
   useEffect(() => {
     count.current += 1;
-    if (process.env.NODE_ENV === "development") {
-      console.log(`[Render] ${componentName}: ${count.current}`);
-    }
   });
 }
 

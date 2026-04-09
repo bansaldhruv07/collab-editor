@@ -10,11 +10,9 @@ import { DocumentCardSkeleton } from "../components/Skeleton";
 import useKeyboardShortcut from "../hooks/useKeyboardShortcut";
 import { useToast } from "../components/Toast";
 import TemplatePicker from "../components/TemplatePicker";
-import useRenderCount from "../hooks/useRenderCount";
 import ProgressBar from "../components/ProgressBar";
 
 function DashboardPage() {
-  useRenderCount("DashboardPage");
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
