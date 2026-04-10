@@ -14,7 +14,7 @@ const TOOLBAR_OPTIONS = [
 ];
 
 const Editor = forwardRef(
-  ({ documentId, initialContent, onSave, onChange, wordCount }, ref) => {
+  ({ documentId, initialContent, onSave, onChange, onCursorMove, wordCount }, ref) => {
     const editorRef = useRef(null);
     const quillRef = useRef(null);
 
@@ -53,6 +53,53 @@ const Editor = forwardRef(
           quillRef.current.focus();
         }
       },
+
+      setCursor: (userId, range, color, name) => {
+        if (!quillRef.current) return;
+
+        const existingCursor = document.querySelector(
+          `[data-cursor-id="${userId}"]`
+        );
+        if (existingCursor) existingCursor.remove();
+
+        if (!range) return;
+
+        const bounds = quillRef.current.getBounds(range.index);
+        if (!bounds) return;
+
+        const cursor = document.createElement('div');
+        cursor.setAttribute('data-cursor-id', userId);
+        cursor.style.cssText = `
+          position: absolute;
+          left: ${bounds.left}px;
+          top: ${bounds.top}px;
+          height: ${bounds.height}px;
+          width: 2px;
+          background: ${color};
+          pointer-events: none;
+          z-index: 10;
+        `;
+
+        const label = document.createElement('div');
+        label.textContent = name;
+        label.style.cssText = `
+          position: absolute;
+          top: -20px;
+          left: 0;
+          background: ${color};
+          color: white;
+          font-size: 11px;
+          padding: 2px 6px;
+          border-radius: 4px;
+          white-space: nowrap;
+          pointer-events: none;
+        `;
+
+        cursor.appendChild(label);
+
+        quillRef.current.root.style.position = 'relative';
+        quillRef.current.root.appendChild(cursor);
+      },
     }));
 
     useEffect(() => {
@@ -80,11 +127,17 @@ const Editor = forwardRef(
       quill.on("text-change", (delta, oldDelta, source) => {
         if (source !== "user") return;
 
-        const contents = quill.getContents();
         const html = quill.root.innerHTML;
 
         if (onChange) {
-          onChange(contents, html);
+          onChange(delta, html);
+        }
+      });
+
+      quill.on("selection-change", (range, oldRange, source) => {
+        if (source !== "user") return;
+        if (onCursorMove) {
+          onCursorMove(range);
         }
       });
     }, []);

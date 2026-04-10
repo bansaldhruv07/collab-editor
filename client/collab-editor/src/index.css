@@ -23,27 +23,23 @@ a {
   color: inherit;
 }
 
-/* Responsive utilities */
 @media (min-width: 640px) {
   .hide-on-mobile {
     display: inline !important;
   }
 }
 
-/* Make editor responsive */
 @media (max-width: 640px) {
   .ql-editor {
     padding: 24px 16px !important;
   }
 }
 
-/* Prevent horizontal overflow globally */
 html,
 body {
   overflow-x: hidden;
 }
 
-/* Better touch targets on mobile */
 button {
   min-height: 36px;
 }

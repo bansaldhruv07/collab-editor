@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import documentService from "../services/documentService";
@@ -32,11 +32,12 @@ function EditorPage() {
   const titleInputRef = useRef(null);
   const editorRef = useRef(null);
   const [activeUsers, setActiveUsers] = useState([]);
-  const { socket } = useSocket();
+  const { socket, isConnected } = useSocket();
   const { addToast } = useToast();
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [lastEditedBy, setLastEditedBy] = useState(null);
   const [wordCount, setWordCount] = useState(0);
+  const [remoteCursors, setRemoteCursors] = useState({});
 
   useEffect(() => {
     fetchDocument();
@@ -74,7 +75,7 @@ function EditorPage() {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [saveStatus, id]);
 
-  const fetchDocument = async () => {
+  const fetchDocument = useCallback(async () => {
     try {
       setLoading(true);
       const data = await documentService.getDocument(id);
@@ -95,21 +96,75 @@ function EditorPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, user._id]);
 
   useEffect(() => {
     if (!socket || !id) return;
 
-    socket.emit("join-document", id);
+    socket.emit('join-document', id);
 
-    socket.on("presence-update", (users) => {
+    socket.on('presence-update', (users) => {
       setTimeout(() => setActiveUsers(users), 100);
     });
 
+    socket.on('receive-changes', (delta) => {
+      if (editorRef.current) {
+        editorRef.current.applyDelta(delta);
+      }
+    });
+
+    socket.on('document-saved', ({ savedAt, savedBy }) => {
+      setSaveStatus('saved');
+      setDocument(prev => prev ? { ...prev, updatedAt: savedAt } : prev);
+    });
+
+    socket.on('version-restored', ({ restoredBy, content }) => {
+      fetchDocument();
+      addToast(`Document restored by ${restoredBy}`, 'info');
+    });
+
+    socket.on('cursor-update', ({ userId, name, color, range }) => {
+      setRemoteCursors(prev => ({
+        ...prev,
+        [userId]: { name, color, range },
+      }));
+
+      if (editorRef.current) {
+        editorRef.current.setCursor(userId, range, color, name);
+      }
+    });
+
+    socket.on('connect', () => {
+      socket.emit('join-document', id);
+      addToast('Reconnected', 'success');
+    });
+
     return () => {
-      socket.emit("leave-document", id);
-      socket.off("presence-update");
+      socket.emit('leave-document', id);
+      socket.off('presence-update');
+      socket.off('receive-changes');
+      socket.off('document-saved');
+      socket.off('version-restored');
+      socket.off('cursor-update');
+      socket.off('connect');
     };
+  }, [socket, id, fetchDocument, addToast]);
+
+  useEffect(() => {
+    if (editorRef.current) {
+      Object.entries(remoteCursors).forEach(([userId, data]) => {
+        editorRef.current.setCursor(userId, data.range, data.color, data.name);
+      });
+    }
+  }, [remoteCursors]);
+
+  const handleCursorMove = useCallback((range) => {
+    if (socket && id) {
+      socket.emit('cursor-move', {
+        documentId: id,
+        range,
+      });
+    }
   }, [socket, id]);
 
   const handleSave = async (content, htmlContent) => {
@@ -132,14 +187,32 @@ function EditorPage() {
   });
 
   const debouncedSave = useDebouncedCallback(
-    async (delta, html) => {
-      await handleSave(delta, html);
+    async (deltaOrContents, html) => {
+      if (!editorRef.current) return;
+
+      const { delta: fullContent, html: fullHtml } = editorRef.current.getContent();
+
+      if (socket && id) {
+        socket.emit('save-document', {
+          documentId: id,
+          content: fullContent,
+          htmlContent: fullHtml,
+        });
+      }
+
+      try {
+        setSaveStatus('saving');
+        await documentService.saveContent(id, fullContent, fullHtml);
+      } catch (err) {
+        setSaveStatus('unsaved');
+      }
     },
     2000
   );
 
-  const handleChange = (delta, html) => {
-    setSaveStatus("unsaved");
+  const handleChange = useCallback((delta, html) => {
+    setSaveStatus('unsaved');
+
     if (editorRef.current) {
       const quill = editorRef.current.getQuill();
       if (quill) {
@@ -148,8 +221,17 @@ function EditorPage() {
         setWordCount(words);
       }
     }
+
+    if (socket && id) {
+      socket.emit('send-changes', {
+        documentId: id,
+        delta,
+      });
+    }
+
     debouncedSave(delta, html);
-  };
+
+  }, [socket, id, debouncedSave]);
 
   const handleTitleSave = async () => {
     if (!titleValue.trim()) {
@@ -186,10 +268,18 @@ function EditorPage() {
     unsaved: { text: "● Unsaved", color: "#D97706" },
   };
 
-  const handleRestore = (newContent) => {
-    fetchDocument();
-    addToast("Document restored to previous version", "success");
-  };
+  const handleRestore = useCallback(async (newContent) => {
+    await fetchDocument();
+
+    if (socket && id) {
+      socket.emit('restore-version', {
+        documentId: id,
+        content: newContent,
+      });
+    }
+
+    addToast('Document restored to previous version', 'success');
+  }, [socket, id, fetchDocument, addToast]);
 
   if (loading) {
     return (
@@ -364,7 +454,7 @@ function EditorPage() {
         <button
           onClick={() => {
             setShowVersionHistory(prev => !prev);
-            setShowStats(false);  
+            setShowStats(false);
           }}
           style={{
             padding: "7px 16px",
@@ -384,7 +474,7 @@ function EditorPage() {
         <button
           onClick={() => {
             setShowStats(prev => !prev);
-            setShowVersionHistory(false);  
+            setShowVersionHistory(false);
           }}
           style={{
             padding: '7px 16px',
@@ -444,6 +534,27 @@ function EditorPage() {
           </kbd>
           <span style={{ fontSize: "11px" }}>to save</span>
         </div>
+        {!isConnected && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '4px 10px',
+            background: '#FEF3C7',
+            border: '1px solid #FCD34D',
+            borderRadius: '6px',
+            fontSize: '12px',
+            color: '#92400E',
+          }}>
+            <div style={{
+              width: '7px',
+              height: '7px',
+              borderRadius: '50%',
+              background: '#F59E0B',
+            }} />
+            Reconnecting...
+          </div>
+        )}
         <span
           style={{
             fontSize: "13px",
@@ -489,6 +600,7 @@ function EditorPage() {
           initialContent={document?.content}
           onSave={handleSave}
           onChange={handleChange}
+          onCursorMove={handleCursorMove}
           wordCount={wordCount}
         />
       </div>
