@@ -1,5 +1,3 @@
-
-
 const templates = [
   {
     id: "blank",
@@ -7,13 +5,11 @@ const templates = [
     description: "Start with a clean slate",
     icon: "📄",
     category: "General",
-    
     content: JSON.stringify({
       ops: [{ insert: "\n" }],
     }),
     htmlContent: "",
   },
-
   {
     id: "meeting-notes",
     name: "Meeting notes",
@@ -55,7 +51,6 @@ const templates = [
     }),
     htmlContent: "<h1>Meeting Notes</h1>",
   },
-
   {
     id: "project-proposal",
     name: "Project proposal",
@@ -99,7 +94,6 @@ const templates = [
     }),
     htmlContent: "<h1>Project Proposal</h1>",
   },
-
   {
     id: "weekly-report",
     name: "Weekly report",
@@ -137,7 +131,6 @@ const templates = [
     }),
     htmlContent: "<h1>Weekly Report</h1>",
   },
-
   {
     id: "tech-spec",
     name: "Technical specification",
@@ -184,7 +177,6 @@ const templates = [
     }),
     htmlContent: "<h1>Technical Specification</h1>",
   },
-
   {
     id: "brainstorm",
     name: "Brainstorm",
@@ -217,5 +209,4 @@ const templates = [
     htmlContent: "<h1>Brainstorm</h1>",
   },
 ];
-
 export default templates;

@@ -1,21 +1,17 @@
 import { useState } from 'react';
 import Button from './Button';
-
 function NewDocumentModal({ onClose, onCreate }) {
   const [title, setTitle] = useState('');
   const [loading, setLoading] = useState(false);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     await onCreate(title || 'Untitled Document');
     setLoading(false);
   };
-
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) onClose();
   };
-
   return (
     <div
       onClick={handleOverlayClick}
@@ -42,7 +38,6 @@ function NewDocumentModal({ onClose, onCreate }) {
         <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '24px' }}>
           Give your document a name to get started
         </p>
-
         <form onSubmit={handleSubmit}>
           <input
             type="text"
@@ -62,7 +57,6 @@ function NewDocumentModal({ onClose, onCreate }) {
             onFocus={e => e.target.style.borderColor = '#4F46E5'}
             onBlur={e => e.target.style.borderColor = '#D1D5DB'}
           />
-
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
             <Button variant="secondary" onClick={onClose} type="button">
               Cancel
@@ -76,5 +70,4 @@ function NewDocumentModal({ onClose, onCreate }) {
     </div>
   );
 }
-
 export default NewDocumentModal;

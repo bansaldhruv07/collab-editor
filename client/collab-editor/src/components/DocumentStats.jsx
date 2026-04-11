@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from "react";
-
 function DocumentStats({ quill, documentId, createdAt, updatedAt }) {
   const [stats, setStats] = useState({
     words: 0,
@@ -9,30 +8,22 @@ function DocumentStats({ quill, documentId, createdAt, updatedAt }) {
     sentences: 0,
     readingTime: 0,
   });
-
   const computeStats = useCallback(() => {
     if (!quill) return;
-
     const text = quill.getText();
-
     const words = text.trim()
       ? text.trim().split(/\s+/).filter(Boolean).length
       : 0;
-
-    const characters = text.length - 1; 
+    const characters = text.length - 1;
 
     const charactersNoSpaces = text.replace(/\s/g, "").length;
-
     const paragraphs = text
       .split("\n")
       .filter((line) => line.trim().length > 0).length;
-
     const sentences =
       (text.match(/[.!?]+\s/g) || []).length +
       (text.trim().match(/[.!?]$/) ? 1 : 0);
-
     const readingTime = Math.max(1, Math.ceil(words / 238));
-
     setStats({
       words,
       characters,
@@ -42,15 +33,13 @@ function DocumentStats({ quill, documentId, createdAt, updatedAt }) {
       readingTime,
     });
   }, [quill]);
-
   useEffect(() => {
     if (!quill) return;
-    computeStats(); 
+    computeStats();
 
     quill.on("text-change", computeStats);
     return () => quill.off("text-change", computeStats);
   }, [quill, computeStats]);
-
   const formatDate = (dateString) => {
     if (!dateString) return "Unknown";
     return new Date(dateString).toLocaleString("en-US", {
@@ -61,7 +50,6 @@ function DocumentStats({ quill, documentId, createdAt, updatedAt }) {
       minute: "2-digit",
     });
   };
-
   return (
     <div
       style={{
@@ -88,7 +76,6 @@ function DocumentStats({ quill, documentId, createdAt, updatedAt }) {
         >
           Document statistics
         </h3>
-
         {}
         <div
           style={{
@@ -121,10 +108,8 @@ function DocumentStats({ quill, documentId, createdAt, updatedAt }) {
             accent
           />
         </div>
-
         {}
         <div style={{ borderTop: "1px solid #E5E7EB", marginBottom: "16px" }} />
-
         {}
         <div>
           <p
@@ -139,11 +124,9 @@ function DocumentStats({ quill, documentId, createdAt, updatedAt }) {
           >
             Document info
           </p>
-
           <MetaRow label="Created" value={formatDate(createdAt)} />
           <MetaRow label="Last saved" value={formatDate(updatedAt)} />
         </div>
-
         {}
         {stats.words > 0 && (
           <>
@@ -181,7 +164,6 @@ function DocumentStats({ quill, documentId, createdAt, updatedAt }) {
     </div>
   );
 }
-
 function StatCard({ label, value, accent }) {
   return (
     <div
@@ -205,7 +187,6 @@ function StatCard({ label, value, accent }) {
     </div>
   );
 }
-
 function MetaRow({ label, value }) {
   return (
     <div
@@ -224,5 +205,4 @@ function MetaRow({ label, value }) {
     </div>
   );
 }
-
 export default DocumentStats;

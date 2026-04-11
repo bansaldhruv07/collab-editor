@@ -14,6 +14,8 @@ import VersionHistoryPanel from "../components/VersionHistoryPanel";
 import DocumentStats from '../components/DocumentStats';
 import useDebouncedCallback from '../hooks/useDebouncedCallback';
 import ProgressBar from '../components/ProgressBar';
+import TypingIndicator from '../components/TypingIndicator';
+import CollaboratorAlert from '../components/CollaboratorAlert';
 
 function EditorPage() {
   const { id } = useParams();
@@ -38,6 +40,10 @@ function EditorPage() {
   const [lastEditedBy, setLastEditedBy] = useState(null);
   const [wordCount, setWordCount] = useState(0);
   const [remoteCursors, setRemoteCursors] = useState({});
+  const [typingUsers, setTypingUsers] = useState([]);
+  const [collabAlerts, setCollabAlerts] = useState([]);
+  const previousUsersRef = useRef([]);
+  const typingTimerRef = useRef(null);
 
   useEffect(() => {
     fetchDocument();
@@ -104,7 +110,45 @@ function EditorPage() {
     socket.emit('join-document', id);
 
     socket.on('presence-update', (users) => {
-      setTimeout(() => setActiveUsers(users), 100);
+      setTimeout(() => {
+        const currentUserId = user?._id?.toString();
+
+        const newUsers = users.filter(u =>
+          u.userId !== currentUserId &&
+          !previousUsersRef.current.some(p => p.userId === u.userId)
+        );
+
+        const leftUsers = previousUsersRef.current.filter(p =>
+          p.userId !== currentUserId &&
+          !users.some(u => u.userId === p.userId)
+        );
+
+        newUsers.forEach(u => {
+          const alertId = `${u.userId}-${Date.now()}`;
+          setCollabAlerts(prev => [
+            ...prev,
+            { id: alertId, type: 'join', name: u.name, color: u.color },
+          ]);
+        });
+
+        leftUsers.forEach(u => {
+          const alertId = `${u.userId}-${Date.now()}`;
+          setCollabAlerts(prev => [
+            ...prev,
+            { id: alertId, type: 'leave', name: u.name, color: u.color },
+          ]);
+
+          setTypingUsers(prev => prev.filter(t => t.userId !== u.userId));
+
+          if (editorRef.current) {
+            editorRef.current.setCursor(u.userId, null, u.color, u.name);
+            editorRef.current.setSelection(u.userId, null, u.color, u.name);
+          }
+        });
+
+        previousUsersRef.current = users;
+        setActiveUsers(users);
+      }, 100);
     });
 
     socket.on('receive-changes', (delta) => {
@@ -113,25 +157,38 @@ function EditorPage() {
       }
     });
 
+    socket.on('cursor-update', ({ userId, name, color, range }) => {
+      if (editorRef.current) {
+        editorRef.current.setCursor(userId, range, color, name);
+      }
+    });
+
+    socket.on('remote-selection', ({ userId, name, color, range }) => {
+      if (editorRef.current) {
+        editorRef.current.setSelection(userId, range, color, name);
+      }
+    });
+
+    socket.on('user-typing', ({ userId, name, color }) => {
+      setTypingUsers(prev => {
+
+        if (prev.some(u => u.userId === userId)) return prev;
+        return [...prev, { userId, name, color }];
+      });
+    });
+
+    socket.on('user-stopped-typing', ({ userId }) => {
+      setTypingUsers(prev => prev.filter(u => u.userId !== userId));
+    });
+
     socket.on('document-saved', ({ savedAt, savedBy }) => {
       setSaveStatus('saved');
       setDocument(prev => prev ? { ...prev, updatedAt: savedAt } : prev);
     });
 
-    socket.on('version-restored', ({ restoredBy, content }) => {
+    socket.on('version-restored', ({ restoredBy }) => {
       fetchDocument();
       addToast(`Document restored by ${restoredBy}`, 'info');
-    });
-
-    socket.on('cursor-update', ({ userId, name, color, range }) => {
-      setRemoteCursors(prev => ({
-        ...prev,
-        [userId]: { name, color, range },
-      }));
-
-      if (editorRef.current) {
-        editorRef.current.setCursor(userId, range, color, name);
-      }
     });
 
     socket.on('connect', () => {
@@ -143,12 +200,19 @@ function EditorPage() {
       socket.emit('leave-document', id);
       socket.off('presence-update');
       socket.off('receive-changes');
+      socket.off('cursor-update');
+      socket.off('remote-selection');
+      socket.off('user-typing');
+      socket.off('user-stopped-typing');
       socket.off('document-saved');
       socket.off('version-restored');
-      socket.off('cursor-update');
       socket.off('connect');
+
+      if (typingTimerRef.current) {
+        clearTimeout(typingTimerRef.current);
+      }
     };
-  }, [socket, id, fetchDocument, addToast]);
+  }, [socket, id, user, fetchDocument, addToast]);
 
   useEffect(() => {
     if (editorRef.current) {
@@ -166,6 +230,19 @@ function EditorPage() {
       });
     }
   }, [socket, id]);
+
+  const handleSelectionChange = useCallback((range) => {
+    if (socket && id) {
+      socket.emit('selection-change', {
+        documentId: id,
+        range,
+      });
+    }
+  }, [socket, id]);
+
+  const handleAlertDismiss = useCallback((alertId) => {
+    setCollabAlerts(prev => prev.filter(a => a.id !== alertId));
+  }, []);
 
   const handleSave = async (content, htmlContent) => {
     try {
@@ -223,14 +300,20 @@ function EditorPage() {
     }
 
     if (socket && id) {
-      socket.emit('send-changes', {
-        documentId: id,
-        delta,
-      });
+      socket.emit('send-changes', { documentId: id, delta });
+
+      socket.emit('typing-start', { documentId: id });
+
+      if (typingTimerRef.current) {
+        clearTimeout(typingTimerRef.current);
+      }
+
+      typingTimerRef.current = setTimeout(() => {
+        socket.emit('typing-stop', { documentId: id });
+      }, 2000);
     }
 
     debouncedSave(delta, html);
-
   }, [socket, id, debouncedSave]);
 
   const handleTitleSave = async () => {
@@ -601,9 +684,16 @@ function EditorPage() {
           onSave={handleSave}
           onChange={handleChange}
           onCursorMove={handleCursorMove}
+          onSelectionChange={handleSelectionChange}
           wordCount={wordCount}
         />
       </div>
+
+      <TypingIndicator typingUsers={typingUsers} />
+      <CollaboratorAlert
+        alerts={collabAlerts}
+        onDismiss={handleAlertDismiss}
+      />
 
       {showShareModal && (
         <ShareModal

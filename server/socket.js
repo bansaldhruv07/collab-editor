@@ -135,6 +135,35 @@ const initializeSocket = (io) => {
       });
     });
 
+    socket.on('typing-start', ({ documentId }) => {
+      if (!documentId) return;
+
+      socket.to(documentId).emit('user-typing', {
+        userId: socket.user._id.toString(),
+        name: socket.user.name,
+        color: getUserColor(socket.user._id.toString()),
+      });
+    });
+
+    socket.on('typing-stop', ({ documentId }) => {
+      if (!documentId) return;
+
+      socket.to(documentId).emit('user-stopped-typing', {
+        userId: socket.user._id.toString(),
+      });
+    });
+
+    socket.on('selection-change', ({ documentId, range }) => {
+      if (!documentId) return;
+
+      socket.to(documentId).emit('remote-selection', {
+        userId: socket.user._id.toString(),
+        name: socket.user.name,
+        color: getUserColor(socket.user._id.toString()),
+        range,
+      });
+    });
+
     socket.on('leave-document', (documentId) => {
       handleLeaveDocument(socket, io, documentId);
     });

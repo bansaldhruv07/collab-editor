@@ -1,7 +1,5 @@
-
 import { memo, useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 const DocumentCard = memo(function DocumentCard({ document, onDelete, onRename, currentUserId }) {
   const navigate = useNavigate();
   const isOwner = document.owner?._id === currentUserId || document.owner === currentUserId;
@@ -9,7 +7,6 @@ const DocumentCard = memo(function DocumentCard({ document, onDelete, onRename, 
   const [isRenaming, setIsRenaming] = useState(false);
   const [newTitle, setNewTitle] = useState(document.title);
   const menuRef = useRef(null);
-
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       month: "short",
@@ -17,7 +14,6 @@ const DocumentCard = memo(function DocumentCard({ document, onDelete, onRename, 
       year: "numeric",
     });
   };
-
   const handleRenameSubmit = (e) => {
     e.preventDefault();
     if (newTitle.trim() && newTitle !== document.title) {
@@ -26,25 +22,21 @@ const DocumentCard = memo(function DocumentCard({ document, onDelete, onRename, 
     setIsRenaming(false);
     setShowMenu(false);
   };
-
   const handleKeyDown = (e) => {
     if (e.key === "Escape") {
       setNewTitle(document.title);
       setIsRenaming(false);
     }
   };
-
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
         setShowMenu(false);
       }
     };
-
     window.document.addEventListener("mousedown", handleClickOutside);
     return () => window.document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
   return (
     <div
       style={{
@@ -85,7 +77,6 @@ const DocumentCard = memo(function DocumentCard({ document, onDelete, onRename, 
       >
         📄
       </div>
-
       {}
       {!isOwner && (
         <span style={{
@@ -101,7 +92,6 @@ const DocumentCard = memo(function DocumentCard({ document, onDelete, onRename, 
           Shared with you
         </span>
       )}
-
       {isRenaming ? (
         <form
           onSubmit={handleRenameSubmit}
@@ -173,13 +163,11 @@ const DocumentCard = memo(function DocumentCard({ document, onDelete, onRename, 
           {document.title}
         </h3>
       )}
-
       {!isRenaming && (
         <p style={{ fontSize: "12px", color: "#9CA3AF" }}>
           Updated {formatDate(document.updatedAt)}
         </p>
       )}
-
       {!isRenaming && (
         <div ref={menuRef} style={{ position: "absolute", top: "16px", right: "16px" }}>
           <button
@@ -200,7 +188,6 @@ const DocumentCard = memo(function DocumentCard({ document, onDelete, onRename, 
           >
             ···
           </button>
-
           {showMenu && (
             <div
               onClick={(e) => e.stopPropagation()}
@@ -262,7 +249,6 @@ const DocumentCard = memo(function DocumentCard({ document, onDelete, onRename, 
     </div>
   );
 });
-
 const menuItemStyle = {
   display: "block",
   width: "100%",
@@ -274,5 +260,4 @@ const menuItemStyle = {
   cursor: "pointer",
   color: "#374151",
 };
-
 export default DocumentCard;

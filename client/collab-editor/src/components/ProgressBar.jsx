@@ -1,16 +1,12 @@
 import { useState, useEffect } from "react";
-
 function ProgressBar({ loading }) {
   const [progress, setProgress] = useState(0);
   const [visible, setVisible] = useState(false);
-
   useEffect(() => {
     let timer;
-
     if (loading) {
       setVisible(true);
       setProgress(0);
-
       const advance = () => {
         setProgress((prev) => {
           if (prev < 30) return prev + 15;
@@ -21,7 +17,6 @@ function ProgressBar({ loading }) {
         });
         timer = setTimeout(advance, 200);
       };
-
       timer = setTimeout(advance, 100);
     } else {
       setProgress(100);
@@ -31,12 +26,9 @@ function ProgressBar({ loading }) {
       }, 400);
       return () => clearTimeout(hideTimer);
     }
-
     return () => clearTimeout(timer);
   }, [loading]);
-
   if (!visible) return null;
-
   return (
     <div
       style={{
@@ -61,5 +53,4 @@ function ProgressBar({ loading }) {
     </div>
   );
 }
-
 export default ProgressBar;

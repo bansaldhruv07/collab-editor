@@ -17,5 +17,4 @@ function Spinner({ size = 40 }) {
     </div>
   );
 }
-
 export default Spinner;

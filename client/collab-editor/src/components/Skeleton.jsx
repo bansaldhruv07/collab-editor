@@ -14,7 +14,6 @@ const shimmerStyle = `
     animation: shimmer 1.4s ease-in-out infinite;
   }
 `;
-
 function SkeletonBlock({
   width = "100%",
   height = "16px",
@@ -36,7 +35,6 @@ function SkeletonBlock({
     </>
   );
 }
-
 export function DocumentCardSkeleton() {
   return (
     <div
@@ -77,7 +75,6 @@ export function DocumentCardSkeleton() {
     </div>
   );
 }
-
 export function EditorSkeleton() {
   return (
     <div style={{ padding: "40px 60px", maxWidth: "860px", margin: "0 auto" }}>
@@ -119,5 +116,4 @@ export function EditorSkeleton() {
     </div>
   );
 }
-
 export default SkeletonBlock;

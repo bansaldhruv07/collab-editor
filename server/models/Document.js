@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-
 const versionSchema = new mongoose.Schema({
   content: {
     type: String,
@@ -18,13 +17,11 @@ const versionSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  
   label: {
     type: String,
     default: "",
   },
 });
-
 const documentSchema = new mongoose.Schema(
   {
     title: {
@@ -55,14 +52,12 @@ const documentSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    
     versions: [versionSchema],
   },
   {
     timestamps: true,
   },
 );
-
 documentSchema.index({ owner: 1 });
 
 documentSchema.index({ collaborators: 1 });

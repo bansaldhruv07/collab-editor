@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import documentService from "../services/documentService";
 import Button from "./Button";
 import Spinner from "./Spinner";
-
 function ShareModal({ documentId, onClose, isOwner }) {
   const [collaborators, setCollaborators] = useState([]);
   const [owner, setOwner] = useState(null);
@@ -11,11 +10,9 @@ function ShareModal({ documentId, onClose, isOwner }) {
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-
   useEffect(() => {
     fetchCollaborators();
   }, []);
-
   const fetchCollaborators = async () => {
     try {
       setLoading(true);
@@ -28,11 +25,9 @@ function ShareModal({ documentId, onClose, isOwner }) {
       setLoading(false);
     }
   };
-
   const handleAdd = async (e) => {
     e.preventDefault();
     if (!email.trim()) return;
-
     try {
       setAdding(true);
       setError("");
@@ -44,7 +39,6 @@ function ShareModal({ documentId, onClose, isOwner }) {
       setCollaborators(data.collaborators);
       setEmail("");
       setSuccess(`Successfully added collaborator!`);
-
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to add collaborator");
@@ -52,10 +46,8 @@ function ShareModal({ documentId, onClose, isOwner }) {
       setAdding(false);
     }
   };
-
   const handleRemove = async (userId, userName) => {
     if (!window.confirm(`Remove ${userName} from this document?`)) return;
-
     try {
       setError("");
       await documentService.removeCollaborator(documentId, userId);
@@ -64,7 +56,6 @@ function ShareModal({ documentId, onClose, isOwner }) {
       setError(err.response?.data?.message || "Failed to remove collaborator");
     }
   };
-
   const getInitials = (name) => {
     return name
       .split(" ")
@@ -73,7 +64,6 @@ function ShareModal({ documentId, onClose, isOwner }) {
       .toUpperCase()
       .slice(0, 2);
   };
-
   const avatarColors = [
     "#4F46E5",
     "#0891B2",
@@ -86,11 +76,9 @@ function ShareModal({ documentId, onClose, isOwner }) {
     const index = name.charCodeAt(0) % avatarColors.length;
     return avatarColors[index];
   };
-
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) onClose();
   };
-
   return (
     <div
       onClick={handleOverlayClick}
@@ -147,7 +135,6 @@ function ShareModal({ documentId, onClose, isOwner }) {
             ✕
           </button>
         </div>
-
         {isOwner && (
           <form onSubmit={handleAdd} style={{ marginBottom: "24px" }}>
             <label
@@ -185,7 +172,6 @@ function ShareModal({ documentId, onClose, isOwner }) {
                 Invite
               </Button>
             </div>
-
             {error && (
               <p
                 style={{ color: "#DC2626", fontSize: "13px", marginTop: "8px" }}
@@ -202,9 +188,7 @@ function ShareModal({ documentId, onClose, isOwner }) {
             )}
           </form>
         )}
-
         <div style={{ borderTop: "1px solid #E5E7EB", marginBottom: "20px" }} />
-
         <h3
           style={{
             fontSize: "14px",
@@ -215,7 +199,6 @@ function ShareModal({ documentId, onClose, isOwner }) {
         >
           People with access
         </h3>
-
         {loading ? (
           <Spinner size={28} />
         ) : (
@@ -232,7 +215,6 @@ function ShareModal({ documentId, onClose, isOwner }) {
                 showRemove={false}
               />
             )}
-
             {collaborators.length === 0 && (
               <p
                 style={{
@@ -245,7 +227,6 @@ function ShareModal({ documentId, onClose, isOwner }) {
                 No collaborators yet. Invite someone above.
               </p>
             )}
-
             {collaborators.map((collab) => (
               <PersonRow
                 key={collab._id}
@@ -260,7 +241,6 @@ function ShareModal({ documentId, onClose, isOwner }) {
             ))}
           </div>
         )}
-
         <div
           style={{
             marginTop: "24px",
@@ -321,7 +301,6 @@ function ShareModal({ documentId, onClose, isOwner }) {
     </div>
   );
 }
-
 function PersonRow({
   name,
   email,
@@ -357,7 +336,6 @@ function PersonRow({
       >
         {initials}
       </div>
-
       <div style={{ flex: 1, minWidth: 0 }}>
         <p
           style={{
@@ -384,7 +362,6 @@ function PersonRow({
           {email}
         </p>
       </div>
-
       <span
         style={{
           fontSize: "12px",
@@ -398,7 +375,6 @@ function PersonRow({
       >
         {role}
       </span>
-
       {showRemove && (
         <button
           onClick={onRemove}
@@ -428,5 +404,4 @@ function PersonRow({
     </div>
   );
 }
-
 export default ShareModal;

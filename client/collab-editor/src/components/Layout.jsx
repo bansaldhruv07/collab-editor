@@ -1,14 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-
 function Layout({ children }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const menuRef = useRef(null);
-
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -18,12 +16,10 @@ function Layout({ children }) {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
-
   const getInitials = (name) => {
     if (!name) return "?";
     return name
@@ -33,10 +29,8 @@ function Layout({ children }) {
       .toUpperCase()
       .slice(0, 2);
   };
-
   const isAuthPage = ["/login", "/register"].includes(location.pathname);
   if (isAuthPage) return children;
-
   return (
     <div style={{ minHeight: "100vh", background: "#F9FAFB" }}>
       <nav
@@ -67,7 +61,6 @@ function Layout({ children }) {
         >
           📝 <span style={{ display: "inline" }}>CollabEditor</span>
         </Link>
-
         <div style={{ position: "relative" }} ref={menuRef}>
           <button
             onClick={() => setShowUserMenu((prev) => !prev)}
@@ -130,7 +123,6 @@ function Layout({ children }) {
               ▼
             </span>
           </button>
-
           {showUserMenu && (
             <div
               style={{
@@ -175,7 +167,6 @@ function Layout({ children }) {
                   {user?.email}
                 </p>
               </div>
-
               <div style={{ padding: "6px" }}>
                 <MenuLink
                   to="/dashboard"
@@ -195,11 +186,9 @@ function Layout({ children }) {
                   label="Settings"
                   onClick={() => setShowUserMenu(false)}
                 />
-
                 <div
                   style={{ borderTop: "1px solid #F3F4F6", margin: "6px 0" }}
                 />
-
                 <button
                   onClick={handleLogout}
                   style={{
@@ -231,17 +220,14 @@ function Layout({ children }) {
           )}
         </div>
       </nav>
-
       <main>{children}</main>
     </div>
   );
 }
-
 function MenuLink({ to, icon, label, onClick }) {
   const navigate = useNavigate();
   const location = useLocation();
   const isActive = location.pathname === to;
-
   return (
     <button
       onClick={() => {
@@ -275,5 +261,4 @@ function MenuLink({ to, icon, label, onClick }) {
     </button>
   );
 }
-
 export default Layout;

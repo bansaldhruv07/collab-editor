@@ -2,7 +2,6 @@ import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
 import "../styles/editor.css";
-
 const TOOLBAR_OPTIONS = [
   [{ header: [1, 2, 3, false] }],
   ["bold", "italic", "underline", "strike"],
@@ -13,8 +12,10 @@ const TOOLBAR_OPTIONS = [
   ["clean"],
 ];
 
-const Editor = forwardRef(
-  ({ documentId, initialContent, onSave, onChange, onCursorMove, wordCount }, ref) => {
+const Editor = forwardRef(function Editor(
+  { documentId, initialContent, onSave, onChange, onCursorMove, onSelectionChange, wordCount },
+  ref
+) {
     const editorRef = useRef(null);
     const quillRef = useRef(null);
 
@@ -100,6 +101,69 @@ const Editor = forwardRef(
         quillRef.current.root.style.position = 'relative';
         quillRef.current.root.appendChild(cursor);
       },
+
+      setSelection: (userId, range, color, name) => {
+        if (!quillRef.current) return;
+
+        const existing = quillRef.current.root.querySelectorAll(
+          `[data-selection-id="${userId}"]`
+        );
+        existing.forEach(el => el.remove());
+
+        if (!range || range.length === 0) return;
+
+        try {
+          const startBounds = quillRef.current.getBounds(range.index);
+          const endBounds = quillRef.current.getBounds(range.index + range.length);
+
+          if (!startBounds || !endBounds) return;
+
+          const highlight = document.createElement('div');
+          highlight.setAttribute('data-selection-id', userId);
+
+          const top = Math.min(startBounds.top, endBounds.top);
+          const left = range.index === range.index + range.length
+            ? startBounds.left
+            : 0;
+          const width = startBounds.top === endBounds.top
+            ? endBounds.left - startBounds.left
+            : quillRef.current.root.offsetWidth;
+          const height = endBounds.top - startBounds.top + endBounds.height;
+
+          highlight.style.cssText = `
+            position: absolute;
+            top: ${top}px;
+            left: ${left}px;
+            width: ${Math.max(width, 20)}px;
+            height: ${Math.max(height, startBounds.height)}px;
+            background: ${color}26;
+            border: 1px solid ${color}60;
+            border-radius: 2px;
+            pointer-events: none;
+            z-index: 5;
+          `;
+
+          const label = document.createElement('div');
+          label.textContent = name;
+          label.style.cssText = `
+            position: absolute;
+            top: -18px;
+            left: 0;
+            background: ${color};
+            color: white;
+            font-size: 10px;
+            padding: 1px 5px;
+            border-radius: 3px;
+            white-space: nowrap;
+            pointer-events: none;
+            font-family: sans-serif;
+          `;
+          highlight.appendChild(label);
+
+          quillRef.current.root.style.position = 'relative';
+          quillRef.current.root.appendChild(highlight);
+        } catch (err) {}
+      },
     }));
 
     useEffect(() => {
@@ -136,8 +200,13 @@ const Editor = forwardRef(
 
       quill.on("selection-change", (range, oldRange, source) => {
         if (source !== "user") return;
+
         if (onCursorMove) {
           onCursorMove(range);
+        }
+
+        if (onSelectionChange) {
+          onSelectionChange(range);
         }
       });
     }, []);

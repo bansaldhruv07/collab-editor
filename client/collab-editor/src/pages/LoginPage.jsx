@@ -4,7 +4,6 @@ import { useAuth } from "../context/AuthContext";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import Alert from "../components/Alert";
-
 function LoginPage() {
   const [formData, setFormData] = useState({
     email: "",
@@ -12,10 +11,8 @@ function LoginPage() {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
   const { login } = useAuth();
   const navigate = useNavigate();
-
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
@@ -23,14 +20,11 @@ function LoginPage() {
     }));
     setError("");
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!formData.email || !formData.password) {
       return setError("Email and password are required");
     }
-
     try {
       setLoading(true);
       await login(formData.email, formData.password);
@@ -41,7 +35,6 @@ function LoginPage() {
       setLoading(false);
     }
   };
-
   return (
     <div
       style={{
@@ -71,9 +64,7 @@ function LoginPage() {
             Sign in to your documents
           </p>
         </div>
-
         <Alert message={error} type="error" />
-
         <form onSubmit={handleSubmit}>
           <Input
             label="Email address"
@@ -91,12 +82,10 @@ function LoginPage() {
             onChange={handleChange}
             placeholder="Your password"
           />
-
           <Button type="submit" loading={loading} fullWidth>
             Sign in
           </Button>
         </form>
-
         <p
           style={{
             textAlign: "center",
@@ -114,5 +103,4 @@ function LoginPage() {
     </div>
   );
 }
-
 export default LoginPage;

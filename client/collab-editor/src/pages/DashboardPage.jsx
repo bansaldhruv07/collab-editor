@@ -11,7 +11,6 @@ import useKeyboardShortcut from "../hooks/useKeyboardShortcut";
 import { useToast } from "../components/Toast";
 import TemplatePicker from "../components/TemplatePicker";
 import ProgressBar from "../components/ProgressBar";
-
 function DashboardPage() {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,16 +18,12 @@ function DashboardPage() {
   const [showTemplatePicker, setShowTemplatePicker] = useState(false);
   const { addToast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
-
   useKeyboardShortcut("n", () => setShowTemplatePicker(true));
-
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-
   useEffect(() => {
     fetchDocuments();
   }, []);
-
   const fetchDocuments = async (forceRefresh = false) => {
     try {
       setLoading(true);
@@ -41,7 +36,6 @@ function DashboardPage() {
       setLoading(false);
     }
   };
-
   const filteredDocuments = useMemo(() => {
     if (!searchQuery.trim()) return documents;
     const query = searchQuery.toLowerCase().trim();
@@ -51,9 +45,7 @@ function DashboardPage() {
     try {
       const title =
         template.id === "blank" ? "Untitled Document" : template.name;
-
       const newDoc = await documentService.createDocument(title);
-
       if (template.content && template.id !== "blank") {
         await documentService.saveContent(
           newDoc._id,
@@ -61,14 +53,12 @@ function DashboardPage() {
           template.htmlContent,
         );
       }
-
       setShowTemplatePicker(false);
       navigate(`/document/${newDoc._id}`);
     } catch (err) {
       addToast("Failed to create document", "error");
     }
   };
-
   const handleDelete = useCallback(async (id) => {
     if (!window.confirm("Delete this document? This cannot be undone.")) return;
     try {
@@ -79,7 +69,6 @@ function DashboardPage() {
       addToast("Failed to delete document", "error");
     }
   }, []);
-
   const handleRename = useCallback(
     async (id, title) => {
       try {
@@ -96,12 +85,10 @@ function DashboardPage() {
     },
     [addToast],
   );
-
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
-
   return (
     <>
       <ProgressBar loading={loading} />
@@ -146,7 +133,6 @@ function DashboardPage() {
           </Button>
         </div>
       </nav>
-
       <main
         style={{ maxWidth: "960px", margin: "0 auto", padding: "40px 24px" }}
       >
@@ -193,7 +179,6 @@ function DashboardPage() {
             </Button>
           </div>
         </div>
-
         <div style={{ marginBottom: "24px" }}>
           <input
             type="text"
@@ -215,9 +200,7 @@ function DashboardPage() {
             onBlur={(e) => (e.target.style.borderColor = "#E5E7EB")}
           />
         </div>
-
         <Alert message={error} type="error" />
-
         {loading && (
           <div
             style={{
@@ -231,7 +214,6 @@ function DashboardPage() {
             ))}
           </div>
         )}
-
         {!loading && documents.length === 0 && !error && (
           <div
             style={{
@@ -276,7 +258,6 @@ function DashboardPage() {
                 +
               </text>
             </svg>
-
             <h3
               style={{
                 fontSize: "22px",
@@ -303,7 +284,6 @@ function DashboardPage() {
             </Button>
           </div>
         )}
-
         {!loading && searchQuery && filteredDocuments.length === 0 && (
           <div
             style={{
@@ -318,7 +298,6 @@ function DashboardPage() {
             </p>
           </div>
         )}
-
         {!loading && filteredDocuments.length > 0 && (
           <div
             style={{
@@ -339,7 +318,6 @@ function DashboardPage() {
           </div>
         )}
       </main>
-
       {showTemplatePicker && (
         <TemplatePicker
           onClose={() => setShowTemplatePicker(false)}
@@ -350,5 +328,4 @@ function DashboardPage() {
     </>
   );
 }
-
 export default DashboardPage;

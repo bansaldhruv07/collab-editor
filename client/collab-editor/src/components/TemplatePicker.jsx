@@ -1,23 +1,17 @@
 import { useState } from "react";
 import templates from "../data/templates";
-
 function TemplatePicker({ onSelect, onClose }) {
   const [selectedId, setSelectedId] = useState("blank");
   const [activeCategory, setActiveCategory] = useState("All");
-
   const categories = ["All", ...new Set(templates.map((t) => t.category))];
-
   const filtered =
     activeCategory === "All"
       ? templates
       : templates.filter((t) => t.category === activeCategory);
-
   const selectedTemplate = templates.find((t) => t.id === selectedId);
-
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) onClose();
   };
-
   return (
     <div
       onClick={handleOverlayClick}
@@ -90,7 +84,6 @@ function TemplatePicker({ onSelect, onClose }) {
               ✕
             </button>
           </div>
-
           {}
           <div style={{ display: "flex", gap: "4px", paddingBottom: "1px" }}>
             {categories.map((cat) => (
@@ -118,7 +111,6 @@ function TemplatePicker({ onSelect, onClose }) {
             ))}
           </div>
         </div>
-
         {}
         <div
           style={{
@@ -164,7 +156,6 @@ function TemplatePicker({ onSelect, onClose }) {
                 <div style={{ fontSize: "28px", marginBottom: "10px" }}>
                   {template.icon}
                 </div>
-
                 {}
                 <p
                   style={{
@@ -176,7 +167,6 @@ function TemplatePicker({ onSelect, onClose }) {
                 >
                   {template.name}
                 </p>
-
                 {}
                 <p
                   style={{
@@ -191,7 +181,6 @@ function TemplatePicker({ onSelect, onClose }) {
             ))}
           </div>
         </div>
-
         {}
         <div
           style={{
@@ -214,7 +203,6 @@ function TemplatePicker({ onSelect, onClose }) {
               {selectedTemplate?.description}
             </p>
           </div>
-
           <div style={{ display: "flex", gap: "10px" }}>
             <button
               onClick={onClose}
@@ -251,5 +239,4 @@ function TemplatePicker({ onSelect, onClose }) {
     </div>
   );
 }
-
 export default TemplatePicker;

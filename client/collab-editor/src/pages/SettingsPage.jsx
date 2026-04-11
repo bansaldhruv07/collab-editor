@@ -5,12 +5,10 @@ import userService from '../services/userService';
 import { useToast } from '../components/Toast';
 import Button from '../components/Button';
 import Input from '../components/Input';
-
 function SettingsPage() {
   const { logout } = useAuth();
   const { addToast } = useToast();
   const navigate = useNavigate();
-
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
     newPassword: '',
@@ -18,16 +16,13 @@ function SettingsPage() {
   });
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState({});
-
   const [deletePassword, setDeletePassword] = useState('');
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-
   const handlePasswordChange = (e) => {
     setPasswordForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
     setPasswordErrors(prev => ({ ...prev, [e.target.name]: '' }));
   };
-
   const validatePassword = () => {
     const errors = {};
     if (!passwordForm.currentPassword) {
@@ -43,16 +38,13 @@ function SettingsPage() {
     }
     return errors;
   };
-
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
-
     const errors = validatePassword();
     if (Object.keys(errors).length > 0) {
       setPasswordErrors(errors);
       return;
     }
-
     try {
       setPasswordLoading(true);
       await userService.changePassword(
@@ -67,13 +59,11 @@ function SettingsPage() {
       setPasswordLoading(false);
     }
   };
-
   const handleDeleteAccount = async () => {
     if (!deletePassword) {
       addToast('Please enter your password to confirm', 'error');
       return;
     }
-
     try {
       setDeleteLoading(true);
       await userService.deleteAccount(deletePassword);
@@ -86,10 +76,8 @@ function SettingsPage() {
       setDeleteLoading(false);
     }
   };
-
   return (
     <div style={{ maxWidth: '640px', margin: '0 auto', padding: '24px 16px' }}>
-
       <div style={{ marginBottom: '32px' }}>
         <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#111827' }}>
           Settings
@@ -98,7 +86,6 @@ function SettingsPage() {
           Manage your account security and preferences
         </p>
       </div>
-
       <div style={{
         background: '#fff',
         border: '1px solid #E5E7EB',
@@ -112,7 +99,6 @@ function SettingsPage() {
         <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '20px' }}>
           Use a strong password with at least 6 characters
         </p>
-
         <form onSubmit={handlePasswordSubmit}>
           <Input
             label="Current password"
@@ -141,7 +127,6 @@ function SettingsPage() {
             placeholder="Repeat new password"
             error={passwordErrors.confirmPassword}
           />
-
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
             <Button type="submit" loading={passwordLoading}>
               Update password
@@ -149,7 +134,6 @@ function SettingsPage() {
           </div>
         </form>
       </div>
-
       <div style={{
         background: '#fff',
         border: '1.5px solid #FCA5A5',
@@ -162,7 +146,6 @@ function SettingsPage() {
         <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '20px' }}>
           Permanently delete your account and all your documents. This cannot be undone.
         </p>
-
         {!showDeleteConfirm ? (
           <Button
             variant="danger"
@@ -185,7 +168,6 @@ function SettingsPage() {
             }}>
               Are you absolutely sure? Enter your password to confirm deletion.
             </p>
-
             <Input
               label="Your password"
               type="password"
@@ -193,7 +175,6 @@ function SettingsPage() {
               onChange={e => setDeletePassword(e.target.value)}
               placeholder="Enter your password to confirm"
             />
-
             <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
               <Button
                 variant="secondary"
@@ -218,5 +199,4 @@ function SettingsPage() {
     </div>
   );
 }
-
 export default SettingsPage;

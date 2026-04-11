@@ -40,5 +40,4 @@ function Input({ label, type = 'text', value, onChange, placeholder, error, name
     </div>
   );
 }
-
 export default Input;

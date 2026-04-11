@@ -10,7 +10,6 @@ function Button({ children, onClick, type = 'button', loading = false, variant =
     width: fullWidth ? '100%' : 'auto',
     transition: 'background 0.2s, transform 0.1s',
   };
-
   const variants = {
     primary: {
       background: '#4F46E5',
@@ -25,7 +24,6 @@ function Button({ children, onClick, type = 'button', loading = false, variant =
       color: '#fff',
     },
   };
-
   return (
     <button
       type={type}
@@ -37,5 +35,4 @@ function Button({ children, onClick, type = 'button', loading = false, variant =
     </button>
   );
 }
-
 export default Button;

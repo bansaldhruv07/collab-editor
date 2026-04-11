@@ -4,29 +4,24 @@ import userService from "../services/userService";
 import { useToast } from "../components/Toast";
 import Button from "../components/Button";
 import Input from "../components/Input";
-
 function ProfilePage() {
   const { user, updateUser } = useAuth();
   const { addToast } = useToast();
-
   const [formData, setFormData] = useState({
     name: "",
     email: "",
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-
   useEffect(() => {
     if (user) {
       setFormData({ name: user.name || "", email: user.email || "" });
     }
   }, [user]);
-
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     setErrors((prev) => ({ ...prev, [e.target.name]: "" }));
   };
-
   const validate = () => {
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = "Name is required";
@@ -37,28 +32,23 @@ function ProfilePage() {
       newErrors.email = "Invalid email format";
     return newErrors;
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-
     if (formData.name === user.name && formData.email === user.email) {
       addToast("No changes to save", "info");
       return;
     }
-
     try {
       setLoading(true);
       const updated = await userService.updateProfile({
         name: formData.name.trim(),
         email: formData.email.trim().toLowerCase(),
       });
-
       updateUser({ name: updated.name, email: updated.email });
       addToast("Profile updated successfully", "success");
     } catch (err) {
@@ -70,14 +60,12 @@ function ProfilePage() {
       setLoading(false);
     }
   };
-
   const memberSince = user?.createdAt
     ? new Date(user.createdAt).toLocaleDateString("en-US", {
         month: "long",
         year: "numeric",
       })
     : "Unknown";
-
   return (
     <div style={{ maxWidth: '640px', margin: '0 auto', padding: '24px 16px' }}>
       <div style={{ marginBottom: "32px" }}>
@@ -88,7 +76,6 @@ function ProfilePage() {
           Manage your personal information
         </p>
       </div>
-
       <div
         style={{
           background: "#fff",
@@ -132,7 +119,6 @@ function ProfilePage() {
           </p>
         </div>
       </div>
-
       <div
         style={{
           background: "#fff",
@@ -151,7 +137,6 @@ function ProfilePage() {
         >
           Personal information
         </h2>
-
         <form onSubmit={handleSubmit}>
           <Input
             label="Full name"
@@ -170,7 +155,6 @@ function ProfilePage() {
             placeholder="your@email.com"
             error={errors.email}
           />
-
           <div
             style={{
               display: "flex",
@@ -187,5 +171,4 @@ function ProfilePage() {
     </div>
   );
 }
-
 export default ProfilePage;

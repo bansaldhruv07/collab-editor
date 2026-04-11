@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import Alert from '../components/Alert';
-
 function RegisterPage() {
   const [formData, setFormData] = useState({
     name: '',
@@ -14,10 +13,8 @@ function RegisterPage() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
   const { register } = useAuth();
   const navigate = useNavigate();
-
   const handleChange = (e) => {
     setFormData(prev => ({
       ...prev,
@@ -25,22 +22,17 @@ function RegisterPage() {
     }));
     setError('');
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!formData.name || !formData.email || !formData.password) {
       return setError('All fields are required');
     }
-
     if (formData.password !== formData.confirmPassword) {
       return setError('Passwords do not match');
     }
-
     if (formData.password.length < 6) {
       return setError('Password must be at least 6 characters');
     }
-
     try {
       setLoading(true);
       await register(formData.name, formData.email, formData.password);
@@ -51,7 +43,6 @@ function RegisterPage() {
       setLoading(false);
     }
   };
-
   return (
     <div style={{
       minHeight: '100vh',
@@ -77,9 +68,7 @@ function RegisterPage() {
             Start collaborating in seconds
           </p>
         </div>
-
         <Alert message={error} type="error" />
-
         <form onSubmit={handleSubmit}>
           <Input
             label="Full name"
@@ -113,7 +102,6 @@ function RegisterPage() {
             onChange={handleChange}
             placeholder="Repeat your password"
           />
-
           <Button
             type="submit"
             loading={loading}
@@ -122,7 +110,6 @@ function RegisterPage() {
             Create account
           </Button>
         </form>
-
         <p style={{ textAlign: 'center', marginTop: '24px', fontSize: '14px', color: '#6B7280' }}>
           Already have an account?{' '}
           <Link to="/login" style={{ color: '#4F46E5', fontWeight: '500' }}>
@@ -133,5 +120,4 @@ function RegisterPage() {
     </div>
   );
 }
-
 export default RegisterPage;

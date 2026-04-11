@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import documentService from "../services/documentService";
 import { useToast } from "./Toast";
 import Spinner from "./Spinner";
-
 function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose }) {
   const [versions, setVersions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -11,11 +10,9 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose }) {
   const [restoring, setRestoring] = useState(false);
   const { addToast } = useToast();
   const isMobile = window.innerWidth < 640;
-
   useEffect(() => {
     fetchVersions();
   }, []);
-
   const fetchVersions = async () => {
     try {
       setLoading(true);
@@ -27,13 +24,11 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose }) {
       setLoading(false);
     }
   };
-
   const handlePreview = async (version) => {
     if (previewVersion?._id === version._id) {
       setPreviewVersion(null);
       return;
     }
-
     try {
       setPreviewLoading(true);
       const data = await documentService.getVersion(documentId, version._id);
@@ -44,7 +39,6 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose }) {
       setPreviewLoading(false);
     }
   };
-
   const handleRestore = async (versionId) => {
     if (
       !window.confirm(
@@ -52,7 +46,6 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose }) {
       )
     )
       return;
-
     try {
       setRestoring(true);
       const data = await documentService.restoreVersion(documentId, versionId);
@@ -68,24 +61,20 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose }) {
       setRestoring(false);
     }
   };
-
   const timeAgo = (dateString) => {
     const now = new Date();
     const date = new Date(dateString);
     const seconds = Math.floor((now - date) / 1000);
-
     if (seconds < 60) return "Just now";
     if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
     if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
     if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
-
     return date.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
       year: "numeric",
     });
   };
-
   const formatFullDate = (dateString) => {
     return new Date(dateString).toLocaleString("en-US", {
       month: "short",
@@ -95,7 +84,6 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose }) {
       minute: "2-digit",
     });
   };
-
   return (
     <div style={{
       position: 'fixed',
@@ -148,10 +136,8 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose }) {
           ✕
         </button>
       </div>
-
       <div style={{ flex: 1, overflowY: "auto", padding: "12px" }}>
         {loading && <Spinner size={28} />}
-
         {!loading && versions.length === 0 && (
           <div
             style={{
@@ -167,7 +153,6 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose }) {
             </p>
           </div>
         )}
-
         {versions.map((version, index) => (
           <div
             key={version._id}
@@ -235,13 +220,11 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose }) {
                       </span>
                     )}
                   </p>
-
                   <p style={{ fontSize: "12px", color: "#9CA3AF" }}>
                     {version.savedBy?.name || "Unknown"} ·{" "}
                     {timeAgo(version.savedAt)}
                   </p>
                 </div>
-
                 <span
                   style={{
                     fontSize: "12px",
@@ -259,7 +242,6 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose }) {
                 </span>
               </div>
             </div>
-
             {previewVersion?._id === version._id && (
               <div
                 style={{
@@ -304,7 +286,6 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose }) {
                           '<em style="color:#9CA3AF">No preview available</em>',
                       }}
                     />
-
                     <div
                       style={{
                         height: "30px",
@@ -315,7 +296,6 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose }) {
                         pointerEvents: "none",
                       }}
                     />
-
                     <p
                       style={{
                         fontSize: "11px",
@@ -325,7 +305,6 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose }) {
                     >
                       Saved {formatFullDate(version.savedAt)}
                     </p>
-
                     {isOwner && (
                       <button
                         onClick={() => handleRestore(version._id)}
@@ -346,7 +325,6 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose }) {
                         {restoring ? "Restoring..." : "Restore this version"}
                       </button>
                     )}
-
                     {!isOwner && (
                       <p
                         style={{
@@ -368,5 +346,4 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose }) {
     </div>
   );
 }
-
 export default VersionHistoryPanel;

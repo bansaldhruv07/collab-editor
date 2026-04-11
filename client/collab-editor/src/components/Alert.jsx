@@ -1,6 +1,5 @@
 function Alert({ message, type = "error" }) {
   if (!message) return null;
-
   const styles = {
     error: {
       background: "#FEF2F2",
@@ -13,7 +12,6 @@ function Alert({ message, type = "error" }) {
       border: "1px solid #BBF7D0",
     },
   };
-
   return (
     <div
       style={{
@@ -28,5 +26,4 @@ function Alert({ message, type = "error" }) {
     </div>
   );
 }
-
 export default Alert;
