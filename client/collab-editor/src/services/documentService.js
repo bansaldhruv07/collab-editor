@@ -71,6 +71,10 @@ const restoreVersion = async (documentId, versionId) => {
   );
   return response.data;
 };
+const getActivity = async (id) => {
+  const response = await api.get(`/documents/${id}/activity`);
+  return response.data;
+};
 const documentService = {
   getDocuments,
   getDocument,
@@ -84,5 +88,6 @@ const documentService = {
   getVersions,
   getVersion,
   restoreVersion,
+  getActivity,
 };
 export default documentService;

@@ -1,4 +1,39 @@
 const mongoose = require("mongoose");
+
+const activitySchema = new mongoose.Schema({
+  type: {
+    type: String,
+    enum: [
+      'document_created',
+      'document_edited',
+      'document_saved',
+      'title_changed',
+      'collaborator_added',
+      'collaborator_removed',
+      'version_restored',
+      'document_viewed',
+    ],
+    required: true,
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
+  userName: {
+    type: String,
+    required: true,
+  },
+  metadata: {
+    type: mongoose.Schema.Types.Mixed,
+    default: {},
+  },
+  timestamp: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
 const versionSchema = new mongoose.Schema({
   content: {
     type: String,
@@ -53,6 +88,10 @@ const documentSchema = new mongoose.Schema(
       ref: "User",
     },
     versions: [versionSchema],
+    activity: {
+      type: [activitySchema],
+      default: [],
+    },
   },
   {
     timestamps: true,
