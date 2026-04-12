@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('./models/User');
 const Document = require('./models/Document');
+const { logActivity } = require('./utils/activityLogger');
 
 const documentRooms = new Map();
 const saveTimers = new Map();
@@ -100,12 +101,17 @@ const initializeSocket = (io) => {
           document.content = content;
           document.htmlContent = htmlContent || '';
           document.lastEditedBy = socket.user._id;
+
+          const wordCount = content ? content.split(/\s+/).filter(Boolean).length : 0;
+          await logActivity(document, 'document_saved', socket.user, { wordCount });
+
           await document.save();
 
           io.to(documentId).emit('document-saved', {
             savedAt: document.updatedAt,
             savedBy: socket.user.name,
           });
+          io.to(documentId).emit('activity-update', { documentId });
 
           saveTimers.delete(documentId);
           console.log(`Document ${documentId} saved by ${socket.user.name}`);
@@ -161,6 +167,27 @@ const initializeSocket = (io) => {
         name: socket.user.name,
         color: getUserColor(socket.user._id.toString()),
         range,
+      });
+    });
+
+    socket.on('section-focus', ({ documentId, lineIndex, lineText }) => {
+      if (!documentId) return;
+
+      socket.to(documentId).emit('section-locked', {
+        userId: socket.user._id.toString(),
+        name: socket.user.name,
+        color: getUserColor(socket.user._id.toString()),
+        lineIndex,
+        lineText: lineText?.slice(0, 50),
+      });
+    });
+
+    socket.on('section-blur', ({ documentId, lineIndex }) => {
+      if (!documentId) return;
+
+      socket.to(documentId).emit('section-unlocked', {
+        userId: socket.user._id.toString(),
+        lineIndex,
       });
     });
 

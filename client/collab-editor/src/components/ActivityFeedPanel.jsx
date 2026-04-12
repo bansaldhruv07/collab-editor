@@ -65,7 +65,7 @@ function ActivityFeedPanel({ documentId, onClose }) {
     if (!groups[date]) groups[date] = [];
     groups[date].push(activity);
     return groups;
-  }, );
+  }, {});
   return (
     <div style={{
       position: 'fixed',

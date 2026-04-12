@@ -3,6 +3,7 @@ const router = express.Router();
 const Document = require("../models/Document");
 const { protect } = require("../middleware/auth");
 const User = require("../models/User");
+const { logActivity } = require("../utils/activityLogger");
 router.get("/", protect, async (req, res, next) => {
   try {
     const documents = await Document.find({
@@ -23,6 +24,8 @@ router.post("/", protect, async (req, res, next) => {
       content: "",
       owner: req.user._id,
     });
+    await logActivity(document, 'document_created', req.user);
+    await document.save();
     res.status(201).json(document);
   } catch (error) {
     next(error);
@@ -60,6 +63,7 @@ router.patch("/:id/title", protect, async (req, res, next) => {
       return res.status(403).json({ message: "Only the owner can rename" });
     }
     document.title = req.body.title;
+    await logActivity(document, 'title_changed', req.user, { newTitle: req.body.title });
     await document.save();
     res.json(document);
   } catch (error) {
@@ -251,6 +255,7 @@ router.post("/:id/collaborators", protect, async (req, res, next) => {
       return res.status(400).json({ message: "User already has access" });
     }
     document.collaborators.push(userToAdd._id);
+    await logActivity(document, 'collaborator_added', req.user, { collaboratorName: userToAdd.name || email });
     await document.save();
     const populatedDoc = await Document.findById(document._id).populate(
       "collaborators",
@@ -304,6 +309,31 @@ router.get("/:id/collaborators", protect, async (req, res, next) => {
       owner: document.owner,
       collaborators: document.collaborators,
     });
+  } catch (error) {
+    next(error);
+  }
+});
+router.get("/:id/activity", protect, async (req, res, next) => {
+  try {
+    const document = await Document.findById(req.params.id)
+      .populate('activity.user', 'name email');
+
+    if (!document) {
+      return res.status(404).json({ message: 'Document not found' });
+    }
+
+    const hasAccess =
+      document.owner.toString() === req.user._id.toString() ||
+      document.collaborators.some(
+        c => c.toString() === req.user._id.toString()
+      );
+
+    if (!hasAccess) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    const activityFeed = document.activity.sort((a, b) => b.timestamp - a.timestamp);
+    res.json({ activity: activityFeed.slice(0, 50) });
   } catch (error) {
     next(error);
   }

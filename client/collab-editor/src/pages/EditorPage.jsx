@@ -16,12 +16,16 @@ import useDebouncedCallback from '../hooks/useDebouncedCallback';
 import ProgressBar from '../components/ProgressBar';
 import TypingIndicator from '../components/TypingIndicator';
 import CollaboratorAlert from '../components/CollaboratorAlert';
+import ActivityFeedPanel from '../components/ActivityFeedPanel';
+import saveQueue from '../services/saveQueue';
+import SectionLockWarning from '../components/SectionLockWarning';
 
 function EditorPage() {
   const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [showStats, setShowStats] = useState(false);
+  const [showActivity, setShowActivity] = useState(false);
   const [document, setDocument] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -39,6 +43,7 @@ function EditorPage() {
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [lastEditedBy, setLastEditedBy] = useState(null);
   const [wordCount, setWordCount] = useState(0);
+  const [sectionLocks, setSectionLocks] = useState([]);
   const [remoteCursors, setRemoteCursors] = useState({});
   const [typingUsers, setTypingUsers] = useState([]);
   const [collabAlerts, setCollabAlerts] = useState([]);
@@ -196,6 +201,25 @@ function EditorPage() {
       addToast('Reconnected', 'success');
     });
 
+    socket.on('activity-update', () => {
+      // If activity panel is open, it will auto-refresh via its own timer
+    });
+
+    socket.on('section-locked', ({ userId, name, color, lineIndex, lineText }) => {
+      setSectionLocks(prev => {
+        const filtered = prev.filter(l => l.userId !== userId);
+        return [...filtered, { userId, name, color, lineIndex, lineText }];
+      });
+
+      setTimeout(() => {
+        setSectionLocks(prev => prev.filter(l => l.userId !== userId));
+      }, 5000);
+    });
+
+    socket.on('section-unlocked', ({ userId }) => {
+      setSectionLocks(prev => prev.filter(l => l.userId !== userId));
+    });
+
     return () => {
       socket.emit('leave-document', id);
       socket.off('presence-update');
@@ -207,6 +231,9 @@ function EditorPage() {
       socket.off('document-saved');
       socket.off('version-restored');
       socket.off('connect');
+      socket.off('activity-update');
+      socket.off('section-locked');
+      socket.off('section-unlocked');
 
       if (typingTimerRef.current) {
         clearTimeout(typingTimerRef.current);
@@ -538,6 +565,7 @@ function EditorPage() {
           onClick={() => {
             setShowVersionHistory(prev => !prev);
             setShowStats(false);
+            setShowActivity(false);
           }}
           style={{
             padding: "7px 16px",
@@ -558,6 +586,7 @@ function EditorPage() {
           onClick={() => {
             setShowStats(prev => !prev);
             setShowVersionHistory(false);
+            setShowActivity(false);
           }}
           style={{
             padding: '7px 16px',
@@ -572,6 +601,27 @@ function EditorPage() {
           }}
         >
           📊 Stats
+        </button>
+
+        <button
+          onClick={() => {
+            setShowActivity(prev => !prev);
+            setShowVersionHistory(false);
+            setShowStats(false);
+          }}
+          style={{
+            padding: '7px 16px',
+            background: showActivity ? '#EEF2FF' : 'transparent',
+            color: showActivity ? '#4F46E5' : '#6B7280',
+            border: '1px solid',
+            borderColor: showActivity ? '#C7D2FE' : '#E5E7EB',
+            borderRadius: '8px',
+            fontSize: '13px',
+            fontWeight: '500',
+            cursor: 'pointer',
+          }}
+        >
+          📋 Activity
         </button>
         <PresenceAvatars users={activeUsers} currentUserId={user?._id} />
 
@@ -674,7 +724,7 @@ function EditorPage() {
         width: '100%',
         margin: '0 auto',
         background: '#fff',
-        marginRight: (showVersionHistory || showStats) ? '280px' : '0',
+        marginRight: (showVersionHistory || showStats || showActivity) ? '300px' : '0',
         transition: 'margin-right 0.3s ease',
       }}>
         <Editor
@@ -690,6 +740,7 @@ function EditorPage() {
       </div>
 
       <TypingIndicator typingUsers={typingUsers} />
+      <SectionLockWarning locks={sectionLocks} />
       <CollaboratorAlert
         alerts={collabAlerts}
         onDismiss={handleAlertDismiss}
@@ -718,6 +769,13 @@ function EditorPage() {
           documentId={id}
           createdAt={document?.createdAt}
           updatedAt={document?.updatedAt}
+        />
+      )}
+
+      {showActivity && (
+        <ActivityFeedPanel
+          documentId={id}
+          onClose={() => setShowActivity(false)}
         />
       )}
       </div>
