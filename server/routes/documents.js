@@ -6,13 +6,46 @@ const User = require("../models/User");
 const { logActivity } = require("../utils/activityLogger");
 router.get("/", protect, async (req, res, next) => {
   try {
-    const documents = await Document.find({
-      $or: [{ owner: req.user._id }, { collaborators: req.user._id }],
-    })
-      .select("title owner updatedAt")
-      .populate("owner", "name email")
-      .sort({ updatedAt: -1 });
-    res.json(documents);
+    const { search, page = 1, limit = 20, sort = 'updatedAt' } = req.query;
+    const baseQuery = {
+      $or: [
+        { owner: req.user._id },
+        { collaborators: req.user._id },
+      ],
+    };
+    let query;
+    let sortOption;
+    if (search && search.trim()) {
+      query = {
+        ...baseQuery,
+        $text: { $search: search.trim() },
+      };
+      sortOption = { score: { $meta: 'textScore' } };
+    } else {
+      query = baseQuery;
+      sortOption = { [sort]: -1 };
+    }
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const [documents, total] = await Promise.all([
+      Document.find(query)
+        .select('title owner updatedAt createdAt')
+        .populate('owner', 'name email')
+        .select(search && search.trim() ? { score: { $meta: 'textScore' } } : {})
+        .sort(sortOption)
+        .skip(skip)
+        .limit(parseInt(limit)),
+      Document.countDocuments(query),
+    ]);
+    res.json({
+      documents,
+      pagination: {
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        pages: Math.ceil(total / parseInt(limit)),
+        hasMore: skip + documents.length < total,
+      },
+    });
   } catch (error) {
     next(error);
   }
@@ -317,21 +350,17 @@ router.get("/:id/activity", protect, async (req, res, next) => {
   try {
     const document = await Document.findById(req.params.id)
       .populate('activity.user', 'name email');
-
     if (!document) {
       return res.status(404).json({ message: 'Document not found' });
     }
-
     const hasAccess =
       document.owner.toString() === req.user._id.toString() ||
       document.collaborators.some(
         c => c.toString() === req.user._id.toString()
       );
-
     if (!hasAccess) {
       return res.status(403).json({ message: 'Access denied' });
     }
-
     const activityFeed = document.activity.sort((a, b) => b.timestamp - a.timestamp);
     res.json({ activity: activityFeed.slice(0, 50) });
   } catch (error) {

@@ -76,7 +76,6 @@ function OfflineBanner() {
       fontWeight: '500',
       zIndex: 9999,
     }}>
-      
       <div style={{ position: 'relative', width: '20px', height: '20px' }}>
         <div style={{
           width: '8px',

@@ -30,7 +30,6 @@ function SectionLockWarning({ locks }) {
             animation: 'fadeInUp 0.2s ease-out',
           }}
         >
-          
           <div style={{
             width: '8px',
             height: '8px',

@@ -1,14 +1,11 @@
 function PresenceAvatars({ users, currentUserId }) {
   if (!users || users.length === 0) return null;
-
   const otherUsers = users.filter(u => u.userId !== currentUserId);
   const MAX_VISIBLE = 3;
   const visible = otherUsers.slice(0, MAX_VISIBLE);
   const overflow = otherUsers.length - MAX_VISIBLE;
   const totalInRoom = users.length;
-
   if (otherUsers.length === 0) {
-
     return (
       <div style={{
         display: 'flex',
@@ -27,10 +24,8 @@ function PresenceAvatars({ users, currentUserId }) {
       </div>
     );
   }
-
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-
       <span style={{
         fontSize: '12px',
         color: '#6B7280',
@@ -38,7 +33,6 @@ function PresenceAvatars({ users, currentUserId }) {
       }}>
         {totalInRoom} editing
       </span>
-
       <div style={{ display: 'flex', alignItems: 'center' }}>
         {visible.map((user, index) => (
           <div
@@ -75,7 +69,6 @@ function PresenceAvatars({ users, currentUserId }) {
             {user.name.charAt(0).toUpperCase()}
           </div>
         ))}
-
         {overflow > 0 && (
           <div
             title={`${overflow} more`}
@@ -100,7 +93,6 @@ function PresenceAvatars({ users, currentUserId }) {
           </div>
         )}
       </div>
-
       <div style={{
         width: '7px',
         height: '7px',
@@ -118,5 +110,4 @@ function PresenceAvatars({ users, currentUserId }) {
     </div>
   );
 }
-
 export default PresenceAvatars;

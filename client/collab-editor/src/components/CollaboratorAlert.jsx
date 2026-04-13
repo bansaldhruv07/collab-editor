@@ -76,7 +76,7 @@ function CollaboratorAlert({ alerts, onDismiss }) {
   return (
     <div style={{
       position: 'fixed',
-      bottom: '80px',   
+      bottom: '80px',
       right: '24px',
       display: 'flex',
       flexDirection: 'column',

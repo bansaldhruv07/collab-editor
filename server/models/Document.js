@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-
 const activitySchema = new mongoose.Schema({
   type: {
     type: String,
@@ -33,7 +32,6 @@ const activitySchema = new mongoose.Schema({
     default: Date.now,
   },
 });
-
 const versionSchema = new mongoose.Schema({
   content: {
     type: String,
@@ -98,11 +96,13 @@ const documentSchema = new mongoose.Schema(
   },
 );
 documentSchema.index({ owner: 1 });
-
 documentSchema.index({ collaborators: 1 });
-
 documentSchema.index({ owner: 1, updatedAt: -1 });
-
-documentSchema.index({ title: 'text' });
-
+documentSchema.index(
+  { title: 'text', content: 'text' },
+  {
+    weights: { title: 10, content: 1 },
+    name: 'document_text_index',
+  }
+);
 module.exports = mongoose.model("Document", documentSchema);

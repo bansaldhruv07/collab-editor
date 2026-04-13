@@ -172,7 +172,7 @@ const DocumentCard = memo(function DocumentCard({ document, onDelete, onRename, 
         <div ref={menuRef} style={{ position: "absolute", top: "16px", right: "16px" }}>
           <button
             onClick={(e) => {
-              e.stopPropagation(); 
+              e.stopPropagation();
               setShowMenu((prev) => !prev);
             }}
             style={{

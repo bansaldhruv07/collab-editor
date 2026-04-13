@@ -19,13 +19,14 @@ import CollaboratorAlert from '../components/CollaboratorAlert';
 import ActivityFeedPanel from '../components/ActivityFeedPanel';
 import saveQueue from '../services/saveQueue';
 import SectionLockWarning from '../components/SectionLockWarning';
-
+import ExportModal from '../components/ExportModal';
 function EditorPage() {
   const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [showStats, setShowStats] = useState(false);
   const [showActivity, setShowActivity] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
   const [document, setDocument] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -34,7 +35,6 @@ function EditorPage() {
   const [titleValue, setTitleValue] = useState("");
   const [showShareModal, setShowShareModal] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
-
   const titleInputRef = useRef(null);
   const editorRef = useRef(null);
   const [activeUsers, setActiveUsers] = useState([]);
@@ -49,43 +49,35 @@ function EditorPage() {
   const [collabAlerts, setCollabAlerts] = useState([]);
   const previousUsersRef = useRef([]);
   const typingTimerRef = useRef(null);
-
   useEffect(() => {
     fetchDocument();
   }, [id]);
-
   useEffect(() => {
     if (isEditingTitle && titleInputRef.current) {
       titleInputRef.current.focus();
       titleInputRef.current.select();
     }
   }, [isEditingTitle]);
-
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       if (saveStatus === 'unsaved' && editorRef.current) {
         const { delta, html } = editorRef.current.getContent();
-
         const token = localStorage.getItem('token');
         const payload = JSON.stringify({
           content: delta,
           htmlContent: html,
         });
-
         navigator.sendBeacon(
           `${import.meta.env.VITE_API_URL}/documents/${id}/content?token=${token}`,
           new Blob([payload], { type: 'application/json' })
         );
-
         e.preventDefault();
         e.returnValue = '';
       }
     };
-
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [saveStatus, id]);
-
   const fetchDocument = useCallback(async () => {
     try {
       setLoading(true);
@@ -108,26 +100,20 @@ function EditorPage() {
       setLoading(false);
     }
   }, [id, user._id]);
-
   useEffect(() => {
     if (!socket || !id) return;
-
     socket.emit('join-document', id);
-
     socket.on('presence-update', (users) => {
       setTimeout(() => {
         const currentUserId = user?._id?.toString();
-
         const newUsers = users.filter(u =>
           u.userId !== currentUserId &&
           !previousUsersRef.current.some(p => p.userId === u.userId)
         );
-
         const leftUsers = previousUsersRef.current.filter(p =>
           p.userId !== currentUserId &&
           !users.some(u => u.userId === p.userId)
         );
-
         newUsers.forEach(u => {
           const alertId = `${u.userId}-${Date.now()}`;
           setCollabAlerts(prev => [
@@ -135,91 +121,72 @@ function EditorPage() {
             { id: alertId, type: 'join', name: u.name, color: u.color },
           ]);
         });
-
         leftUsers.forEach(u => {
           const alertId = `${u.userId}-${Date.now()}`;
           setCollabAlerts(prev => [
             ...prev,
             { id: alertId, type: 'leave', name: u.name, color: u.color },
           ]);
-
           setTypingUsers(prev => prev.filter(t => t.userId !== u.userId));
-
           if (editorRef.current) {
             editorRef.current.setCursor(u.userId, null, u.color, u.name);
             editorRef.current.setSelection(u.userId, null, u.color, u.name);
           }
         });
-
         previousUsersRef.current = users;
         setActiveUsers(users);
       }, 100);
     });
-
     socket.on('receive-changes', (delta) => {
       if (editorRef.current) {
         editorRef.current.applyDelta(delta);
       }
     });
-
     socket.on('cursor-update', ({ userId, name, color, range }) => {
       if (editorRef.current) {
         editorRef.current.setCursor(userId, range, color, name);
       }
     });
-
     socket.on('remote-selection', ({ userId, name, color, range }) => {
       if (editorRef.current) {
         editorRef.current.setSelection(userId, range, color, name);
       }
     });
-
     socket.on('user-typing', ({ userId, name, color }) => {
       setTypingUsers(prev => {
-
         if (prev.some(u => u.userId === userId)) return prev;
         return [...prev, { userId, name, color }];
       });
     });
-
     socket.on('user-stopped-typing', ({ userId }) => {
       setTypingUsers(prev => prev.filter(u => u.userId !== userId));
     });
-
     socket.on('document-saved', ({ savedAt, savedBy }) => {
       setSaveStatus('saved');
       setDocument(prev => prev ? { ...prev, updatedAt: savedAt } : prev);
     });
-
     socket.on('version-restored', ({ restoredBy }) => {
       fetchDocument();
       addToast(`Document restored by ${restoredBy}`, 'info');
     });
-
     socket.on('connect', () => {
       socket.emit('join-document', id);
       addToast('Reconnected', 'success');
     });
-
     socket.on('activity-update', () => {
-      // If activity panel is open, it will auto-refresh via its own timer
     });
-
     socket.on('section-locked', ({ userId, name, color, lineIndex, lineText }) => {
       setSectionLocks(prev => {
         const filtered = prev.filter(l => l.userId !== userId);
         return [...filtered, { userId, name, color, lineIndex, lineText }];
       });
-
       setTimeout(() => {
         setSectionLocks(prev => prev.filter(l => l.userId !== userId));
       }, 5000);
     });
-
     socket.on('section-unlocked', ({ userId }) => {
       setSectionLocks(prev => prev.filter(l => l.userId !== userId));
     });
-
     return () => {
       socket.emit('leave-document', id);
       socket.off('presence-update');
@@ -234,13 +201,11 @@ function EditorPage() {
       socket.off('activity-update');
       socket.off('section-locked');
       socket.off('section-unlocked');
-
       if (typingTimerRef.current) {
         clearTimeout(typingTimerRef.current);
       }
     };
   }, [socket, id, user, fetchDocument, addToast]);
-
   useEffect(() => {
     if (editorRef.current) {
       Object.entries(remoteCursors).forEach(([userId, data]) => {
@@ -248,7 +213,6 @@ function EditorPage() {
       });
     }
   }, [remoteCursors]);
-
   const handleCursorMove = useCallback((range) => {
     if (socket && id) {
       socket.emit('cursor-move', {
@@ -257,7 +221,6 @@ function EditorPage() {
       });
     }
   }, [socket, id]);
-
   const handleSelectionChange = useCallback((range) => {
     if (socket && id) {
       socket.emit('selection-change', {
@@ -266,11 +229,9 @@ function EditorPage() {
       });
     }
   }, [socket, id]);
-
   const handleAlertDismiss = useCallback((alertId) => {
     setCollabAlerts(prev => prev.filter(a => a.id !== alertId));
   }, []);
-
   const handleSave = async (content, htmlContent) => {
     try {
       setSaveStatus("saving");
@@ -281,7 +242,6 @@ function EditorPage() {
       addToast("Failed to save document", "error");
     }
   };
-
   useKeyboardShortcut("s", async () => {
     if (editorRef.current) {
       const { delta, html } = editorRef.current.getContent();
@@ -289,13 +249,10 @@ function EditorPage() {
       addToast("Document saved", "success");
     }
   });
-
   const debouncedSave = useDebouncedCallback(
     async (deltaOrContents, html) => {
       if (!editorRef.current) return;
-
       const { delta: fullContent, html: fullHtml } = editorRef.current.getContent();
-
       if (socket && id) {
         socket.emit('save-document', {
           documentId: id,
@@ -303,7 +260,6 @@ function EditorPage() {
           htmlContent: fullHtml,
         });
       }
-
       try {
         setSaveStatus('saving');
         await documentService.saveContent(id, fullContent, fullHtml);
@@ -313,10 +269,8 @@ function EditorPage() {
     },
     2000
   );
-
   const handleChange = useCallback((delta, html) => {
     setSaveStatus('unsaved');
-
     if (editorRef.current) {
       const quill = editorRef.current.getQuill();
       if (quill) {
@@ -325,36 +279,28 @@ function EditorPage() {
         setWordCount(words);
       }
     }
-
     if (socket && id) {
       socket.emit('send-changes', { documentId: id, delta });
-
       socket.emit('typing-start', { documentId: id });
-
       if (typingTimerRef.current) {
         clearTimeout(typingTimerRef.current);
       }
-
       typingTimerRef.current = setTimeout(() => {
         socket.emit('typing-stop', { documentId: id });
       }, 2000);
     }
-
     debouncedSave(delta, html);
   }, [socket, id, debouncedSave]);
-
   const handleTitleSave = async () => {
     if (!titleValue.trim()) {
       setTitleValue(document.title);
       setIsEditingTitle(false);
       return;
     }
-
     if (titleValue === document.title) {
       setIsEditingTitle(false);
       return;
     }
-
     try {
       await documentService.updateTitle(id, titleValue.trim());
       setDocument((prev) => ({ ...prev, title: titleValue.trim() }));
@@ -363,7 +309,6 @@ function EditorPage() {
     }
     setIsEditingTitle(false);
   };
-
   const handleTitleKeyDown = (e) => {
     if (e.key === "Enter") handleTitleSave();
     if (e.key === "Escape") {
@@ -371,26 +316,21 @@ function EditorPage() {
       setIsEditingTitle(false);
     }
   };
-
   const saveIndicator = {
     saved: { text: "✓ Saved", color: "#16A34A" },
     saving: { text: "⟳ Saving...", color: "#9CA3AF" },
     unsaved: { text: "● Unsaved", color: "#D97706" },
   };
-
   const handleRestore = useCallback(async (newContent) => {
     await fetchDocument();
-
     if (socket && id) {
       socket.emit('restore-version', {
         documentId: id,
         content: newContent,
       });
     }
-
     addToast('Document restored to previous version', 'success');
   }, [socket, id, fetchDocument, addToast]);
-
   if (loading) {
     return (
       <>
@@ -429,7 +369,6 @@ function EditorPage() {
       </>
     );
   }
-
   if (error) {
     return (
       <>
@@ -453,7 +392,6 @@ function EditorPage() {
       </>
     );
   }
-
   return (
     <>
       <ProgressBar loading={loading} />
@@ -496,11 +434,9 @@ function EditorPage() {
         >
           ←
         </button>
-
         <span style={{ fontWeight: "700", color: "#4F46E5", fontSize: "16px" }}>
           📝
         </span>
-
         <div style={{ flex: 1 }}>
           {isEditingTitle ? (
             <input
@@ -541,7 +477,6 @@ function EditorPage() {
             </span>
           )}
         </div>
-
         <button
           onClick={() => setShowShareModal(true)}
           style={{
@@ -560,7 +495,6 @@ function EditorPage() {
         >
           👥 Share
         </button>
-
         <button
           onClick={() => {
             setShowVersionHistory(prev => !prev);
@@ -581,7 +515,6 @@ function EditorPage() {
         >
           🕐 History
         </button>
-
         <button
           onClick={() => {
             setShowStats(prev => !prev);
@@ -602,7 +535,6 @@ function EditorPage() {
         >
           📊 Stats
         </button>
-
         <button
           onClick={() => {
             setShowActivity(prev => !prev);
@@ -623,8 +555,22 @@ function EditorPage() {
         >
           📋 Activity
         </button>
+        <button
+          onClick={() => setShowExportModal(true)}
+          style={{
+            padding: '7px 14px',
+            background: 'transparent',
+            color: '#6B7280',
+            border: '1px solid #E5E7EB',
+            borderRadius: '8px',
+            fontSize: '13px',
+            fontWeight: '500',
+            cursor: 'pointer',
+          }}
+        >
+          ↓ Export
+        </button>
         <PresenceAvatars users={activeUsers} currentUserId={user?._id} />
-
         {lastEditedBy && lastEditedBy._id !== user?._id && (
           <span style={{
             fontSize: '12px',
@@ -640,7 +586,6 @@ function EditorPage() {
             </strong>
           </span>
         )}
-
         <div
           title="Keyboard shortcuts: Ctrl+S to save"
           style={{
@@ -699,7 +644,6 @@ function EditorPage() {
         >
           {saveIndicator[saveStatus].text}
         </span>
-
         <div
           style={{
             width: "32px",
@@ -717,7 +661,6 @@ function EditorPage() {
           {user?.name?.charAt(0).toUpperCase()}
         </div>
       </nav>
-
       <div style={{
         flex: 1,
         maxWidth: '860px',
@@ -738,14 +681,12 @@ function EditorPage() {
           wordCount={wordCount}
         />
       </div>
-
       <TypingIndicator typingUsers={typingUsers} />
       <SectionLockWarning locks={sectionLocks} />
       <CollaboratorAlert
         alerts={collabAlerts}
         onDismiss={handleAlertDismiss}
       />
-
       {showShareModal && (
         <ShareModal
           documentId={id}
@@ -753,7 +694,6 @@ function EditorPage() {
           onClose={() => setShowShareModal(false)}
         />
       )}
-
       {showVersionHistory && (
         <VersionHistoryPanel
           documentId={id}
@@ -762,7 +702,6 @@ function EditorPage() {
           onClose={() => setShowVersionHistory(false)}
         />
       )}
-
       {showStats && (
         <DocumentStats
           quill={editorRef.current?.getQuill()}
@@ -771,16 +710,21 @@ function EditorPage() {
           updatedAt={document?.updatedAt}
         />
       )}
-
       {showActivity && (
         <ActivityFeedPanel
           documentId={id}
           onClose={() => setShowActivity(false)}
         />
       )}
+      {showExportModal && (
+        <ExportModal
+          title={document?.title || 'Untitled'}
+          quill={editorRef.current?.getQuill()}
+          onClose={() => setShowExportModal(false)}
+        />
+      )}
       </div>
     </>
   );
 }
-
 export default EditorPage;

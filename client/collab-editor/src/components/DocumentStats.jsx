@@ -15,7 +15,6 @@ function DocumentStats({ quill, documentId, createdAt, updatedAt }) {
       ? text.trim().split(/\s+/).filter(Boolean).length
       : 0;
     const characters = text.length - 1;
-
     const charactersNoSpaces = text.replace(/\s/g, "").length;
     const paragraphs = text
       .split("\n")
@@ -36,7 +35,6 @@ function DocumentStats({ quill, documentId, createdAt, updatedAt }) {
   useEffect(() => {
     if (!quill) return;
     computeStats();
-
     quill.on("text-change", computeStats);
     return () => quill.off("text-change", computeStats);
   }, [quill, computeStats]);

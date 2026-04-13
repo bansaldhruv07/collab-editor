@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import useDebounce from "../hooks/useDebounce";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import documentService from "../services/documentService";
@@ -15,32 +16,39 @@ function DashboardPage() {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [pagination, setPagination] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const [showTemplatePicker, setShowTemplatePicker] = useState(false);
   const { addToast } = useToast();
-  const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebounce(searchQuery, 400);
   useKeyboardShortcut("n", () => setShowTemplatePicker(true));
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch]);
+  useEffect(() => {
     fetchDocuments();
-  }, []);
-  const fetchDocuments = async (forceRefresh = false) => {
+  }, [debouncedSearch, currentPage]);
+  const fetchDocuments = useCallback(async (forceRefresh = false) => {
     try {
       setLoading(true);
       setError("");
-      const data = await documentService.getDocuments(forceRefresh);
-      setDocuments(data);
+      const data = await documentService.getDocuments({
+        search: debouncedSearch || undefined,
+        page: currentPage,
+        limit: 20,
+        forceRefresh,
+      });
+      setDocuments(data.documents);
+      setPagination(data.pagination);
     } catch (err) {
       setError("Failed to load documents. Please try again.");
     } finally {
       setLoading(false);
     }
-  };
-  const filteredDocuments = useMemo(() => {
-    if (!searchQuery.trim()) return documents;
-    const query = searchQuery.toLowerCase().trim();
-    return documents.filter((doc) => doc.title.toLowerCase().includes(query));
-  }, [documents, searchQuery]);
+  }, [debouncedSearch, currentPage]);
   const handleCreate = async (template) => {
     try {
       const title =
@@ -152,7 +160,7 @@ function DashboardPage() {
             </h1>
             <p style={{ color: "#6B7280", marginTop: "4px", fontSize: "14px" }}>
               {searchQuery
-                ? `${filteredDocuments.length} result${filteredDocuments.length !== 1 ? "s" : ""}`
+                ? `${documents.length} result${documents.length !== 1 ? "s" : ""}`
                 : documents.length > 0
                   ? `${documents.length} document${documents.length !== 1 ? "s" : ""}`
                   : "No documents yet"}
@@ -284,7 +292,7 @@ function DashboardPage() {
             </Button>
           </div>
         )}
-        {!loading && searchQuery && filteredDocuments.length === 0 && (
+        {!loading && searchQuery && documents.length === 0 && (
           <div
             style={{
               textAlign: "center",
@@ -298,7 +306,7 @@ function DashboardPage() {
             </p>
           </div>
         )}
-        {!loading && filteredDocuments.length > 0 && (
+        {!loading && documents.length > 0 && (
           <div
             style={{
               display: "grid",
@@ -306,7 +314,7 @@ function DashboardPage() {
               gap: "16px",
             }}
           >
-            {filteredDocuments.map((doc) => (
+            {documents.map((doc) => (
               <DocumentCard
                 key={doc._id}
                 document={doc}
@@ -316,6 +324,66 @@ function DashboardPage() {
               />
             ))}
           </div>
+        )}
+        {pagination && pagination.pages > 1 && (
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '8px',
+            marginTop: '32px',
+          }}>
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              style={{
+                padding: '8px 14px',
+                background: 'none',
+                border: '1px solid #E5E7EB',
+                borderRadius: '8px',
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                opacity: currentPage === 1 ? 0.5 : 1,
+                fontSize: '14px',
+                color: '#374151',
+              }}
+            >
+              ← Prev
+            </button>
+            <span style={{ fontSize: '14px', color: '#6B7280' }}>
+              Page {currentPage} of {pagination.pages}
+            </span>
+            <button
+              onClick={() => setCurrentPage(prev =>
+                Math.min(pagination.pages, prev + 1)
+              )}
+              disabled={currentPage === pagination.pages}
+              style={{
+                padding: '8px 14px',
+                background: 'none',
+                border: '1px solid #E5E7EB',
+                borderRadius: '8px',
+                cursor: currentPage === pagination.pages ? 'not-allowed' : 'pointer',
+                opacity: currentPage === pagination.pages ? 0.5 : 1,
+                fontSize: '14px',
+                color: '#374151',
+              }}
+            >
+              Next →
+            </button>
+          </div>
+        )}
+        {debouncedSearch && pagination && (
+          <p style={{
+            textAlign: 'center',
+            fontSize: '14px',
+            color: '#9CA3AF',
+            marginTop: '16px',
+          }}>
+            {pagination.total === 0
+              ? `No results for "${debouncedSearch}"`
+              : `${pagination.total} result${pagination.total !== 1 ? 's' : ''} for "${debouncedSearch}"`
+            }
+          </p>
         )}
       </main>
       {showTemplatePicker && (

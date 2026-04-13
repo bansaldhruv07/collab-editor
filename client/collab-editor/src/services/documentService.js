@@ -12,14 +12,22 @@ const removeCollaborator = async (id, userId) => {
   const response = await api.delete(`/documents/${id}/collaborators/${userId}`);
   return response.data;
 };
-const getDocuments = async (forceRefresh = false) => {
-  const cacheKey = "documents:list";
-  if (!forceRefresh) {
+const getDocuments = async (options = {}) => {
+  const { search, page = 1, limit = 20, forceRefresh = false } = options;
+  const cacheKey = `documents:list:${search || ''}:${page}:${limit}`;
+  if (!forceRefresh && !search) {
     const cached = cache.get(cacheKey);
     if (cached) return cached;
   }
-  const response = await api.get("/documents");
-  cache.set(cacheKey, response.data, 30000);
+  const params = new URLSearchParams();
+  if (search) params.append('search', search);
+  if (page !== 1) params.append('page', page);
+  if (limit !== 20) params.append('limit', limit);
+  const url = `/documents${params.toString() ? `?${params}` : ''}`;
+  const response = await api.get(url);
+  if (!search) {
+    cache.set(cacheKey, response.data, 30000);
+  }
   return response.data;
 };
 const getDocument = async (id) => {

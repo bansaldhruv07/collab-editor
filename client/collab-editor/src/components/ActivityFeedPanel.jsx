@@ -80,7 +80,6 @@ function ActivityFeedPanel({ documentId, onClose }) {
       zIndex: 40,
       boxShadow: '-4px 0 16px rgba(0,0,0,0.06)',
     }}>
-      
       <div style={{
         padding: '20px',
         borderBottom: '1px solid #E5E7EB',
@@ -127,7 +126,6 @@ function ActivityFeedPanel({ documentId, onClose }) {
           </button>
         </div>
       </div>
-      
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
         {loading && <Spinner size={28} />}
         {error && (
@@ -141,10 +139,8 @@ function ActivityFeedPanel({ documentId, onClose }) {
             <p style={{ fontSize: '14px' }}>No activity yet</p>
           </div>
         )}
-        
         {Object.entries(groupedActivities).map(([date, items]) => (
           <div key={date} style={{ marginBottom: '20px' }}>
-            
             <div style={{
               fontSize: '11px',
               fontWeight: '600',
@@ -157,7 +153,6 @@ function ActivityFeedPanel({ documentId, onClose }) {
             }}>
               {date}
             </div>
-            
             <div style={{
               display: 'flex',
               flexDirection: 'column',
@@ -176,7 +171,6 @@ function ActivityFeedPanel({ documentId, onClose }) {
                   onMouseEnter={e => e.currentTarget.style.background = '#F9FAFB'}
                   onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                 >
-                  
                   <div style={{
                     width: '28px',
                     height: '28px',
@@ -190,7 +184,6 @@ function ActivityFeedPanel({ documentId, onClose }) {
                   }}>
                     {ACTIVITY_ICONS[activity.type] || '📝'}
                   </div>
-                  
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{
                       fontSize: '13px',

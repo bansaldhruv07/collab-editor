@@ -11,14 +11,12 @@ const TOOLBAR_OPTIONS = [
   ["link"],
   ["clean"],
 ];
-
 const Editor = forwardRef(function Editor(
   { documentId, initialContent, onSave, onChange, onCursorMove, onSelectionChange, wordCount },
   ref
 ) {
     const editorRef = useRef(null);
     const quillRef = useRef(null);
-
     useImperativeHandle(ref, () => ({
       getContent: () => {
         if (!quillRef.current) return { delta: "", html: "" };
@@ -27,7 +25,6 @@ const Editor = forwardRef(function Editor(
           html: quillRef.current.root.innerHTML,
         };
       },
-
       setContent: (deltaString) => {
         if (!quillRef.current) return;
         try {
@@ -37,7 +34,6 @@ const Editor = forwardRef(function Editor(
           quillRef.current.setText(deltaString, "api");
         }
       },
-
       applyDelta: (delta) => {
         if (!quillRef.current) return;
         const currentSelection = quillRef.current.getSelection();
@@ -46,28 +42,21 @@ const Editor = forwardRef(function Editor(
           quillRef.current.setSelection(currentSelection, "api");
         }
       },
-
       getQuill: () => quillRef.current,
-
       focus: () => {
         if (quillRef.current) {
           quillRef.current.focus();
         }
       },
-
       setCursor: (userId, range, color, name) => {
         if (!quillRef.current) return;
-
         const existingCursor = document.querySelector(
           `[data-cursor-id="${userId}"]`
         );
         if (existingCursor) existingCursor.remove();
-
         if (!range) return;
-
         const bounds = quillRef.current.getBounds(range.index);
         if (!bounds) return;
-
         const cursor = document.createElement('div');
         cursor.setAttribute('data-cursor-id', userId);
         cursor.style.cssText = `
@@ -80,7 +69,6 @@ const Editor = forwardRef(function Editor(
           pointer-events: none;
           z-index: 10;
         `;
-
         const label = document.createElement('div');
         label.textContent = name;
         label.style.cssText = `
@@ -95,32 +83,23 @@ const Editor = forwardRef(function Editor(
           white-space: nowrap;
           pointer-events: none;
         `;
-
         cursor.appendChild(label);
-
         quillRef.current.root.style.position = 'relative';
         quillRef.current.root.appendChild(cursor);
       },
-
       setSelection: (userId, range, color, name) => {
         if (!quillRef.current) return;
-
         const existing = quillRef.current.root.querySelectorAll(
           `[data-selection-id="${userId}"]`
         );
         existing.forEach(el => el.remove());
-
         if (!range || range.length === 0) return;
-
         try {
           const startBounds = quillRef.current.getBounds(range.index);
           const endBounds = quillRef.current.getBounds(range.index + range.length);
-
           if (!startBounds || !endBounds) return;
-
           const highlight = document.createElement('div');
           highlight.setAttribute('data-selection-id', userId);
-
           const top = Math.min(startBounds.top, endBounds.top);
           const left = range.index === range.index + range.length
             ? startBounds.left
@@ -129,7 +108,6 @@ const Editor = forwardRef(function Editor(
             ? endBounds.left - startBounds.left
             : quillRef.current.root.offsetWidth;
           const height = endBounds.top - startBounds.top + endBounds.height;
-
           highlight.style.cssText = `
             position: absolute;
             top: ${top}px;
@@ -142,7 +120,6 @@ const Editor = forwardRef(function Editor(
             pointer-events: none;
             z-index: 5;
           `;
-
           const label = document.createElement('div');
           label.textContent = name;
           label.style.cssText = `
@@ -159,16 +136,13 @@ const Editor = forwardRef(function Editor(
             font-family: sans-serif;
           `;
           highlight.appendChild(label);
-
           quillRef.current.root.style.position = 'relative';
           quillRef.current.root.appendChild(highlight);
         } catch (err) {}
       },
     }));
-
     useEffect(() => {
       if (quillRef.current) return;
-
       const quill = new Quill(editorRef.current, {
         theme: "snow",
         modules: {
@@ -176,9 +150,7 @@ const Editor = forwardRef(function Editor(
         },
         placeholder: "Start writing...",
       });
-
       quillRef.current = quill;
-
       if (initialContent) {
         try {
           const delta = JSON.parse(initialContent);
@@ -187,30 +159,23 @@ const Editor = forwardRef(function Editor(
           quill.setText(initialContent);
         }
       }
-
       quill.on("text-change", (delta, oldDelta, source) => {
         if (source !== "user") return;
-
         const html = quill.root.innerHTML;
-
         if (onChange) {
           onChange(delta, html);
         }
       });
-
       quill.on("selection-change", (range, oldRange, source) => {
         if (source !== "user") return;
-
         if (onCursorMove) {
           onCursorMove(range);
         }
-
         if (onSelectionChange) {
           onSelectionChange(range);
         }
       });
     }, []);
-
     useEffect(() => {
       if (quillRef.current && initialContent) {
         const currentLength = quillRef.current.getLength();
@@ -224,7 +189,6 @@ const Editor = forwardRef(function Editor(
         }
       }
     }, [initialContent]);
-
     return (
       <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
         <div
@@ -258,5 +222,4 @@ const Editor = forwardRef(function Editor(
     );
   },
 );
-
 export default Editor;
