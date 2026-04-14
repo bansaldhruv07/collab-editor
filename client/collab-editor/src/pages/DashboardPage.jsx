@@ -12,6 +12,7 @@ import useKeyboardShortcut from "../hooks/useKeyboardShortcut";
 import { useToast } from "../components/Toast";
 import TemplatePicker from "../components/TemplatePicker";
 import ProgressBar from "../components/ProgressBar";
+import Onboarding from "../components/Onboarding";
 function DashboardPage() {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,6 +21,7 @@ function DashboardPage() {
   const [pagination, setPagination] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [showTemplatePicker, setShowTemplatePicker] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const { addToast } = useToast();
   const debouncedSearch = useDebounce(searchQuery, 400);
   useKeyboardShortcut("n", () => setShowTemplatePicker(true));
@@ -31,6 +33,22 @@ function DashboardPage() {
   useEffect(() => {
     fetchDocuments();
   }, [debouncedSearch, currentPage]);
+
+  useEffect(() => {
+    const shouldShow = localStorage.getItem("showOnboarding") === "true";
+    if (shouldShow) {
+      setShowOnboarding(true);
+      localStorage.removeItem("showOnboarding");
+    }
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("new") === "1") {
+      setShowTemplatePicker(true);
+      window.history.replaceState({}, "", "/dashboard");
+    }
+  }, []);
   const fetchDocuments = useCallback(async (forceRefresh = false) => {
     try {
       setLoading(true);
@@ -391,6 +409,9 @@ function DashboardPage() {
           onClose={() => setShowTemplatePicker(false)}
           onSelect={handleCreate}
         />
+      )}
+      {showOnboarding && (
+        <Onboarding onComplete={() => setShowOnboarding(false)} />
       )}
       </div>
     </>

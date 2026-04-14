@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import documentService from "../services/documentService";
 import { useToast } from "./Toast";
 import Spinner from "./Spinner";
-function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose }) {
+function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose, showVersionHistory }) {
   const [versions, setVersions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [previewVersion, setPreviewVersion] = useState(null);
@@ -10,9 +10,13 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose }) {
   const [restoring, setRestoring] = useState(false);
   const { addToast } = useToast();
   const isMobile = window.innerWidth < 640;
+
   useEffect(() => {
-    fetchVersions();
-  }, []);
+    if (showVersionHistory) {
+      fetchVersions();
+    }
+  }, [showVersionHistory]);
+
   const fetchVersions = async () => {
     try {
       setLoading(true);

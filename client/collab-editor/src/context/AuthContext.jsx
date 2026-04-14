@@ -23,6 +23,7 @@ export function AuthProvider({ children }) {
     const data = await authService.register(name, email, password);
     localStorage.setItem("token", data.token);
     localStorage.setItem("user", JSON.stringify(data));
+    localStorage.setItem("showOnboarding", "true");
     setUser(data);
     return data;
   };

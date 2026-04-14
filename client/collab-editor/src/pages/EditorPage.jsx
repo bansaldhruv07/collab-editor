@@ -700,6 +700,7 @@ function EditorPage() {
           isOwner={isOwner}
           onRestore={handleRestore}
           onClose={() => setShowVersionHistory(false)}
+          showVersionHistory={showVersionHistory}
         />
       )}
       {showStats && (
