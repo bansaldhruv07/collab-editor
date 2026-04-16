@@ -318,7 +318,7 @@ function EditorPage() {
   };
   const saveIndicator = {
     saved: { text: "✓ Saved", color: "#16A34A" },
-    saving: { text: "⟳ Saving...", color: "#9CA3AF" },
+    saving: { text: "⟳ Saving...", color: "#6B7280" },
     unsaved: { text: "● Unsaved", color: "#D97706" },
   };
   const handleRestore = useCallback(async (newContent) => {
@@ -419,6 +419,7 @@ function EditorPage() {
       >
         <button
           onClick={() => navigate("/dashboard")}
+          aria-label="Back to dashboard"
           style={{
             background: "none",
             border: "none",
@@ -574,7 +575,7 @@ function EditorPage() {
         {lastEditedBy && lastEditedBy._id !== user?._id && (
           <span style={{
             fontSize: '12px',
-            color: '#9CA3AF',
+            color: '#6B7280',
             whiteSpace: 'nowrap',
             display: 'flex',
             alignItems: 'center',
@@ -590,7 +591,7 @@ function EditorPage() {
           title="Keyboard shortcuts: Ctrl+S to save"
           style={{
             fontSize: "12px",
-            color: "#9CA3AF",
+            color: "#6B7280",
             cursor: "default",
             display: window.innerWidth < 640 ? 'none' : 'flex',
             alignItems: "center",

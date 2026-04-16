@@ -30,6 +30,8 @@ const initializeSocket = (io) => {
   });
   io.on('connection', (socket) => {
     console.log(`Connected: ${socket.user.name} (${socket.id})`);
+
+    socket.join(`user:${socket.user._id}`);
     socket.on('join-document', (documentId) => {
       if (socket.currentDocument) {
         handleLeaveDocument(socket, io, socket.currentDocument);

@@ -113,16 +113,17 @@ function NotificationBell() {
     <div style={{ position: 'relative' }} ref={panelRef}>
       <button
         onClick={() => setShowPanel(prev => !prev)}
+        aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ""}`}
         style={{
-          position: 'relative',
-          background: 'none',
-          border: '1px solid #E5E7EB',
-          borderRadius: '8px',
-          padding: '7px 10px',
-          cursor: 'pointer',
-          fontSize: '16px',
-          color: '#6B7280',
-          transition: 'border-color 0.15s',
+          position: "relative",
+          background: "none",
+          border: "1px solid #E5E7EB",
+          borderRadius: "8px",
+          padding: "7px 10px",
+          cursor: "pointer",
+          fontSize: "16px",
+          color: "#6B7280",
+          transition: "border-color 0.15s",
         }}
         onMouseEnter={e => e.currentTarget.style.borderColor = '#C7D2FE'}
         onMouseLeave={e => e.currentTarget.style.borderColor = '#E5E7EB'}

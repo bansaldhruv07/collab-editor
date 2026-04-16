@@ -14,6 +14,7 @@ const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const EditorPage = lazy(() => import("./pages/EditorPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
+const TrashPage = lazy(() => import("./pages/TrashPage"));
 function PageLoader() {
   return (
     <div
@@ -106,6 +107,14 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <SettingsPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/trash"
+                    element={
+                      <ProtectedRoute>
+                        <TrashPage />
                       </ProtectedRoute>
                     }
                   />

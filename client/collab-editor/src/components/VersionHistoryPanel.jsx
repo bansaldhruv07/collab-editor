@@ -122,12 +122,13 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose, showVers
           <h3 style={{ fontSize: "16px", fontWeight: "600", color: "#111827" }}>
             Version history
           </h3>
-          <p style={{ fontSize: "12px", color: "#9CA3AF", marginTop: "2px" }}>
+          <p style={{ fontSize: "12px", color: "#6B7280", marginTop: "2px" }}>
             {versions.length} saved version{versions.length !== 1 ? "s" : ""}
           </p>
         </div>
         <button
           onClick={onClose}
+          aria-label="Close version history"
           style={{
             background: "none",
             border: "none",
@@ -147,7 +148,7 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose, showVers
             style={{
               textAlign: "center",
               padding: "40px 20px",
-              color: "#9CA3AF",
+              color: "#6B7280",
             }}
           >
             <div style={{ fontSize: "32px", marginBottom: "8px" }}>📋</div>
@@ -224,7 +225,7 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose, showVers
                       </span>
                     )}
                   </p>
-                  <p style={{ fontSize: "12px", color: "#9CA3AF" }}>
+                  <p style={{ fontSize: "12px", color: "#6B7280" }}>
                     {version.savedBy?.name || "Unknown"} ·{" "}
                     {timeAgo(version.savedAt)}
                   </p>
@@ -303,7 +304,7 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose, showVers
                     <p
                       style={{
                         fontSize: "11px",
-                        color: "#9CA3AF",
+                        color: "#6B7280",
                         marginBottom: "10px",
                       }}
                     >

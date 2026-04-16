@@ -90,7 +90,7 @@ function DashboardPage() {
     try {
       await documentService.deleteDocument(id);
       setDocuments((prev) => prev.filter((doc) => doc._id !== id));
-      addToast("Document deleted", "success");
+      addToast("Document moved to recycle bin", "success");
     } catch (err) {
       addToast("Failed to delete document", "error");
     }
@@ -107,6 +107,18 @@ function DashboardPage() {
         addToast("Document renamed", "success");
       } catch (err) {
         addToast("Failed to rename document", "error");
+      }
+    },
+    [addToast],
+  );
+  const handleDuplicate = useCallback(
+    async (id) => {
+      try {
+        const newDoc = await documentService.duplicateDocument(id);
+        setDocuments((prev) => [newDoc, ...prev]);
+        addToast("Document duplicated", "success");
+      } catch (err) {
+        addToast("Failed to duplicate document", "error");
       }
     },
     [addToast],
@@ -296,7 +308,7 @@ function DashboardPage() {
             </h3>
             <p
               style={{
-                color: "#9CA3AF",
+                color: "#6B7280",
                 fontSize: "15px",
                 marginBottom: "28px",
                 maxWidth: "320px",
@@ -315,7 +327,7 @@ function DashboardPage() {
             style={{
               textAlign: "center",
               padding: "60px 24px",
-              color: "#9CA3AF",
+              color: "#6B7280",
             }}
           >
             <div style={{ fontSize: "40px", marginBottom: "12px" }}>🔍</div>
@@ -338,6 +350,7 @@ function DashboardPage() {
                 document={doc}
                 onDelete={handleDelete}
                 onRename={handleRename}
+                onDuplicate={handleDuplicate}
                 currentUserId={user?._id}
               />
             ))}
@@ -394,7 +407,7 @@ function DashboardPage() {
           <p style={{
             textAlign: 'center',
             fontSize: '14px',
-            color: '#9CA3AF',
+            color: '#6B7280',
             marginTop: '16px',
           }}>
             {pagination.total === 0

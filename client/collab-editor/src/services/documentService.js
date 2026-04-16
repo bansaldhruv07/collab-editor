@@ -14,16 +14,16 @@ const removeCollaborator = async (id, userId) => {
 };
 const getDocuments = async (options = {}) => {
   const { search, page = 1, limit = 20, forceRefresh = false } = options;
-  const cacheKey = `documents:list:${search || ''}:${page}:${limit}`;
+  const cacheKey = `documents:list:${search || ""}:${page}:${limit}`;
   if (!forceRefresh && !search) {
     const cached = cache.get(cacheKey);
     if (cached) return cached;
   }
   const params = new URLSearchParams();
-  if (search) params.append('search', search);
-  if (page !== 1) params.append('page', page);
-  if (limit !== 20) params.append('limit', limit);
-  const url = `/documents${params.toString() ? `?${params}` : ''}`;
+  if (search) params.append("search", search);
+  if (page !== 1) params.append("page", page);
+  if (limit !== 20) params.append("limit", limit);
+  const url = `/documents${params.toString() ? `?${params}` : ""}`;
   const response = await api.get(url);
   if (!search) {
     cache.set(cacheKey, response.data, 30000);
@@ -83,6 +83,12 @@ const getActivity = async (id) => {
   const response = await api.get(`/documents/${id}/activity`);
   return response.data;
 };
+const duplicateDocument = async (id) => {
+  const response = await api.post(`/documents/${id}/duplicate`);
+  
+  cache.invalidate("documents:list");
+  return response.data;
+};
 const documentService = {
   getDocuments,
   getDocument,
@@ -97,5 +103,20 @@ const documentService = {
   getVersion,
   restoreVersion,
   getActivity,
+  duplicateDocument,
+  getTrash: async () => {
+    const response = await api.get("/documents/trash");
+    return response.data;
+  },
+  restoreDocument: async (id) => {
+    const response = await api.post(`/documents/${id}/restore`);
+    cache.invalidate("documents:list");
+    return response.data;
+  },
+  permanentDelete: async (id) => {
+    const response = await api.delete(`/documents/${id}/permanent`);
+    return response.data;
+  },
 };
+
 export default documentService;

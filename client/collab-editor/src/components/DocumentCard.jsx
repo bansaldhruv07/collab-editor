@@ -1,6 +1,6 @@
 import { memo, useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-const DocumentCard = memo(function DocumentCard({ document, onDelete, onRename, currentUserId }) {
+const DocumentCard = memo(function DocumentCard({ document, onDelete, onRename, onDuplicate, currentUserId }) {
   const navigate = useNavigate();
   const isOwner = document.owner?._id === currentUserId || document.owner === currentUserId;
   const [showMenu, setShowMenu] = useState(false);
@@ -39,6 +39,17 @@ const DocumentCard = memo(function DocumentCard({ document, onDelete, onRename, 
   }, []);
   return (
     <div
+      role="article"
+      tabIndex={0}
+      aria-label={`Document: ${document.title}, last updated ${formatDate(document.updatedAt)}`}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          if (!isRenaming && !showMenu) {
+            navigate(`/document/${document._id}`);
+          }
+        }
+      }}
       style={{
         background: "#fff",
         border: "1px solid #E5E7EB",
@@ -164,7 +175,7 @@ const DocumentCard = memo(function DocumentCard({ document, onDelete, onRename, 
         </h3>
       )}
       {!isRenaming && (
-        <p style={{ fontSize: "12px", color: "#9CA3AF" }}>
+        <p style={{ fontSize: "12px", color: "#6B7280" }}>
           Updated {formatDate(document.updatedAt)}
         </p>
       )}
@@ -175,6 +186,9 @@ const DocumentCard = memo(function DocumentCard({ document, onDelete, onRename, 
               e.stopPropagation();
               setShowMenu((prev) => !prev);
             }}
+            aria-label="Document options"
+            aria-haspopup="true"
+            aria-expanded={showMenu}
             style={{
               background: "none",
               border: "none",
@@ -205,6 +219,19 @@ const DocumentCard = memo(function DocumentCard({ document, onDelete, onRename, 
               }}
             >
               {}
+              <button
+                onClick={() => {
+                  onDuplicate(document._id);
+                  setShowMenu(false);
+                }}
+                style={menuItemStyle}
+                onMouseEnter={(e) => (e.target.style.background = "#F9FAFB")}
+                onMouseLeave={(e) =>
+                  (e.target.style.background = "transparent")
+                }
+              >
+                📋 Duplicate
+              </button>
               {isOwner && (
                 <button
                   onClick={() => {
@@ -238,7 +265,7 @@ const DocumentCard = memo(function DocumentCard({ document, onDelete, onRename, 
               )}
               {}
               {!isOwner && (
-                <div style={{ padding: '10px 16px', fontSize: '13px', color: '#9CA3AF' }}>
+                <div style={{ padding: '10px 16px', fontSize: '13px', color: '#6B7280' }}>
                   No actions available
                 </div>
               )}

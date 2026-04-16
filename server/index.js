@@ -11,9 +11,11 @@ const userRoutes = require("./routes/users");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth");
 const documentRoutes = require("./routes/documents");
+const notificationRoutes = require("./routes/notifications");
 const initializeSocket = require("./socket");
 const { errorHandler, notFound } = require("./middleware/errorHandler");
 const { apiLimiter, authLimiter } = require("./middleware/rateLimiter");
+const cleanupTrash = require("./jobs/cleanupTrash");
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -50,11 +52,20 @@ app.get("/health", (req, res) => {
   });
 });
 app.use("/api/auth", authRoutes);
-app.use("/api/documents", documentRoutes);
+app.use("/api/documents", documentRoutes(io));
+app.use("/api/notifications", notificationRoutes);
 initializeSocket(io);
 app.use(notFound);
 app.use(errorHandler);
+
+
+cleanupTrash();
+setInterval(cleanupTrash, 24 * 60 * 60 * 1000);
+
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
+  console.log(
+    `Server running in ${process.env.NODE_ENV || "development"} mode on port ${PORT}`,
+  );
 });
 module.exports = { app, server, io };

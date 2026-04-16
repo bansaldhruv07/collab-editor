@@ -40,6 +40,10 @@ function Layout({ children }) {
 
   return (
     <div style={{ minHeight: "100vh", background: "#F9FAFB" }}>
+      {}
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
       <nav
         style={{
           background: "#fff",
@@ -73,6 +77,8 @@ function Layout({ children }) {
           <div style={{ position: "relative" }} ref={menuRef}>
             <button
               onClick={() => setShowUserMenu((prev) => !prev)}
+              aria-label="Open user menu"
+              aria-expanded={showUserMenu}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -184,6 +190,12 @@ function Layout({ children }) {
                     onClick={() => setShowUserMenu(false)}
                   />
                   <MenuLink
+                    to="/trash"
+                    icon="🗑️"
+                    label="Recycle bin"
+                    onClick={() => setShowUserMenu(false)}
+                  />
+                  <MenuLink
                     to="/profile"
                     icon="👤"
                     label="Profile"
@@ -230,7 +242,7 @@ function Layout({ children }) {
           </div>
         </div>
       </nav>
-      <main>{children}</main>
+      <main id="main-content">{children}</main>
     </div>
   );
 }

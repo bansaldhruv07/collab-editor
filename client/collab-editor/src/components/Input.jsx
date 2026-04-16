@@ -1,23 +1,31 @@
-function Input({ label, type = 'text', value, onChange, placeholder, error, name }) {
+function Input({ label, type = 'text', value, onChange, placeholder, error, name, id }) {
+  const inputId = id || name;
+
   return (
     <div style={{ marginBottom: '16px' }}>
       {label && (
-        <label style={{
-          display: 'block',
-          marginBottom: '6px',
-          fontSize: '14px',
-          fontWeight: '500',
-          color: '#374151',
-        }}>
+        <label
+          htmlFor={inputId}
+          style={{
+            display: 'block',
+            marginBottom: '6px',
+            fontSize: '14px',
+            fontWeight: '500',
+            color: '#374151',
+          }}
+        >
           {label}
         </label>
       )}
       <input
+        id={inputId}
         type={type}
         name={name}
         value={value}
         onChange={onChange}
         placeholder={placeholder}
+        aria-invalid={error ? 'true' : 'false'}
+        aria-describedby={error ? `${inputId}-error` : undefined}
         style={{
           width: '100%',
           padding: '10px 14px',
@@ -33,7 +41,11 @@ function Input({ label, type = 'text', value, onChange, placeholder, error, name
         onBlur={e => e.target.style.borderColor = error ? '#EF4444' : '#D1D5DB'}
       />
       {error && (
-        <p style={{ color: '#EF4444', fontSize: '12px', marginTop: '4px' }}>
+        <p
+          id={`${inputId}-error`}
+          role="alert"
+          style={{ color: '#EF4444', fontSize: '12px', marginTop: '4px' }}
+        >
           {error}
         </p>
       )}
