@@ -85,7 +85,7 @@ const getActivity = async (id) => {
 };
 const duplicateDocument = async (id) => {
   const response = await api.post(`/documents/${id}/duplicate`);
-  
+
   cache.invalidate("documents:list");
   return response.data;
 };

@@ -70,7 +70,6 @@ module.exports = (io) => {
     }
   });
 
-  
   router.post("/:id/duplicate", protect, async (req, res, next) => {
     try {
       const original = await Document.findById(req.params.id);
@@ -79,7 +78,6 @@ module.exports = (io) => {
         return res.status(404).json({ message: "Document not found" });
       }
 
-      
       const hasAccess =
         original.owner.toString() === req.user._id.toString() ||
         original.collaborators.some(
@@ -90,17 +88,14 @@ module.exports = (io) => {
         return res.status(403).json({ message: "Access denied" });
       }
 
-      
-      
       const duplicate = await Document.create({
         title: `${original.title} (Copy)`,
         content: original.content,
         htmlContent: original.htmlContent,
         owner: req.user._id,
-        
+
       });
 
-      
       const { logActivity } = require("../utils/activityLogger");
       await logActivity(duplicate, "document_created", req.user, {
         duplicatedFrom: original._id,
@@ -114,21 +109,19 @@ module.exports = (io) => {
     }
   });
 
-  
   router.get("/trash", protect, async (req, res, next) => {
     try {
-      
+
       const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
       const documents = await Document.find({
         owner: req.user._id,
         deleted: true,
-        deletedAt: { $gte: thirtyDaysAgo }, 
+        deletedAt: { $gte: thirtyDaysAgo },
       })
         .select("title deletedAt deletedBy updatedAt")
         .sort({ deletedAt: -1 });
 
-      
       const docsWithExpiry = documents.map((doc) => {
         const deletedDate = new Date(doc.deletedAt);
         const expiresAt = new Date(
@@ -340,7 +333,6 @@ module.exports = (io) => {
     },
   );
 
-  
   router.post("/:id/restore", protect, async (req, res, next) => {
     try {
       const document = await Document.findOne({
@@ -364,7 +356,6 @@ module.exports = (io) => {
     }
   });
 
-  
   router.delete("/:id/permanent", protect, async (req, res, next) => {
     try {
       const document = await Document.findOne({

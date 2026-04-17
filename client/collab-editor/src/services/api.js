@@ -16,11 +16,20 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      window.location.href = "/login";
+    const status = error.response?.status;
+
+    if (status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
     }
+
+    if (status === 429) {
+      const retryAfter = error.response?.headers['retry-after'];
+      error.retryAfter = retryAfter ? parseInt(retryAfter) : 60;
+      error.isRateLimited = true;
+    }
+
     return Promise.reject(error);
   },
 );

@@ -58,7 +58,6 @@ initializeSocket(io);
 app.use(notFound);
 app.use(errorHandler);
 
-
 cleanupTrash();
 setInterval(cleanupTrash, 24 * 60 * 60 * 1000);
 

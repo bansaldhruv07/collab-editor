@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import Alert from "../components/Alert";
+import RateLimitBanner from '../components/RateLimitBanner';
 function LoginPage() {
   const [formData, setFormData] = useState({
     email: "",
@@ -11,6 +12,7 @@ function LoginPage() {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [rateLimitSeconds, setRateLimitSeconds] = useState(0);
   const { login } = useAuth();
   const navigate = useNavigate();
   const handleChange = (e) => {
@@ -30,7 +32,12 @@ function LoginPage() {
       await login(formData.email, formData.password);
       navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
+      if (err.isRateLimited) {
+        setRateLimitSeconds(err.retryAfter || 60);
+        setError('');
+      } else {
+        setError(err.response?.data?.message || 'Login failed');
+      }
     } finally {
       setLoading(false);
     }
@@ -65,6 +72,12 @@ function LoginPage() {
           </p>
         </div>
         <Alert message={error} type="error" />
+        {rateLimitSeconds > 0 && (
+          <RateLimitBanner
+            retryAfter={rateLimitSeconds}
+            onRetry={() => setRateLimitSeconds(0)}
+          />
+        )}
         <form onSubmit={handleSubmit}>
           <Input
             label="Email address"

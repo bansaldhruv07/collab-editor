@@ -1,6 +1,5 @@
 const Document = require('../models/Document');
 
-
 const cleanupTrash = async () => {
   try {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);

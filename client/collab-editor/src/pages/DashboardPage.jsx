@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import useDebounce from "../hooks/useDebounce";
+import retryWithBackoff from '../utils/retry';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import documentService from "../services/documentService";
@@ -53,16 +54,33 @@ function DashboardPage() {
     try {
       setLoading(true);
       setError("");
-      const data = await documentService.getDocuments({
-        search: debouncedSearch || undefined,
-        page: currentPage,
-        limit: 20,
-        forceRefresh,
-      });
+      const data = await retryWithBackoff(
+        () => documentService.getDocuments({
+          search: debouncedSearch || undefined,
+          page: currentPage,
+          limit: 20,
+          forceRefresh,
+        }),
+        {
+          maxAttempts: 3,
+          retryOn: (error) => {
+            const status = error.response?.status;
+            return !status || status >= 500;
+          },
+          onRetry: (attempt) => {
+            setError(`Connection issue. Retrying... (${attempt}/3)`);
+          },
+        }
+      );
       setDocuments(data.documents);
       setPagination(data.pagination);
+      setError("");
     } catch (err) {
-      setError("Failed to load documents. Please try again.");
+      if (!navigator.onLine) {
+        setError('You are offline. Your documents will load when you reconnect.');
+      } else {
+        setError("Failed to load documents. Please refresh the page.");
+      }
     } finally {
       setLoading(false);
     }

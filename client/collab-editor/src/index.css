@@ -44,19 +44,15 @@ button {
   min-height: 36px;
 }
 
-
-
 *:focus-visible {
   outline: 2px solid #4F46E5;
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-
 *:focus:not(:focus-visible) {
   outline: none;
 }
-
 
 .skip-link {
   position: absolute;

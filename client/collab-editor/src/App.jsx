@@ -15,6 +15,9 @@ const EditorPage = lazy(() => import("./pages/EditorPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const TrashPage = lazy(() => import("./pages/TrashPage"));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
+import ErrorBoundary from './components/ErrorBoundary';
+import OfflineBanner from './components/OfflineBanner';
 function PageLoader() {
   return (
     <div
@@ -71,61 +74,74 @@ function App() {
     <AuthProvider>
       <SocketProvider>
         <ToastProvider>
-          <BrowserRouter>
-            <AppContent />
-            <Layout>
-              <Suspense fallback={<PageLoader />}>
-                <Routes>
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/register" element={<RegisterPage />} />
-                  <Route
-                    path="/dashboard"
-                    element={
-                      <ProtectedRoute>
-                        <DashboardPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/document/:id"
-                    element={
-                      <ProtectedRoute>
-                        <EditorPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/profile"
-                    element={
-                      <ProtectedRoute>
-                        <ProfilePage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/settings"
-                    element={
-                      <ProtectedRoute>
-                        <SettingsPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/trash"
-                    element={
-                      <ProtectedRoute>
-                        <TrashPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/"
-                    element={<Navigate to="/dashboard" replace />}
-                  />
-                </Routes>
-              </Suspense>
-            </Layout>
-          </BrowserRouter>
+          {}
+          <ErrorBoundary fullPage>
+            <BrowserRouter>
+              <AppContent />
+              <OfflineBanner />
+              <Layout>
+                <Suspense fallback={<PageLoader />}>
+                  <Routes>
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
+                    <Route
+                      path="/dashboard"
+                      element={
+                        <ProtectedRoute>
+                          {}
+                          <ErrorBoundary>
+                            <DashboardPage />
+                          </ErrorBoundary>
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/document/:id"
+                      element={
+                        <ProtectedRoute>
+                          <ErrorBoundary>
+                            <EditorPage />
+                          </ErrorBoundary>
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/profile"
+                      element={
+                        <ProtectedRoute>
+                          <ErrorBoundary>
+                            <ProfilePage />
+                          </ErrorBoundary>
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/settings"
+                      element={
+                        <ProtectedRoute>
+                          <ErrorBoundary>
+                            <SettingsPage />
+                          </ErrorBoundary>
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/trash"
+                      element={
+                        <ProtectedRoute>
+                          <ErrorBoundary>
+                            <TrashPage />
+                          </ErrorBoundary>
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                    <Route path="*" element={<NotFoundPage />} />
+                  </Routes>
+                </Suspense>
+              </Layout>
+            </BrowserRouter>
+          </ErrorBoundary>
         </ToastProvider>
       </SocketProvider>
     </AuthProvider>
