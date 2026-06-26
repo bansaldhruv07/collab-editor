@@ -39,7 +39,7 @@ A production-ready, full-stack, real-time collaborative document editor. CollabE
 
 ```mermaid
 graph TD
-    subgraph Client [Client Application (React)]
+    subgraph Client ["Client Application (React)"]
         UI[React UI Components]
         Vite[Vite Dev Server]
         Quill[Quill Rich Text Editor]
@@ -47,14 +47,14 @@ graph TD
         APIClient[Axios Client]
     end
 
-    subgraph Backend [Backend Server (Node.js + Express)]
+    subgraph Backend ["Backend Server (Node.js + Express)"]
         ExpressApp[Express Router]
         SocketServer[Socket.IO Server]
         AuthMiddleware[JWT / Security Middleware]
         CronJob[Cleanup Trash Cron Job]
     end
 
-    subgraph Database [Database & Persistence]
+    subgraph Database ["Database & Persistence"]
         MongoDB[(MongoDB Server)]
     end
 
