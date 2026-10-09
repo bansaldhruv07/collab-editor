@@ -28,14 +28,15 @@ function TemplatePicker({ onSelect, onClose }) {
     >
       <div
         style={{
-          background: "#fff",
+          background: "var(--bg-surface)",
           borderRadius: "16px",
           width: "100%",
           maxWidth: "680px",
           maxHeight: "85vh",
           display: "flex",
           flexDirection: "column",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.2)",
+          border: "1px solid var(--border-color)",
+          boxShadow: "var(--shadow-xl)",
           overflow: "hidden",
         }}
       >
@@ -43,7 +44,7 @@ function TemplatePicker({ onSelect, onClose }) {
         <div
           style={{
             padding: "24px 28px 0",
-            borderBottom: "1px solid #E5E7EB",
+            borderBottom: "1px solid var(--border-color)",
             flexShrink: 0,
           }}
         >
@@ -59,26 +60,29 @@ function TemplatePicker({ onSelect, onClose }) {
               <h2
                 style={{
                   fontSize: "20px",
-                  fontWeight: "700",
-                  color: "#111827",
+                  fontWeight: "750",
+                  color: "var(--text-primary)",
+                  letterSpacing: "-0.02em",
                 }}
               >
                 Choose a template
               </h2>
               <p
-                style={{ fontSize: "14px", color: "#6B7280", marginTop: "4px" }}
+                style={{ fontSize: "14px", color: "var(--text-muted)", marginTop: "4px" }}
               >
-                Start with a structure or begin from scratch
+                Start with a structured outline or begin from scratch
               </p>
             </div>
             <button
               onClick={onClose}
+              aria-label="Close templates"
               style={{
                 background: "none",
                 border: "none",
-                fontSize: "20px",
+                fontSize: "18px",
                 cursor: "pointer",
-                color: "#9CA3AF",
+                color: "var(--text-muted)",
+                padding: "2px 6px",
               }}
             >
               ✕
@@ -96,12 +100,12 @@ function TemplatePicker({ onSelect, onClose }) {
                   border: "none",
                   borderBottom:
                     activeCategory === cat
-                      ? "2px solid #4F46E5"
+                      ? "2px solid var(--accent-primary)"
                       : "2px solid transparent",
                   cursor: "pointer",
                   fontSize: "14px",
-                  fontWeight: activeCategory === cat ? "600" : "400",
-                  color: activeCategory === cat ? "#4F46E5" : "#6B7280",
+                  fontWeight: activeCategory === cat ? "650" : "450",
+                  color: activeCategory === cat ? "var(--accent-primary)" : "var(--text-muted)",
                   borderRadius: "0",
                   transition: "color 0.15s",
                 }}
@@ -130,11 +134,11 @@ function TemplatePicker({ onSelect, onClose }) {
                 onClick={() => setSelectedId(template.id)}
                 style={{
                   background:
-                    selectedId === template.id ? "#EEF2FF" : "#F9FAFB",
+                    selectedId === template.id ? "var(--accent-subtle)" : "var(--bg-secondary)",
                   border:
                     selectedId === template.id
-                      ? "2px solid #4F46E5"
-                      : "2px solid transparent",
+                      ? "2px solid var(--accent-primary)"
+                      : "1px solid var(--border-color)",
                   borderRadius: "12px",
                   padding: "16px",
                   cursor: "pointer",
@@ -143,12 +147,12 @@ function TemplatePicker({ onSelect, onClose }) {
                 }}
                 onMouseEnter={(e) => {
                   if (selectedId !== template.id) {
-                    e.currentTarget.style.background = "#F3F4F6";
+                    e.currentTarget.style.background = "var(--bg-hover)";
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (selectedId !== template.id) {
-                    e.currentTarget.style.background = "#F9FAFB";
+                    e.currentTarget.style.background = "var(--bg-secondary)";
                   }
                 }}
               >
@@ -161,7 +165,7 @@ function TemplatePicker({ onSelect, onClose }) {
                   style={{
                     fontSize: "14px",
                     fontWeight: "600",
-                    color: "#111827",
+                    color: "var(--text-primary)",
                     marginBottom: "4px",
                   }}
                 >
@@ -171,7 +175,7 @@ function TemplatePicker({ onSelect, onClose }) {
                 <p
                   style={{
                     fontSize: "12px",
-                    color: "#9CA3AF",
+                    color: "var(--text-muted)",
                     lineHeight: "1.4",
                   }}
                 >
@@ -185,21 +189,21 @@ function TemplatePicker({ onSelect, onClose }) {
         <div
           style={{
             padding: "16px 28px",
-            borderTop: "1px solid #E5E7EB",
+            borderTop: "1px solid var(--border-color)",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
             flexShrink: 0,
-            background: "#F9FAFB",
+            background: "var(--bg-secondary)",
           }}
         >
           <div>
             <p
-              style={{ fontSize: "14px", fontWeight: "500", color: "#111827" }}
+              style={{ fontSize: "14px", fontWeight: "600", color: "var(--text-primary)" }}
             >
               {selectedTemplate?.icon} {selectedTemplate?.name}
             </p>
-            <p style={{ fontSize: "12px", color: "#9CA3AF", marginTop: "2px" }}>
+            <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "2px" }}>
               {selectedTemplate?.description}
             </p>
           </div>
@@ -209,11 +213,11 @@ function TemplatePicker({ onSelect, onClose }) {
               style={{
                 padding: "9px 18px",
                 background: "none",
-                border: "1px solid #E5E7EB",
+                border: "1px solid var(--border-color)",
                 borderRadius: "8px",
                 fontSize: "14px",
                 cursor: "pointer",
-                color: "#374151",
+                color: "var(--text-secondary)",
               }}
             >
               Cancel
@@ -222,12 +226,12 @@ function TemplatePicker({ onSelect, onClose }) {
               onClick={() => onSelect(selectedTemplate)}
               style={{
                 padding: "9px 20px",
-                background: "#4F46E5",
+                background: "var(--accent-primary)",
                 color: "#fff",
                 border: "none",
                 borderRadius: "8px",
                 fontSize: "14px",
-                fontWeight: "500",
+                fontWeight: "550",
                 cursor: "pointer",
               }}
             >

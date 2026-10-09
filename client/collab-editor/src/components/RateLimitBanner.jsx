@@ -27,8 +27,8 @@ function RateLimitBanner({ retryAfter, onRetry }) {
 
   return (
     <div style={{
-      background: '#FEF3C7',
-      border: '1px solid #FCD34D',
+      background: 'var(--warning-bg)',
+      border: '1px solid var(--warning-border)',
       borderRadius: '10px',
       padding: '16px 20px',
       display: 'flex',
@@ -42,12 +42,12 @@ function RateLimitBanner({ retryAfter, onRetry }) {
         <p style={{
           fontSize: '14px',
           fontWeight: '600',
-          color: '#92400E',
+          color: 'var(--warning-text)',
           marginBottom: '2px',
         }}>
           Too many requests
         </p>
-        <p style={{ fontSize: '13px', color: '#B45309' }}>
+        <p style={{ fontSize: '13px', color: 'var(--warning-text)', opacity: 0.85 }}>
           {secondsLeft > 0
             ? `Please wait ${timeDisplay} before trying again`
             : 'You can try again now'}

@@ -148,49 +148,9 @@ function DashboardPage() {
   return (
     <>
       <ProgressBar loading={loading} />
-      <div style={{ minHeight: "100vh", background: "#F9FAFB" }}>
-      <nav
-        style={{
-          background: "#fff",
-          borderBottom: "1px solid #E5E7EB",
-          padding: "0 16px",
-          height: "60px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          position: "sticky",
-          top: 0,
-          zIndex: 50,
-        }}
-      >
-        <span
-          style={{
-            fontWeight: "700",
-            fontSize: "16px",
-            color: "#4F46E5",
-            whiteSpace: "nowrap",
-          }}
-        >
-          📝 CollabEditor
-        </span>
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <span
-            style={{
-              fontSize: "14px",
-              color: "#6B7280",
-              display: "none",
-            }}
-            className="hide-on-mobile"
-          >
-            {user?.name}
-          </span>
-          <Button variant="secondary" onClick={handleLogout}>
-            Logout
-          </Button>
-        </div>
-      </nav>
+      <div style={{ minHeight: "100%", background: "transparent" }}>
       <main
-        style={{ maxWidth: "960px", margin: "0 auto", padding: "40px 24px" }}
+        style={{ maxWidth: "1000px", margin: "0 auto", padding: "40px 24px" }}
       >
         <div
           style={{
@@ -202,11 +162,11 @@ function DashboardPage() {
         >
           <div>
             <h1
-              style={{ fontSize: "28px", fontWeight: "700", color: "#111827" }}
+              style={{ fontSize: "28px", fontWeight: "750", color: "var(--text-primary)", letterSpacing: "-0.025em" }}
             >
               My Documents
             </h1>
-            <p style={{ color: "#6B7280", marginTop: "4px", fontSize: "14px" }}>
+            <p style={{ color: "var(--text-muted)", marginTop: "4px", fontSize: "14px" }}>
               {searchQuery
                 ? `${documents.length} result${documents.length !== 1 ? "s" : ""}`
                 : documents.length > 0
@@ -214,46 +174,49 @@ function DashboardPage() {
                   : "No documents yet"}
             </p>
           </div>
-          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+          <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
             <button
               onClick={() => fetchDocuments(true)}
               style={{
-                background: "none",
-                border: "1px solid #E5E7EB",
+                background: "var(--bg-surface)",
+                border: "1px solid var(--border-color)",
                 borderRadius: "8px",
-                padding: "8px 10px",
+                padding: "8px 12px",
                 cursor: "pointer",
                 fontSize: "14px",
-                color: "#6B7280",
+                color: "var(--text-secondary)",
+                transition: "all 0.15s ease",
               }}
               title="Refresh documents"
             >
-              ↻
+              ↻ Refresh
             </button>
             <Button onClick={() => setShowTemplatePicker(true)}>
               + New Document
             </Button>
           </div>
         </div>
-        <div style={{ marginBottom: "24px" }}>
+        <div style={{ marginBottom: "28px" }}>
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search documents..."
+            placeholder="Search documents by title..."
             style={{
               width: "100%",
-              maxWidth: "360px",
+              maxWidth: "380px",
               padding: "10px 16px",
-              border: "1.5px solid #E5E7EB",
+              border: "1px solid var(--border-color)",
               borderRadius: "10px",
               fontSize: "14px",
               outline: "none",
-              background: "#fff",
-              color: "#111",
+              background: "var(--bg-surface)",
+              color: "var(--text-primary)",
+              boxShadow: "var(--shadow-sm)",
+              transition: "border-color 0.15s ease",
             }}
-            onFocus={(e) => (e.target.style.borderColor = "#4F46E5")}
-            onBlur={(e) => (e.target.style.borderColor = "#E5E7EB")}
+            onFocus={(e) => (e.target.style.borderColor = "var(--accent-primary)")}
+            onBlur={(e) => (e.target.style.borderColor = "var(--border-color)")}
           />
         </div>
         <Alert message={error} type="error" />
@@ -318,15 +281,16 @@ function DashboardPage() {
               style={{
                 fontSize: "22px",
                 fontWeight: "700",
-                color: "#111827",
+                color: "var(--text-primary)",
                 marginBottom: "8px",
+                letterSpacing: "-0.02em",
               }}
             >
               No documents yet
             </h3>
             <p
               style={{
-                color: "#6B7280",
+                color: "var(--text-secondary)",
                 fontSize: "15px",
                 marginBottom: "28px",
                 maxWidth: "320px",
@@ -345,11 +309,26 @@ function DashboardPage() {
             style={{
               textAlign: "center",
               padding: "60px 24px",
-              color: "#6B7280",
+              color: "var(--text-secondary)",
             }}
           >
-            <div style={{ fontSize: "40px", marginBottom: "12px" }}>🔍</div>
-            <p style={{ fontSize: "16px" }}>
+            <div style={{
+              width: "48px",
+              height: "48px",
+              borderRadius: "12px",
+              background: "var(--bg-secondary)",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginBottom: "12px",
+              color: "var(--text-muted)",
+            }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </div>
+            <p style={{ fontSize: "16px", color: "var(--text-primary)", fontWeight: "500" }}>
               No documents match "{searchQuery}"
             </p>
           </div>
@@ -387,18 +366,18 @@ function DashboardPage() {
               disabled={currentPage === 1}
               style={{
                 padding: '8px 14px',
-                background: 'none',
-                border: '1px solid #E5E7EB',
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-color)',
                 borderRadius: '8px',
                 cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
                 opacity: currentPage === 1 ? 0.5 : 1,
                 fontSize: '14px',
-                color: '#374151',
+                color: 'var(--text-primary)',
               }}
             >
               ← Prev
             </button>
-            <span style={{ fontSize: '14px', color: '#6B7280' }}>
+            <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
               Page {currentPage} of {pagination.pages}
             </span>
             <button
@@ -408,13 +387,13 @@ function DashboardPage() {
               disabled={currentPage === pagination.pages}
               style={{
                 padding: '8px 14px',
-                background: 'none',
-                border: '1px solid #E5E7EB',
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-color)',
                 borderRadius: '8px',
                 cursor: currentPage === pagination.pages ? 'not-allowed' : 'pointer',
                 opacity: currentPage === pagination.pages ? 0.5 : 1,
                 fontSize: '14px',
-                color: '#374151',
+                color: 'var(--text-primary)',
               }}
             >
               Next →
@@ -425,7 +404,7 @@ function DashboardPage() {
           <p style={{
             textAlign: 'center',
             fontSize: '14px',
-            color: '#6B7280',
+            color: 'var(--text-secondary)',
             marginTop: '16px',
           }}>
             {pagination.total === 0

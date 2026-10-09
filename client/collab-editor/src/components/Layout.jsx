@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import NotificationBell from "./NotificationBell";
 
 function Layout({ children }) {
   const { user, logout } = useAuth();
+  const { resolvedTheme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -39,41 +41,96 @@ function Layout({ children }) {
   if (isAuthPage) return children;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#F9FAFB" }}>
-      {}
+    <div style={{ minHeight: "100vh", background: "var(--bg-secondary)" }}>
       <a href="#main-content" className="skip-link">
         Skip to main content
       </a>
       <nav
         style={{
-          background: "#fff",
-          borderBottom: "1px solid #E5E7EB",
+          background: "var(--bg-surface)",
+          borderBottom: "1px solid var(--border-color)",
           padding: "0 24px",
-          height: "60px",
+          height: "var(--nav-height, 56px)",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           position: "sticky",
           top: 0,
           zIndex: 50,
+          transition: "background-color 0.2s ease, border-color 0.2s ease",
         }}
       >
         <Link
           to="/dashboard"
           style={{
             fontWeight: "700",
-            fontSize: "18px",
-            color: "#4F46E5",
+            fontSize: "17px",
+            color: "var(--accent-primary)",
             textDecoration: "none",
             display: "flex",
             alignItems: "center",
             gap: "8px",
+            letterSpacing: "-0.02em",
           }}
         >
-          📝 <span style={{ display: "inline" }}>CollabEditor</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          <span style={{ display: "inline" }}>CollabEditor</span>
         </Link>
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          {/* Quick Light/Dark Mode Toggle */}
+          <button
+            onClick={toggleTheme}
+            aria-label={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
+            title={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
+            style={{
+              background: "none",
+              border: "1px solid var(--border-color)",
+              borderRadius: "8px",
+              padding: "7px 10px",
+              cursor: "pointer",
+              fontSize: "15px",
+              color: "var(--text-secondary)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.15s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "var(--accent-primary)";
+              e.currentTarget.style.color = "var(--text-primary)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "var(--border-color)";
+              e.currentTarget.style.color = "var(--text-secondary)";
+            }}
+          >
+            {resolvedTheme === 'dark' ? (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+            )}
+          </button>
+
           <NotificationBell />
+
           <div style={{ position: "relative" }} ref={menuRef}>
             <button
               onClick={() => setShowUserMenu((prev) => !prev)}
@@ -82,27 +139,27 @@ function Layout({ children }) {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "10px",
+                gap: "8px",
                 background: "none",
-                border: "1px solid #E5E7EB",
+                border: "1px solid var(--border-color)",
                 borderRadius: "30px",
-                padding: "6px 12px 6px 6px",
+                padding: "5px 10px 5px 5px",
                 cursor: "pointer",
-                transition: "border-color 0.2s",
+                transition: "border-color 0.15s ease",
               }}
               onMouseEnter={(e) =>
-                (e.currentTarget.style.borderColor = "#C7D2FE")
+                (e.currentTarget.style.borderColor = "var(--accent-primary)")
               }
               onMouseLeave={(e) =>
-                (e.currentTarget.style.borderColor = "#E5E7EB")
+                (e.currentTarget.style.borderColor = "var(--border-color)")
               }
             >
               <div
                 style={{
-                  width: "30px",
-                  height: "30px",
+                  width: "28px",
+                  height: "28px",
                   borderRadius: "50%",
-                  background: "#4F46E5",
+                  background: "var(--accent-primary)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -116,9 +173,9 @@ function Layout({ children }) {
               </div>
               <span
                 style={{
-                  fontSize: "14px",
+                  fontSize: "13px",
                   fontWeight: "500",
-                  color: "#374151",
+                  color: "var(--text-primary)",
                   maxWidth: "120px",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
@@ -130,7 +187,7 @@ function Layout({ children }) {
               <span
                 style={{
                   fontSize: "10px",
-                  color: "#9CA3AF",
+                  color: "var(--text-muted)",
                   transform: showUserMenu ? "rotate(180deg)" : "rotate(0deg)",
                   transition: "transform 0.2s",
                 }}
@@ -144,11 +201,11 @@ function Layout({ children }) {
                   position: "absolute",
                   right: 0,
                   top: "calc(100% + 8px)",
-                  background: "#fff",
-                  border: "1px solid #E5E7EB",
+                  background: "var(--bg-surface)",
+                  border: "1px solid var(--border-color)",
                   borderRadius: "12px",
-                  boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
-                  minWidth: "200px",
+                  boxShadow: "var(--shadow-xl)",
+                  minWidth: "210px",
                   overflow: "hidden",
                   zIndex: 100,
                 }}
@@ -156,15 +213,15 @@ function Layout({ children }) {
                 <div
                   style={{
                     padding: "14px 16px",
-                    borderBottom: "1px solid #F3F4F6",
-                    background: "#F9FAFB",
+                    borderBottom: "1px solid var(--border-color)",
+                    background: "var(--bg-secondary)",
                   }}
                 >
                   <p
                     style={{
                       fontSize: "14px",
                       fontWeight: "600",
-                      color: "#111827",
+                      color: "var(--text-primary)",
                     }}
                   >
                     {user?.name}
@@ -172,7 +229,7 @@ function Layout({ children }) {
                   <p
                     style={{
                       fontSize: "12px",
-                      color: "#9CA3AF",
+                      color: "var(--text-muted)",
                       marginTop: "2px",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
@@ -208,7 +265,7 @@ function Layout({ children }) {
                     onClick={() => setShowUserMenu(false)}
                   />
                   <div
-                    style={{ borderTop: "1px solid #F3F4F6", margin: "6px 0" }}
+                    style={{ borderTop: "1px solid var(--border-color)", margin: "6px 0" }}
                   />
                   <button
                     onClick={handleLogout}
@@ -223,11 +280,12 @@ function Layout({ children }) {
                       borderRadius: "8px",
                       cursor: "pointer",
                       fontSize: "14px",
-                      color: "#DC2626",
+                      color: "var(--danger-primary)",
                       textAlign: "left",
+                      fontWeight: "500",
                     }}
                     onMouseEnter={(e) =>
-                      (e.currentTarget.style.background = "#FEF2F2")
+                      (e.currentTarget.style.background = "var(--danger-bg)")
                     }
                     onMouseLeave={(e) =>
                       (e.currentTarget.style.background = "none")
@@ -263,17 +321,18 @@ function MenuLink({ to, icon, label, onClick }) {
         gap: "10px",
         width: "100%",
         padding: "9px 12px",
-        background: isActive ? "#EEF2FF" : "none",
+        background: isActive ? "var(--accent-subtle)" : "none",
         border: "none",
         borderRadius: "8px",
         cursor: "pointer",
         fontSize: "14px",
-        color: isActive ? "#4F46E5" : "#374151",
+        color: isActive ? "var(--accent-primary)" : "var(--text-secondary)",
         textAlign: "left",
-        fontWeight: isActive ? "500" : "400",
+        fontWeight: isActive ? "600" : "450",
+        transition: "all 0.1s ease",
       }}
       onMouseEnter={(e) => {
-        if (!isActive) e.currentTarget.style.background = "#F9FAFB";
+        if (!isActive) e.currentTarget.style.background = "var(--bg-hover)";
       }}
       onMouseLeave={(e) => {
         if (!isActive) e.currentTarget.style.background = "none";

@@ -85,18 +85,19 @@ function ExportModal({ title, quill, onClose }) {
       }}
     >
       <div style={{
-        background: '#fff',
+        background: 'var(--bg-surface)',
         borderRadius: '16px',
         padding: '32px',
         width: '100%',
-        maxWidth: '420px',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+        maxWidth: '440px',
+        border: '1px solid var(--border-color)',
+        boxShadow: 'var(--shadow-xl)',
       }}>
         <div style={{ marginBottom: '24px' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#111827' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
             Export document
           </h2>
-          <p style={{ fontSize: '14px', color: '#6B7280', marginTop: '4px' }}>
+          <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginTop: '4px' }}>
             Download "{title}" in your preferred format
           </p>
         </div>
@@ -112,10 +113,10 @@ function ExportModal({ title, quill, onClose }) {
               onClick={() => setSelected(option.id)}
               style={{
                 padding: '14px',
-                background: selected === option.id ? '#EEF2FF' : '#F9FAFB',
+                background: selected === option.id ? 'var(--accent-subtle)' : 'var(--bg-secondary)',
                 border: selected === option.id
-                  ? '2px solid #4F46E5'
-                  : '2px solid transparent',
+                  ? '2px solid var(--accent-primary)'
+                  : '1px solid var(--border-color)',
                 borderRadius: '10px',
                 cursor: 'pointer',
                 textAlign: 'left',
@@ -128,14 +129,14 @@ function ExportModal({ title, quill, onClose }) {
               <p style={{
                 fontSize: '14px',
                 fontWeight: '600',
-                color: selected === option.id ? '#4F46E5' : '#111827',
+                color: selected === option.id ? 'var(--accent-primary)' : 'var(--text-primary)',
                 marginBottom: '2px',
               }}>
                 {option.label}
               </p>
               <p style={{
                 fontSize: '11px',
-                color: '#9CA3AF',
+                color: 'var(--text-muted)',
                 lineHeight: '1.3',
               }}>
                 {option.description}
@@ -144,7 +145,8 @@ function ExportModal({ title, quill, onClose }) {
           ))}
         </div>
         <div style={{
-          background: '#F9FAFB',
+          background: 'var(--bg-secondary)',
+          border: '1px solid var(--border-color)',
           borderRadius: '8px',
           padding: '10px 14px',
           marginBottom: '20px',
@@ -152,11 +154,11 @@ function ExportModal({ title, quill, onClose }) {
           alignItems: 'center',
           gap: '8px',
         }}>
-          <span style={{ fontSize: '13px', color: '#6B7280' }}>File:</span>
+          <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>File:</span>
           <span style={{
             fontSize: '13px',
             fontWeight: '500',
-            color: '#111827',
+            color: 'var(--text-primary)',
             fontFamily: 'monospace',
           }}>
             {title
@@ -173,11 +175,11 @@ function ExportModal({ title, quill, onClose }) {
             style={{
               padding: '10px 18px',
               background: 'none',
-              border: '1px solid #E5E7EB',
+              border: '1px solid var(--border-color)',
               borderRadius: '8px',
               fontSize: '14px',
               cursor: 'pointer',
-              color: '#374151',
+              color: 'var(--text-secondary)',
             }}
           >
             Cancel
@@ -187,7 +189,7 @@ function ExportModal({ title, quill, onClose }) {
             disabled={exporting}
             style={{
               padding: '10px 20px',
-              background: '#4F46E5',
+              background: 'var(--accent-primary)',
               color: '#fff',
               border: 'none',
               borderRadius: '8px',

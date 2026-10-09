@@ -49,22 +49,43 @@ function RegisterPage() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: '#F9FAFB',
+      background: 'var(--bg-primary)',
+      padding: '24px 16px',
     }}>
       <div style={{
-        background: '#fff',
+        background: 'var(--bg-surface)',
         padding: '40px',
         borderRadius: '16px',
-        border: '1px solid #E5E7EB',
+        border: '1px solid var(--border-color)',
+        boxShadow: 'var(--shadow-md, 0 4px 20px rgba(0,0,0,0.06))',
         width: '100%',
         maxWidth: '420px',
       }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{ fontSize: '32px', marginBottom: '8px' }}>📝</div>
-          <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#111827' }}>
+          <div
+            style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, var(--accent-primary) 0%, #7C3AED 100%)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: '16px',
+              boxShadow: '0 8px 16px rgba(79, 70, 229, 0.2)',
+            }}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="8.5" cy="7" r="4" />
+              <line x1="20" y1="8" x2="20" y2="14" />
+              <line x1="23" y1="11" x2="17" y2="11" />
+            </svg>
+          </div>
+          <h1 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
             Create account
           </h1>
-          <p style={{ color: '#6B7280', fontSize: '14px', marginTop: '4px' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '4px' }}>
             Start collaborating in seconds
           </p>
         </div>
@@ -110,9 +131,9 @@ function RegisterPage() {
             Create account
           </Button>
         </form>
-        <p style={{ textAlign: 'center', marginTop: '24px', fontSize: '14px', color: '#6B7280' }}>
+        <p style={{ textAlign: 'center', marginTop: '24px', fontSize: '14px', color: 'var(--text-secondary)' }}>
           Already have an account?{' '}
-          <Link to="/login" style={{ color: '#4F46E5', fontWeight: '500' }}>
+          <Link to="/login" style={{ color: 'var(--accent-primary)', fontWeight: '500', textDecoration: 'none' }}>
             Sign in
           </Link>
         </p>

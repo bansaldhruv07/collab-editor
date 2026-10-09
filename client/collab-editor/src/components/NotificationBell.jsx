@@ -117,34 +117,46 @@ function NotificationBell() {
         style={{
           position: "relative",
           background: "none",
-          border: "1px solid #E5E7EB",
+          border: "1px solid var(--border-color)",
           borderRadius: "8px",
           padding: "7px 10px",
           cursor: "pointer",
-          fontSize: "16px",
-          color: "#6B7280",
-          transition: "border-color 0.15s",
+          fontSize: "15px",
+          color: "var(--text-secondary)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          transition: "all 0.15s ease",
         }}
-        onMouseEnter={e => e.currentTarget.style.borderColor = '#C7D2FE'}
-        onMouseLeave={e => e.currentTarget.style.borderColor = '#E5E7EB'}
+        onMouseEnter={e => {
+          e.currentTarget.style.borderColor = 'var(--accent-primary)';
+          e.currentTarget.style.color = 'var(--text-primary)';
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.borderColor = 'var(--border-color)';
+          e.currentTarget.style.color = 'var(--text-secondary)';
+        }}
       >
-        🔔
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
         {unreadCount > 0 && (
           <div style={{
             position: 'absolute',
-            top: '-6px',
-            right: '-6px',
-            width: '18px',
-            height: '18px',
+            top: '-5px',
+            right: '-5px',
+            width: '17px',
+            height: '17px',
             borderRadius: '50%',
-            background: '#EF4444',
+            background: 'var(--danger-primary)',
             color: '#fff',
             fontSize: '10px',
-            fontWeight: '700',
+            fontWeight: '750',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            border: '2px solid #fff',
+            border: '2px solid var(--bg-surface)',
           }}>
             {unreadCount > 9 ? '9+' : unreadCount}
           </div>
@@ -157,30 +169,32 @@ function NotificationBell() {
           right: 0,
           top: 'calc(100% + 8px)',
           width: '360px',
-          background: '#fff',
-          border: '1px solid #E5E7EB',
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border-color)',
           borderRadius: '12px',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+          boxShadow: 'var(--shadow-xl)',
           zIndex: 100,
           overflow: 'hidden',
         }}>
           <div style={{
             padding: '14px 16px',
-            borderBottom: '1px solid #E5E7EB',
+            borderBottom: '1px solid var(--border-color)',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
+            background: 'var(--bg-secondary)',
           }}>
-            <h3 style={{ fontSize: '15px', fontWeight: '600', color: '#111827' }}>
+            <h3 style={{ fontSize: '14px', fontWeight: '650', color: 'var(--text-primary)' }}>
               Notifications
               {unreadCount > 0 && (
                 <span style={{
                   marginLeft: '8px',
-                  fontSize: '12px',
-                  padding: '1px 7px',
-                  background: '#EEF2FF',
-                  color: '#4F46E5',
+                  fontSize: '11px',
+                  padding: '2px 7px',
+                  background: 'var(--accent-subtle)',
+                  color: 'var(--accent-primary)',
                   borderRadius: '10px',
+                  fontWeight: '600',
                 }}>
                   {unreadCount} new
                 </span>
@@ -193,9 +207,9 @@ function NotificationBell() {
                   background: 'none',
                   border: 'none',
                   fontSize: '12px',
-                  color: '#4F46E5',
+                  color: 'var(--accent-primary)',
                   cursor: 'pointer',
-                  fontWeight: '500',
+                  fontWeight: '600',
                 }}
               >
                 Mark all read
@@ -208,8 +222,8 @@ function NotificationBell() {
               <div style={{
                 padding: '24px',
                 textAlign: 'center',
-                color: '#9CA3AF',
-                fontSize: '14px',
+                color: 'var(--text-muted)',
+                fontSize: '13px',
               }}>
                 Loading...
               </div>
@@ -219,10 +233,10 @@ function NotificationBell() {
               <div style={{
                 padding: '40px 20px',
                 textAlign: 'center',
-                color: '#9CA3AF',
+                color: 'var(--text-muted)',
               }}>
-                <div style={{ fontSize: '32px', marginBottom: '8px' }}>🔔</div>
-                <p style={{ fontSize: '14px' }}>No notifications yet</p>
+                <div style={{ fontSize: '28px', marginBottom: '8px' }}>🔔</div>
+                <p style={{ fontSize: '13px' }}>No notifications yet</p>
               </div>
             )}
 
@@ -235,20 +249,20 @@ function NotificationBell() {
                   gap: '12px',
                   padding: '12px 16px',
                   cursor: notification.link ? 'pointer' : 'default',
-                  background: notification.read ? '#fff' : '#F5F3FF',
-                  borderBottom: '1px solid #F3F4F6',
+                  background: notification.read ? 'var(--bg-surface)' : 'var(--accent-subtle)',
+                  borderBottom: '1px solid var(--border-subtle)',
                   transition: 'background 0.1s',
                   position: 'relative',
                 }}
                 onMouseEnter={e => {
                   if (notification.read) {
-                    e.currentTarget.style.background = '#F9FAFB';
+                    e.currentTarget.style.background = 'var(--bg-hover)';
                   }
                 }}
                 onMouseLeave={e => {
                   e.currentTarget.style.background = notification.read
-                    ? '#fff'
-                    : '#F5F3FF';
+                    ? 'var(--bg-surface)'
+                    : 'var(--accent-subtle)';
                 }}
               >
                 {!notification.read && (
@@ -260,7 +274,7 @@ function NotificationBell() {
                     width: '6px',
                     height: '6px',
                     borderRadius: '50%',
-                    background: '#4F46E5',
+                    background: 'var(--accent-primary)',
                   }} />
                 )}
 
@@ -268,7 +282,7 @@ function NotificationBell() {
                   width: '36px',
                   height: '36px',
                   borderRadius: '50%',
-                  background: '#EEF2FF',
+                  background: 'var(--accent-subtle)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',

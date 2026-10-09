@@ -33,7 +33,7 @@ function NotFoundPage() {
       <div style={{
         fontSize: '120px',
         fontWeight: '900',
-        color: '#E5E7EB',
+        color: 'var(--border-color)',
         lineHeight: '1',
         marginBottom: '8px',
         letterSpacing: '-4px',
@@ -42,31 +42,48 @@ function NotFoundPage() {
         404
       </div>
 
-      <div style={{ fontSize: '40px', marginBottom: '16px' }}>🔍</div>
+      <div style={{
+        width: '56px',
+        height: '56px',
+        borderRadius: '14px',
+        background: 'var(--bg-secondary)',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: '16px',
+        color: 'var(--text-secondary)',
+      }}>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+      </div>
 
       <h1 style={{
         fontSize: '24px',
         fontWeight: '700',
-        color: '#111827',
+        color: 'var(--text-primary)',
         marginBottom: '8px',
+        letterSpacing: '-0.02em',
       }}>
         Page not found
       </h1>
 
       <p style={{
         fontSize: '15px',
-        color: '#6B7280',
+        color: 'var(--text-secondary)',
         maxWidth: '400px',
         lineHeight: '1.6',
         marginBottom: '8px',
       }}>
         The page{' '}
         <code style={{
-          background: '#F3F4F6',
-          padding: '1px 6px',
-          borderRadius: '4px',
+          background: 'var(--bg-secondary)',
+          padding: '2px 8px',
+          borderRadius: '6px',
           fontSize: '13px',
-          color: '#374151',
+          color: 'var(--accent-primary)',
+          border: '1px solid var(--border-color)',
         }}>
           {location.pathname}
         </code>
@@ -75,7 +92,7 @@ function NotFoundPage() {
 
       <p style={{
         fontSize: '13px',
-        color: '#9CA3AF',
+        color: 'var(--text-muted)',
         marginBottom: '28px',
       }}>
         Redirecting to dashboard in {countdown}s...
@@ -86,7 +103,7 @@ function NotFoundPage() {
           onClick={() => navigate('/dashboard')}
           style={{
             padding: '10px 24px',
-            background: '#4F46E5',
+            background: 'var(--accent-primary)',
             color: '#fff',
             border: 'none',
             borderRadius: '8px',
@@ -101,12 +118,12 @@ function NotFoundPage() {
           onClick={() => navigate(-1)}
           style={{
             padding: '10px 24px',
-            background: 'none',
-            border: '1px solid #E5E7EB',
+            background: 'var(--bg-surface)',
+            border: '1px solid var(--border-color)',
             borderRadius: '8px',
             fontSize: '14px',
             cursor: 'pointer',
-            color: '#374151',
+            color: 'var(--text-primary)',
           }}
         >
           ← Go back

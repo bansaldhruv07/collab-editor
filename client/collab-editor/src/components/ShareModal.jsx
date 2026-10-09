@@ -93,7 +93,7 @@ function ShareModal({ documentId, onClose, isOwner }) {
       }}
     >
       <div style={{
-        background: '#fff',
+        background: 'var(--bg-surface)',
         borderRadius: window.innerWidth < 640 ? '16px 16px 0 0' : '16px',
         padding: '32px',
         width: '100%',
@@ -102,6 +102,8 @@ function ShareModal({ documentId, onClose, isOwner }) {
         overflowY: 'auto',
         position: window.innerWidth < 640 ? 'fixed' : 'relative',
         bottom: window.innerWidth < 640 ? 0 : 'auto',
+        border: '1px solid var(--border-color)',
+        boxShadow: 'var(--shadow-xl)',
       }}>
         <div
           style={{
@@ -113,22 +115,23 @@ function ShareModal({ documentId, onClose, isOwner }) {
         >
           <div>
             <h2
-              style={{ fontSize: "20px", fontWeight: "700", color: "#111827" }}
+              style={{ fontSize: "20px", fontWeight: "700", color: "var(--text-primary)", letterSpacing: "-0.02em" }}
             >
               Share document
             </h2>
-            <p style={{ fontSize: "13px", color: "#6B7280", marginTop: "2px" }}>
-              Invite people to edit this document
+            <p style={{ fontSize: "13px", color: "var(--text-muted)", marginTop: "2px" }}>
+              Invite team members to collaborate in real time
             </p>
           </div>
           <button
             onClick={onClose}
+            aria-label="Close share dialog"
             style={{
               background: "none",
               border: "none",
-              fontSize: "20px",
+              fontSize: "18px",
               cursor: "pointer",
-              color: "#9CA3AF",
+              color: "var(--text-muted)",
               padding: "4px",
             }}
           >
@@ -142,7 +145,7 @@ function ShareModal({ documentId, onClose, isOwner }) {
                 display: "block",
                 fontSize: "13px",
                 fontWeight: "500",
-                color: "#374151",
+                color: "var(--text-secondary)",
                 marginBottom: "8px",
               }}
             >
@@ -160,13 +163,15 @@ function ShareModal({ documentId, onClose, isOwner }) {
                 style={{
                   flex: 1,
                   padding: "10px 14px",
-                  border: "1.5px solid #D1D5DB",
+                  border: "1.5px solid var(--border-color)",
                   borderRadius: "8px",
                   fontSize: "14px",
+                  background: "var(--bg-secondary)",
+                  color: "var(--text-primary)",
                   outline: "none",
                 }}
-                onFocus={(e) => (e.target.style.borderColor = "#4F46E5")}
-                onBlur={(e) => (e.target.style.borderColor = "#D1D5DB")}
+                onFocus={(e) => (e.target.style.borderColor = "var(--accent-primary)")}
+                onBlur={(e) => (e.target.style.borderColor = "var(--border-color)")}
               />
               <Button type="submit" loading={adding} disabled={!email.trim()}>
                 Invite
@@ -245,16 +250,16 @@ function ShareModal({ documentId, onClose, isOwner }) {
           style={{
             marginTop: "24px",
             padding: "16px",
-            background: "#F9FAFB",
+            background: "var(--bg-secondary)",
             borderRadius: "10px",
-            border: "1px solid #E5E7EB",
+            border: "1px solid var(--border-color)",
           }}
         >
           <p
             style={{
               fontSize: "13px",
-              fontWeight: "500",
-              color: "#374151",
+              fontWeight: "600",
+              color: "var(--text-secondary)",
               marginBottom: "8px",
             }}
           >
@@ -267,11 +272,11 @@ function ShareModal({ documentId, onClose, isOwner }) {
               style={{
                 flex: 1,
                 padding: "8px 12px",
-                border: "1px solid #E5E7EB",
+                border: "1px solid var(--border-color)",
                 borderRadius: "6px",
                 fontSize: "12px",
-                background: "#fff",
-                color: "#6B7280",
+                background: "var(--bg-surface)",
+                color: "var(--text-secondary)",
                 outline: "none",
               }}
             />
@@ -281,20 +286,21 @@ function ShareModal({ documentId, onClose, isOwner }) {
               }}
               style={{
                 padding: "8px 14px",
-                background: "#4F46E5",
+                background: "var(--accent-primary)",
                 color: "#fff",
                 border: "none",
                 borderRadius: "6px",
                 fontSize: "13px",
+                fontWeight: "500",
                 cursor: "pointer",
                 whiteSpace: "nowrap",
               }}
             >
-              Copy
+              Copy link
             </button>
           </div>
-          <p style={{ fontSize: "12px", color: "#9CA3AF", marginTop: "6px" }}>
-            Only people invited above can access this document
+          <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "6px" }}>
+            Only users granted access above can open and view this link
           </p>
         </div>
       </div>
@@ -340,8 +346,8 @@ function PersonRow({
         <p
           style={{
             fontSize: "14px",
-            fontWeight: "500",
-            color: "#111827",
+            fontWeight: "600",
+            color: "var(--text-primary)",
             marginBottom: "1px",
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -353,7 +359,7 @@ function PersonRow({
         <p
           style={{
             fontSize: "12px",
-            color: "#9CA3AF",
+            color: "var(--text-muted)",
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
@@ -367,9 +373,9 @@ function PersonRow({
           fontSize: "12px",
           padding: "3px 10px",
           borderRadius: "20px",
-          background: role === "Owner" ? "#EEF2FF" : "#F0FDF4",
-          color: role === "Owner" ? "#4F46E5" : "#16A34A",
-          fontWeight: "500",
+          background: role === "Owner" ? "var(--accent-subtle)" : "var(--success-bg)",
+          color: role === "Owner" ? "var(--accent-primary)" : "var(--success-text)",
+          fontWeight: "600",
           whiteSpace: "nowrap",
         }}
       >

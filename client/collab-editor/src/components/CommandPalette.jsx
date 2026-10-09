@@ -123,11 +123,12 @@ function CommandPalette({ onClose }) {
       }}
     >
       <div style={{
-        background: '#fff',
+        background: 'var(--bg-surface)',
         borderRadius: '14px',
         width: '100%',
         maxWidth: '560px',
-        boxShadow: '0 24px 64px rgba(0,0,0,0.2)',
+        boxShadow: 'var(--shadow-xl)',
+        border: '1px solid var(--border-color)',
         overflow: 'hidden',
         margin: '0 20px',
       }}>
@@ -136,9 +137,9 @@ function CommandPalette({ onClose }) {
           alignItems: 'center',
           gap: '12px',
           padding: '16px 20px',
-          borderBottom: '1px solid #E5E7EB',
+          borderBottom: '1px solid var(--border-color)',
         }}>
-          <span style={{ fontSize: '18px', color: '#9CA3AF' }}>⌕</span>
+          <span style={{ fontSize: '18px', color: 'var(--text-muted)' }}>⌕</span>
           <input
             ref={inputRef}
             value={query}
@@ -149,8 +150,8 @@ function CommandPalette({ onClose }) {
               flex: 1,
               border: 'none',
               outline: 'none',
-              fontSize: '16px',
-              color: '#111827',
+              fontSize: '15px',
+              color: 'var(--text-primary)',
               background: 'transparent',
             }}
           />
@@ -158,19 +159,19 @@ function CommandPalette({ onClose }) {
             <div style={{
               width: '16px',
               height: '16px',
-              border: '2px solid #E5E7EB',
-              borderTop: '2px solid #4F46E5',
+              border: '2px solid var(--border-color)',
+              borderTop: '2px solid var(--accent-primary)',
               borderRadius: '50%',
               animation: 'spin 0.6s linear infinite',
             }} />
           )}
           <kbd style={{
             padding: '2px 6px',
-            background: '#F3F4F6',
-            border: '1px solid #E5E7EB',
+            background: 'var(--bg-secondary)',
+            border: '1px solid var(--border-color)',
             borderRadius: '4px',
             fontSize: '11px',
-            color: '#6B7280',
+            color: 'var(--text-muted)',
           }}>
             Esc
           </kbd>
@@ -180,7 +181,7 @@ function CommandPalette({ onClose }) {
             <div style={{
               padding: '32px',
               textAlign: 'center',
-              color: '#9CA3AF',
+              color: 'var(--text-muted)',
               fontSize: '14px',
             }}>
               No results for "{query}"
@@ -192,7 +193,7 @@ function CommandPalette({ onClose }) {
                 padding: '8px 20px 4px',
                 fontSize: '11px',
                 fontWeight: '600',
-                color: '#9CA3AF',
+                color: 'var(--text-muted)',
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
               }}>
@@ -211,7 +212,7 @@ function CommandPalette({ onClose }) {
                       alignItems: 'center',
                       gap: '12px',
                       padding: '10px 20px',
-                      background: isSelected ? '#EEF2FF' : 'transparent',
+                      background: isSelected ? 'var(--accent-subtle)' : 'transparent',
                       cursor: 'pointer',
                       transition: 'background 0.1s',
                     }}
@@ -222,8 +223,8 @@ function CommandPalette({ onClose }) {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p style={{
                         fontSize: '14px',
-                        color: isSelected ? '#4F46E5' : '#111827',
-                        fontWeight: isSelected ? '500' : '400',
+                        color: isSelected ? 'var(--accent-primary)' : 'var(--text-primary)',
+                        fontWeight: isSelected ? '600' : '450',
                         margin: 0,
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
@@ -234,7 +235,7 @@ function CommandPalette({ onClose }) {
                       {item.subtitle && (
                         <p style={{
                           fontSize: '12px',
-                          color: '#9CA3AF',
+                          color: 'var(--text-muted)',
                           margin: 0,
                           marginTop: '1px',
                         }}>
@@ -245,11 +246,11 @@ function CommandPalette({ onClose }) {
                     {item.shortcut && (
                       <kbd style={{
                         padding: '2px 6px',
-                        background: '#F3F4F6',
-                        border: '1px solid #E5E7EB',
+                        background: 'var(--bg-secondary)',
+                        border: '1px solid var(--border-color)',
                         borderRadius: '4px',
                         fontSize: '11px',
-                        color: '#6B7280',
+                        color: 'var(--text-muted)',
                         flexShrink: 0,
                       }}>
                         {item.shortcut}
@@ -258,7 +259,7 @@ function CommandPalette({ onClose }) {
                     {isSelected && (
                       <span style={{
                         fontSize: '11px',
-                        color: '#9CA3AF',
+                        color: 'var(--text-muted)',
                         flexShrink: 0,
                       }}>
                         ↵
@@ -272,7 +273,8 @@ function CommandPalette({ onClose }) {
         </div>
         <div style={{
           padding: '8px 20px',
-          borderTop: '1px solid #F3F4F6',
+          borderTop: '1px solid var(--border-color)',
+          background: 'var(--bg-secondary)',
           display: 'flex',
           gap: '16px',
         }}>
@@ -288,15 +290,15 @@ function CommandPalette({ onClose }) {
             }}>
               <kbd style={{
                 padding: '1px 5px',
-                background: '#F3F4F6',
-                border: '1px solid #E5E7EB',
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-color)',
                 borderRadius: '3px',
                 fontSize: '11px',
-                color: '#6B7280',
+                color: 'var(--text-secondary)',
               }}>
                 {hint.key}
               </kbd>
-              <span style={{ fontSize: '11px', color: '#9CA3AF' }}>
+              <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
                 {hint.label}
               </span>
             </div>

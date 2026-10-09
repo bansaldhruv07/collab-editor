@@ -70,30 +70,30 @@ function ActivityFeedPanel({ documentId, onClose }) {
     <div style={{
       position: 'fixed',
       right: 0,
-      top: '60px',
+      top: 'var(--nav-height, 56px)',
       bottom: 0,
       width: '300px',
-      background: '#fff',
-      borderLeft: '1px solid #E5E7EB',
+      background: 'var(--bg-surface)',
+      borderLeft: '1px solid var(--border-color)',
       display: 'flex',
       flexDirection: 'column',
       zIndex: 40,
-      boxShadow: '-4px 0 16px rgba(0,0,0,0.06)',
+      boxShadow: 'var(--shadow-xl)',
     }}>
       <div style={{
         padding: '20px',
-        borderBottom: '1px solid #E5E7EB',
+        borderBottom: '1px solid var(--border-color)',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         flexShrink: 0,
       }}>
         <div>
-          <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#111827' }}>
+          <h3 style={{ fontSize: '15px', fontWeight: '650', color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
             Activity
           </h3>
-          <p style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '2px' }}>
-            Document history
+          <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
+            Document event log
           </p>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
@@ -102,24 +102,26 @@ function ActivityFeedPanel({ documentId, onClose }) {
             title="Refresh"
             style={{
               background: 'none',
-              border: '1px solid #E5E7EB',
+              border: '1px solid var(--border-color)',
               borderRadius: '6px',
               padding: '5px 8px',
               cursor: 'pointer',
               fontSize: '13px',
-              color: '#6B7280',
+              color: 'var(--text-secondary)',
             }}
           >
             ↻
           </button>
           <button
             onClick={onClose}
+            aria-label="Close activity"
             style={{
               background: 'none',
               border: 'none',
               fontSize: '18px',
               cursor: 'pointer',
-              color: '#9CA3AF',
+              color: 'var(--text-muted)',
+              padding: '2px 6px',
             }}
           >
             ✕
@@ -129,12 +131,12 @@ function ActivityFeedPanel({ documentId, onClose }) {
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
         {loading && <Spinner size={28} />}
         {error && (
-          <p style={{ color: '#EF4444', fontSize: '14px', textAlign: 'center' }}>
+          <p style={{ color: 'var(--danger-primary)', fontSize: '14px', textAlign: 'center' }}>
             {error}
           </p>
         )}
         {!loading && activities.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9CA3AF' }}>
+          <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
             <div style={{ fontSize: '32px', marginBottom: '8px' }}>📋</div>
             <p style={{ fontSize: '14px' }}>No activity yet</p>
           </div>
@@ -144,12 +146,12 @@ function ActivityFeedPanel({ documentId, onClose }) {
             <div style={{
               fontSize: '11px',
               fontWeight: '600',
-              color: '#9CA3AF',
+              color: 'var(--text-muted)',
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
               marginBottom: '10px',
               paddingBottom: '6px',
-              borderBottom: '1px solid #F3F4F6',
+              borderBottom: '1px solid var(--border-subtle)',
             }}>
               {date}
             </div>
@@ -168,14 +170,14 @@ function ActivityFeedPanel({ documentId, onClose }) {
                     borderRadius: '8px',
                     transition: 'background 0.1s',
                   }}
-                  onMouseEnter={e => e.currentTarget.style.background = '#F9FAFB'}
+                  onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                 >
                   <div style={{
                     width: '28px',
                     height: '28px',
                     borderRadius: '50%',
-                    background: '#EEF2FF',
+                    background: 'var(--accent-subtle)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -187,7 +189,7 @@ function ActivityFeedPanel({ documentId, onClose }) {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{
                       fontSize: '13px',
-                      color: '#111827',
+                      color: 'var(--text-primary)',
                       lineHeight: '1.4',
                       margin: 0,
                     }}>
@@ -197,7 +199,7 @@ function ActivityFeedPanel({ documentId, onClose }) {
                     </p>
                     <p style={{
                       fontSize: '11px',
-                      color: '#9CA3AF',
+                      color: 'var(--text-muted)',
                       marginTop: '2px',
                     }}>
                       {timeAgo(activity.timestamp)}

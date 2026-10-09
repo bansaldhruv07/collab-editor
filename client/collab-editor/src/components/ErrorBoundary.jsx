@@ -43,17 +43,35 @@ class ErrorBoundary extends Component {
             justifyContent: "center",
             padding: "40px 24px",
             textAlign: "center",
-            background: "#F9FAFB",
+            background: "var(--bg-primary)",
           }}
         >
-          <div style={{ fontSize: "48px", marginBottom: "16px" }}>⚠️</div>
+          <div style={{
+            width: "56px",
+            height: "56px",
+            borderRadius: "14px",
+            background: "var(--danger-bg)",
+            border: "1px solid var(--danger-border)",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: "16px",
+            color: "var(--danger-primary)",
+          }}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+          </div>
 
           <h2
             style={{
               fontSize: "20px",
               fontWeight: "700",
-              color: "#111827",
+              color: "var(--text-primary)",
               marginBottom: "8px",
+              letterSpacing: "-0.02em",
             }}
           >
             Something went wrong
@@ -62,7 +80,7 @@ class ErrorBoundary extends Component {
           <p
             style={{
               fontSize: "14px",
-              color: "#6B7280",
+              color: "var(--text-secondary)",
               maxWidth: "400px",
               lineHeight: "1.6",
               marginBottom: "24px",
@@ -84,7 +102,7 @@ class ErrorBoundary extends Component {
                 style={{
                   cursor: "pointer",
                   fontSize: "13px",
-                  color: "#9CA3AF",
+                  color: "var(--text-muted)",
                   marginBottom: "8px",
                 }}
               >
@@ -92,8 +110,9 @@ class ErrorBoundary extends Component {
               </summary>
               <pre
                 style={{
-                  background: "#1e1e1e",
-                  color: "#d4d4d4",
+                  background: "var(--bg-surface)",
+                  color: "var(--text-secondary)",
+                  border: "1px solid var(--border-color)",
                   padding: "12px",
                   borderRadius: "8px",
                   fontSize: "11px",
@@ -113,7 +132,7 @@ class ErrorBoundary extends Component {
               onClick={this.handleReset}
               style={{
                 padding: "10px 20px",
-                background: "#4F46E5",
+                background: "var(--accent-primary)",
                 color: "#fff",
                 border: "none",
                 borderRadius: "9px",
@@ -128,12 +147,12 @@ class ErrorBoundary extends Component {
               onClick={() => (window.location.href = "/dashboard")}
               style={{
                 padding: "10px 20px",
-                background: "none",
-                border: "1px solid #E5E7EB",
+                background: "var(--bg-surface)",
+                border: "1px solid var(--border-color)",
                 borderRadius: "8px",
                 fontSize: "14px",
                 cursor: "pointer",
-                color: "#374151",
+                color: "var(--text-primary)",
               }}
             >
               Go to dashboard

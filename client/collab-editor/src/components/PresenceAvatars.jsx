@@ -12,13 +12,13 @@ function PresenceAvatars({ users, currentUserId }) {
         alignItems: 'center',
         gap: '6px',
         fontSize: '12px',
-        color: '#D1D5DB',
+        color: 'var(--text-muted)',
       }}>
         <div style={{
           width: '7px',
           height: '7px',
           borderRadius: '50%',
-          background: '#D1D5DB',
+          background: 'var(--text-faint)',
         }} />
         Only you
       </div>
@@ -28,7 +28,7 @@ function PresenceAvatars({ users, currentUserId }) {
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
       <span style={{
         fontSize: '12px',
-        color: '#6B7280',
+        color: 'var(--text-muted)',
         whiteSpace: 'nowrap',
       }}>
         {totalInRoom} editing
@@ -43,7 +43,7 @@ function PresenceAvatars({ users, currentUserId }) {
               height: '28px',
               borderRadius: '50%',
               background: user.color,
-              border: '2px solid #fff',
+              border: '2px solid var(--bg-surface)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -76,14 +76,14 @@ function PresenceAvatars({ users, currentUserId }) {
               width: '28px',
               height: '28px',
               borderRadius: '50%',
-              background: '#E5E7EB',
-              border: '2px solid #fff',
+              background: 'var(--bg-hover)',
+              border: '2px solid var(--bg-surface)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '10px',
               fontWeight: '600',
-              color: '#6B7280',
+              color: 'var(--text-muted)',
               marginLeft: '-8px',
               position: 'relative',
               flexShrink: 0,

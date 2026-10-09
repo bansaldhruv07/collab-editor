@@ -20,6 +20,7 @@ import ActivityFeedPanel from '../components/ActivityFeedPanel';
 import saveQueue from '../services/saveQueue';
 import SectionLockWarning from '../components/SectionLockWarning';
 import ExportModal from '../components/ExportModal';
+import { useTheme } from '../context/ThemeContext';
 function EditorPage() {
   const { id } = useParams();
   const { user } = useAuth();
@@ -316,10 +317,12 @@ function EditorPage() {
       setIsEditingTitle(false);
     }
   };
+  const { resolvedTheme, toggleTheme } = useTheme();
+
   const saveIndicator = {
-    saved: { text: "✓ Saved", color: "#16A34A" },
-    saving: { text: "⟳ Saving...", color: "#6B7280" },
-    unsaved: { text: "● Unsaved", color: "#D97706" },
+    saved: { text: "Saved", icon: "✓", color: "var(--success-text)", bg: "var(--success-bg)", border: "var(--success-border)" },
+    saving: { text: "Saving...", icon: "⟳", color: "var(--text-muted)", bg: "var(--bg-secondary)", border: "var(--border-color)" },
+    unsaved: { text: "Unsaved", icon: "●", color: "var(--warning-text)", bg: "var(--warning-bg)", border: "var(--warning-border)" },
   };
   const handleRestore = useCallback(async (newContent) => {
     await fetchDocument();
@@ -335,36 +338,36 @@ function EditorPage() {
     return (
       <>
         <ProgressBar loading={loading} />
-        <div style={{ minHeight: "100vh", background: "#fff" }}>
-        <div
-          style={{
-            height: "60px",
-            background: "#fff",
-            borderBottom: "1px solid #E5E7EB",
-            display: "flex",
-            alignItems: "center",
-            padding: "0 24px",
-            gap: "16px",
-          }}
-        >
+        <div style={{ minHeight: "100vh", background: "var(--bg-secondary)" }}>
           <div
             style={{
-              width: "32px",
-              height: "32px",
-              background: "#f0f0f0",
-              borderRadius: "6px",
+              height: "var(--nav-height, 56px)",
+              background: "var(--bg-surface)",
+              borderBottom: "1px solid var(--border-color)",
+              display: "flex",
+              alignItems: "center",
+              padding: "0 24px",
+              gap: "16px",
             }}
-          />
-          <div
-            style={{
-              width: "200px",
-              height: "20px",
-              background: "#f0f0f0",
-              borderRadius: "6px",
-            }}
-          />
-        </div>
-        <EditorSkeleton />
+          >
+            <div
+              style={{
+                width: "28px",
+                height: "28px",
+                background: "var(--bg-hover)",
+                borderRadius: "6px",
+              }}
+            />
+            <div
+              style={{
+                width: "180px",
+                height: "18px",
+                background: "var(--bg-hover)",
+                borderRadius: "4px",
+              }}
+            />
+          </div>
+          <EditorSkeleton />
         </div>
       </>
     );
@@ -381,10 +384,11 @@ function EditorPage() {
           alignItems: "center",
           justifyContent: "center",
           gap: "16px",
+          background: "var(--bg-secondary)",
         }}
       >
-        <div style={{ fontSize: "48px" }}>⚠️</div>
-        <h2 style={{ fontSize: "20px", color: "#374151" }}>{error}</h2>
+        <div style={{ fontSize: "40px" }}>⚠️</div>
+        <h2 style={{ fontSize: "18px", fontWeight: "600", color: "var(--text-primary)" }}>{error}</h2>
         <Button onClick={() => navigate("/dashboard")} variant="secondary">
           Back to Dashboard
         </Button>
@@ -398,278 +402,335 @@ function EditorPage() {
       <div
       style={{
         minHeight: "100vh",
-        background: "#fff",
+        background: "var(--editor-canvas-bg)",
         display: "flex",
         flexDirection: "column",
       }}
     >
+      {/* Sleek, Non-AI Studio Header */}
       <nav
         style={{
-          height: "60px",
-          background: "#fff",
-          borderBottom: "1px solid #E5E7EB",
+          height: "var(--nav-height, 56px)",
+          background: "var(--bg-surface)",
+          borderBottom: "1px solid var(--border-color)",
           display: "flex",
           alignItems: "center",
-          padding: "0 24px",
-          gap: "16px",
+          justifyContent: "space-between",
+          padding: "0 20px",
+          gap: "12px",
           position: "sticky",
           top: 0,
           zIndex: 50,
+          transition: "background-color 0.2s ease, border-color 0.2s ease",
         }}
       >
-        <button
-          onClick={() => navigate("/dashboard")}
-          aria-label="Back to dashboard"
-          style={{
-            background: "none",
-            border: "none",
-            fontSize: "20px",
-            cursor: "pointer",
-            color: "#6B7280",
-            padding: "4px 8px",
-            borderRadius: "6px",
-            display: "flex",
-            alignItems: "center",
-          }}
-          title="Back to dashboard"
-        >
-          ←
-        </button>
-        <span style={{ fontWeight: "700", color: "#4F46E5", fontSize: "16px" }}>
-          📝
-        </span>
-        <div style={{ flex: 1 }}>
-          {isEditingTitle ? (
-            <input
-              ref={titleInputRef}
-              value={titleValue}
-              onChange={(e) => setTitleValue(e.target.value)}
-              onBlur={handleTitleSave}
-              onKeyDown={handleTitleKeyDown}
-              style={{
-                fontSize: "16px",
-                fontWeight: "600",
-                border: "none",
-                borderBottom: "2px solid #4F46E5",
-                outline: "none",
-                padding: "2px 4px",
-                background: "transparent",
-                width: "300px",
-                color: "#111827",
-              }}
-            />
-          ) : (
-            <span
-              onClick={() => setIsEditingTitle(true)}
-              title="Click to rename"
-              style={{
-                fontSize: "16px",
-                fontWeight: "600",
-                color: "#111827",
-                cursor: "text",
-                padding: "2px 4px",
-                borderRadius: "4px",
-                transition: "background 0.15s",
-              }}
-              onMouseEnter={(e) => (e.target.style.background = "#F3F4F6")}
-              onMouseLeave={(e) => (e.target.style.background = "transparent")}
-            >
-              {document?.title}
-            </span>
-          )}
-        </div>
-        <button
-          onClick={() => setShowShareModal(true)}
-          style={{
-            padding: "7px 16px",
-            background: "#4F46E5",
-            color: "#fff",
-            border: "none",
-            borderRadius: "8px",
-            fontSize: "13px",
-            fontWeight: "500",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-          }}
-        >
-          👥 Share
-        </button>
-        <button
-          onClick={() => {
-            setShowVersionHistory(prev => !prev);
-            setShowStats(false);
-            setShowActivity(false);
-          }}
-          style={{
-            padding: "7px 16px",
-            background: showVersionHistory ? "#EEF2FF" : "transparent",
-            color: showVersionHistory ? "#4F46E5" : "#6B7280",
-            border: "1px solid",
-            borderColor: showVersionHistory ? "#C7D2FE" : "#E5E7EB",
-            borderRadius: "8px",
-            fontSize: "13px",
-            fontWeight: "500",
-            cursor: "pointer",
-          }}
-        >
-          🕐 History
-        </button>
-        <button
-          onClick={() => {
-            setShowStats(prev => !prev);
-            setShowVersionHistory(false);
-            setShowActivity(false);
-          }}
-          style={{
-            padding: '7px 16px',
-            background: showStats ? '#EEF2FF' : 'transparent',
-            color: showStats ? '#4F46E5' : '#6B7280',
-            border: '1px solid',
-            borderColor: showStats ? '#C7D2FE' : '#E5E7EB',
-            borderRadius: '8px',
-            fontSize: '13px',
-            fontWeight: '500',
-            cursor: 'pointer',
-          }}
-        >
-          📊 Stats
-        </button>
-        <button
-          onClick={() => {
-            setShowActivity(prev => !prev);
-            setShowVersionHistory(false);
-            setShowStats(false);
-          }}
-          style={{
-            padding: '7px 16px',
-            background: showActivity ? '#EEF2FF' : 'transparent',
-            color: showActivity ? '#4F46E5' : '#6B7280',
-            border: '1px solid',
-            borderColor: showActivity ? '#C7D2FE' : '#E5E7EB',
-            borderRadius: '8px',
-            fontSize: '13px',
-            fontWeight: '500',
-            cursor: 'pointer',
-          }}
-        >
-          📋 Activity
-        </button>
-        <button
-          onClick={() => setShowExportModal(true)}
-          style={{
-            padding: '7px 14px',
-            background: 'transparent',
-            color: '#6B7280',
-            border: '1px solid #E5E7EB',
-            borderRadius: '8px',
-            fontSize: '13px',
-            fontWeight: '500',
-            cursor: 'pointer',
-          }}
-        >
-          ↓ Export
-        </button>
-        <PresenceAvatars users={activeUsers} currentUserId={user?._id} />
-        {lastEditedBy && lastEditedBy._id !== user?._id && (
-          <span style={{
-            fontSize: '12px',
-            color: '#6B7280',
-            whiteSpace: 'nowrap',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-          }}>
-            Last edit by{' '}
-            <strong style={{ color: '#6B7280' }}>
-              {lastEditedBy.name}
-            </strong>
-          </span>
-        )}
-        <div
-          title="Keyboard shortcuts: Ctrl+S to save"
-          style={{
-            fontSize: "12px",
-            color: "#6B7280",
-            cursor: "default",
-            display: window.innerWidth < 640 ? 'none' : 'flex',
-            alignItems: "center",
-            gap: "4px",
-          }}
-        >
-          <kbd
+        {/* Left: Breadcrumbs & Document Title */}
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", minWidth: 0, flex: 1 }}>
+          <button
+            onClick={() => navigate("/dashboard")}
+            aria-label="Back to dashboard"
+            title="Back to documents"
             style={{
-              padding: "2px 6px",
-              background: "#F3F4F6",
-              border: "1px solid #D1D5DB",
-              borderRadius: "4px",
+              background: "none",
+              border: "none",
+              color: "var(--text-secondary)",
+              padding: "6px 8px",
+              borderRadius: "6px",
+              display: "flex",
+              alignItems: "center",
+              cursor: "pointer",
+              transition: "background 0.15s ease",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+          </button>
+
+          <span style={{ fontSize: "13px", color: "var(--text-muted)", display: "flex", alignItems: "center" }}>
+            Documents <span style={{ margin: "0 6px" }}>/</span>
+          </span>
+
+          <div style={{ position: "relative", minWidth: "120px", maxWidth: "340px", flexShrink: 1 }}>
+            {isEditingTitle ? (
+              <input
+                ref={titleInputRef}
+                value={titleValue}
+                onChange={(e) => setTitleValue(e.target.value)}
+                onBlur={handleTitleSave}
+                onKeyDown={handleTitleKeyDown}
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  border: "none",
+                  borderBottom: "2px solid var(--accent-primary)",
+                  outline: "none",
+                  padding: "2px 4px",
+                  background: "transparent",
+                  width: "100%",
+                  color: "var(--text-primary)",
+                }}
+              />
+            ) : (
+              <span
+                onClick={() => setIsEditingTitle(true)}
+                title="Click to rename"
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  color: "var(--text-primary)",
+                  cursor: "text",
+                  padding: "3px 8px",
+                  borderRadius: "6px",
+                  display: "inline-block",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  maxWidth: "100%",
+                  transition: "background 0.15s ease",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
+                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+              >
+                {document?.title}
+              </span>
+            )}
+          </div>
+
+          {/* Autosave status pill */}
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "4px",
+              padding: "2px 8px",
+              borderRadius: "12px",
               fontSize: "11px",
-              color: "#374151",
-              fontFamily: "monospace",
+              fontWeight: "600",
+              color: saveIndicator[saveStatus].color,
+              background: saveIndicator[saveStatus].bg,
+              border: `1px solid ${saveIndicator[saveStatus].border}`,
+              whiteSpace: "nowrap",
+              marginLeft: "4px",
             }}
           >
-            Ctrl+S
-          </kbd>
-          <span style={{ fontSize: "11px" }}>to save</span>
-        </div>
-        {!isConnected && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '4px 10px',
-            background: '#FEF3C7',
-            border: '1px solid #FCD34D',
-            borderRadius: '6px',
-            fontSize: '12px',
-            color: '#92400E',
-          }}>
-            <div style={{
-              width: '7px',
-              height: '7px',
-              borderRadius: '50%',
-              background: '#F59E0B',
-            }} />
-            Reconnecting...
+            <span>{saveIndicator[saveStatus].icon}</span>
+            <span>{saveIndicator[saveStatus].text}</span>
           </div>
-        )}
-        <span
-          style={{
-            fontSize: "13px",
-            color: saveIndicator[saveStatus].color,
-            fontWeight: "500",
-            minWidth: "80px",
-            textAlign: "right",
-          }}
-        >
-          {saveIndicator[saveStatus].text}
-        </span>
-        <div
-          style={{
-            width: "32px",
-            height: "32px",
-            borderRadius: "50%",
-            background: "#EEF2FF",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "13px",
-            fontWeight: "600",
-            color: "#4F46E5",
-          }}
-        >
-          {user?.name?.charAt(0).toUpperCase()}
+
+          {/* Word count pill */}
+          <span
+            style={{
+              fontSize: "11px",
+              color: "var(--text-muted)",
+              whiteSpace: "nowrap",
+              marginLeft: "6px",
+              display: window.innerWidth < 768 ? "none" : "inline",
+            }}
+          >
+            {wordCount} words
+          </span>
+        </div>
+
+        {/* Right Tools Cluster */}
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+          <PresenceAvatars users={activeUsers} currentUserId={user?._id} />
+
+          {/* Theme Quick Toggle */}
+          <button
+            onClick={toggleTheme}
+            aria-label={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
+            title={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
+            style={{
+              background: "none",
+              border: "1px solid var(--border-color)",
+              borderRadius: "8px",
+              padding: "6px 9px",
+              cursor: "pointer",
+              fontSize: "14px",
+              color: "var(--text-secondary)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.15s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "var(--accent-primary)";
+              e.currentTarget.style.color = "var(--text-primary)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "var(--border-color)";
+              e.currentTarget.style.color = "var(--text-secondary)";
+            }}
+          >
+            {resolvedTheme === 'dark' ? (
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+            ) : (
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+            )}
+          </button>
+
+          {/* Action cluster buttons */}
+          <button
+            onClick={() => {
+              setShowVersionHistory(prev => !prev);
+              setShowStats(false);
+              setShowActivity(false);
+            }}
+            style={{
+              padding: "6px 12px",
+              background: showVersionHistory ? "var(--accent-subtle)" : "transparent",
+              color: showVersionHistory ? "var(--accent-primary)" : "var(--text-secondary)",
+              border: "1px solid",
+              borderColor: showVersionHistory ? "var(--accent-border)" : "var(--border-color)",
+              borderRadius: "8px",
+              fontSize: "13px",
+              fontWeight: "550",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "5px",
+              transition: "all 0.15s ease",
+            }}
+          >
+            <span>History</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setShowStats(prev => !prev);
+              setShowVersionHistory(false);
+              setShowActivity(false);
+            }}
+            style={{
+              padding: "6px 12px",
+              background: showStats ? "var(--accent-subtle)" : "transparent",
+              color: showStats ? "var(--accent-primary)" : "var(--text-secondary)",
+              border: "1px solid",
+              borderColor: showStats ? "var(--accent-border)" : "var(--border-color)",
+              borderRadius: "8px",
+              fontSize: "13px",
+              fontWeight: "550",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "5px",
+              transition: "all 0.15s ease",
+            }}
+          >
+            <span>Stats</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setShowActivity(prev => !prev);
+              setShowVersionHistory(false);
+              setShowStats(false);
+            }}
+            style={{
+              padding: "6px 12px",
+              background: showActivity ? "var(--accent-subtle)" : "transparent",
+              color: showActivity ? "var(--accent-primary)" : "var(--text-secondary)",
+              border: "1px solid",
+              borderColor: showActivity ? "var(--accent-border)" : "var(--border-color)",
+              borderRadius: "8px",
+              fontSize: "13px",
+              fontWeight: "550",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "5px",
+              transition: "all 0.15s ease",
+            }}
+          >
+            <span>Activity</span>
+          </button>
+
+          <button
+            onClick={() => setShowExportModal(true)}
+            style={{
+              padding: "6px 12px",
+              background: "transparent",
+              color: "var(--text-secondary)",
+              border: "1px solid var(--border-color)",
+              borderRadius: "8px",
+              fontSize: "13px",
+              fontWeight: "550",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "5px",
+              transition: "all 0.15s ease",
+            }}
+          >
+            <span>Export</span>
+          </button>
+
+          <button
+            onClick={() => setShowShareModal(true)}
+            style={{
+              padding: "6px 14px",
+              background: "var(--accent-primary)",
+              color: "#ffffff",
+              border: "none",
+              borderRadius: "8px",
+              fontSize: "13px",
+              fontWeight: "600",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              boxShadow: "var(--shadow-sm)",
+              transition: "all 0.15s ease",
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+              <polyline points="16 6 12 2 8 6"></polyline>
+              <line x1="12" y1="2" x2="12" y2="15"></line>
+            </svg>
+            <span>Share</span>
+          </button>
+
+          <div
+            style={{
+              width: "30px",
+              height: "30px",
+              borderRadius: "50%",
+              background: "var(--accent-subtle)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "12px",
+              fontWeight: "650",
+              color: "var(--accent-primary)",
+              border: "1px solid var(--accent-border)",
+            }}
+          >
+            {user?.name?.charAt(0).toUpperCase()}
+          </div>
         </div>
       </nav>
-      <div style={{
-        flex: 1,
-        maxWidth: '860px',
-        width: '100%',
-        margin: '0 auto',
-        background: '#fff',
-        marginRight: (showVersionHistory || showStats || showActivity) ? '300px' : '0',
-        transition: 'margin-right 0.3s ease',
+
+      {/* Elevated Document Canvas Studio */}
+      <div className="editor-workspace" style={{
+        marginRight: (showVersionHistory || showStats || showActivity) ? (window.innerWidth < 768 ? '0' : '310px') : '0',
+        transition: 'margin-right 0.25s ease',
       }}>
         <Editor
           ref={editorRef}
@@ -682,6 +743,7 @@ function EditorPage() {
           wordCount={wordCount}
         />
       </div>
+
       <TypingIndicator typingUsers={typingUsers} />
       <SectionLockWarning locks={sectionLocks} />
       <CollaboratorAlert
@@ -710,6 +772,7 @@ function EditorPage() {
           documentId={id}
           createdAt={document?.createdAt}
           updatedAt={document?.updatedAt}
+          onClose={() => setShowStats(false)}
         />
       )}
       {showActivity && (

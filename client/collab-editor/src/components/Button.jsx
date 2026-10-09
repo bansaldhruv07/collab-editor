@@ -1,27 +1,35 @@
-function Button({ children, onClick, type = 'button', loading = false, variant = 'primary', fullWidth = false, disabled = false }) {
+function Button({ children, onClick, type = 'button', loading = false, variant = 'primary', fullWidth = false, disabled = false, style = {} }) {
   const baseStyle = {
-    padding: '10px 20px',
+    padding: '9px 18px',
     borderRadius: '8px',
     fontSize: '14px',
-    fontWeight: '500',
-    border: 'none',
+    fontWeight: '550',
+    border: '1px solid transparent',
     cursor: loading || disabled ? 'not-allowed' : 'pointer',
-    opacity: loading || disabled ? 0.7 : 1,
+    opacity: loading || disabled ? 0.65 : 1,
     width: fullWidth ? '100%' : 'auto',
-    transition: 'background 0.2s, transform 0.1s',
+    transition: 'all 0.15s ease',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '6px',
+    boxShadow: variant === 'primary' ? 'var(--shadow-sm)' : 'none',
   };
   const variants = {
     primary: {
-      background: '#4F46E5',
-      color: '#fff',
+      background: 'var(--accent-primary)',
+      color: '#ffffff',
+      borderColor: 'transparent',
     },
     secondary: {
-      background: '#f0f0f0',
-      color: '#333',
+      background: 'var(--bg-secondary)',
+      color: 'var(--text-primary)',
+      borderColor: 'var(--border-color)',
     },
     danger: {
-      background: '#EF4444',
-      color: '#fff',
+      background: 'var(--danger-primary)',
+      color: '#ffffff',
+      borderColor: 'transparent',
     },
   };
   return (
@@ -29,7 +37,7 @@ function Button({ children, onClick, type = 'button', loading = false, variant =
       type={type}
       onClick={onClick}
       disabled={loading || disabled}
-      style={{ ...baseStyle, ...variants[variant] }}
+      style={{ ...baseStyle, ...variants[variant], ...style }}
     >
       {loading ? 'Loading...' : children}
     </button>

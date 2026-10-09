@@ -36,12 +36,13 @@ function KeyboardShortcutsModal({ onClose }) {
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: "#fff",
+          background: "var(--bg-surface)",
           borderRadius: "16px",
           padding: "32px",
           width: "100%",
           maxWidth: "480px",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.2)",
+          border: "1px solid var(--border-color)",
+          boxShadow: "var(--shadow-xl, 0 20px 60px rgba(0,0,0,0.3))",
           maxHeight: "80vh",
           overflowY: "auto",
         }}
@@ -54,7 +55,7 @@ function KeyboardShortcutsModal({ onClose }) {
             marginBottom: "24px",
           }}
         >
-          <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#111827" }}>
+          <h2 style={{ fontSize: "20px", fontWeight: "700", color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
             Keyboard shortcuts
           </h2>
           <button
@@ -64,7 +65,10 @@ function KeyboardShortcutsModal({ onClose }) {
               border: "none",
               fontSize: "18px",
               cursor: "pointer",
-              color: "#9CA3AF",
+              color: "var(--text-muted)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             ✕
@@ -76,7 +80,7 @@ function KeyboardShortcutsModal({ onClose }) {
               style={{
                 fontSize: "12px",
                 fontWeight: "600",
-                color: "#9CA3AF",
+                color: "var(--text-muted)",
                 textTransform: "uppercase",
                 letterSpacing: "0.08em",
                 marginBottom: "12px",
@@ -99,10 +103,10 @@ function KeyboardShortcutsModal({ onClose }) {
                     justifyContent: "space-between",
                     alignItems: "center",
                     padding: "8px 0",
-                    borderBottom: "1px solid #F3F4F6",
+                    borderBottom: "1px solid var(--border-color)",
                   }}
                 >
-                  <span style={{ fontSize: "14px", color: "#374151" }}>
+                  <span style={{ fontSize: "14px", color: "var(--text-secondary)" }}>
                     {shortcut.description}
                   </span>
                   <div style={{ display: "flex", gap: "4px" }}>
@@ -111,12 +115,13 @@ function KeyboardShortcutsModal({ onClose }) {
                         key={i}
                         style={{
                           padding: "3px 8px",
-                          background: "#F3F4F6",
-                          border: "1px solid #D1D5DB",
+                          background: "var(--bg-primary)",
+                          border: "1px solid var(--border-color)",
                           borderRadius: "5px",
                           fontSize: "12px",
-                          color: "#374151",
-                          fontFamily: "monospace",
+                          color: "var(--text-primary)",
+                          fontFamily: "inherit",
+                          fontWeight: "500",
                         }}
                       >
                         {key}

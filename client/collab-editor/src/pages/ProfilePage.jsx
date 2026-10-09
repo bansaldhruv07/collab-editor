@@ -69,23 +69,24 @@ function ProfilePage() {
   return (
     <div style={{ maxWidth: '640px', margin: '0 auto', padding: '24px 16px' }}>
       <div style={{ marginBottom: "32px" }}>
-        <h1 style={{ fontSize: "24px", fontWeight: "700", color: "#111827" }}>
+        <h1 style={{ fontSize: "24px", fontWeight: "700", color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
           Profile
         </h1>
-        <p style={{ color: "#6B7280", marginTop: "4px" }}>
+        <p style={{ color: "var(--text-secondary)", marginTop: "4px" }}>
           Manage your personal information
         </p>
       </div>
       <div
         style={{
-          background: "#fff",
-          border: "1px solid #E5E7EB",
+          background: "var(--bg-surface)",
+          border: "1px solid var(--border-color)",
           borderRadius: "12px",
           padding: "24px",
           marginBottom: "24px",
           display: "flex",
           alignItems: "center",
           gap: "20px",
+          boxShadow: "var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.05))",
         }}
       >
         <div
@@ -93,7 +94,7 @@ function ProfilePage() {
             width: "72px",
             height: "72px",
             borderRadius: "50%",
-            background: "#4F46E5",
+            background: "var(--accent-primary)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -111,27 +112,28 @@ function ProfilePage() {
             .slice(0, 2)}
         </div>
         <div>
-          <p style={{ fontSize: "18px", fontWeight: "600", color: "#111827" }}>
+          <p style={{ fontSize: "18px", fontWeight: "600", color: "var(--text-primary)" }}>
             {user?.name}
           </p>
-          <p style={{ fontSize: "14px", color: "#9CA3AF", marginTop: "2px" }}>
+          <p style={{ fontSize: "14px", color: "var(--text-muted)", marginTop: "2px" }}>
             Member since {memberSince}
           </p>
         </div>
       </div>
       <div
         style={{
-          background: "#fff",
-          border: "1px solid #E5E7EB",
+          background: "var(--bg-surface)",
+          border: "1px solid var(--border-color)",
           borderRadius: "12px",
           padding: "24px",
+          boxShadow: "var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.05))",
         }}
       >
         <h2
           style={{
             fontSize: "16px",
             fontWeight: "600",
-            color: "#111827",
+            color: "var(--text-primary)",
             marginBottom: "20px",
           }}
         >

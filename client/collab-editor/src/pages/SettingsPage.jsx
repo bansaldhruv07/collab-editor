@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import userService from '../services/userService';
 import { useToast } from '../components/Toast';
 import Button from '../components/Button';
 import Input from '../components/Input';
 function SettingsPage() {
   const { logout } = useAuth();
+  const { theme, setTheme } = useTheme();
   const { addToast } = useToast();
   const navigate = useNavigate();
   const [passwordForm, setPasswordForm] = useState({
@@ -77,26 +79,78 @@ function SettingsPage() {
     }
   };
   return (
-    <div style={{ maxWidth: '640px', margin: '0 auto', padding: '24px 16px' }}>
+    <div style={{ maxWidth: '640px', margin: '0 auto', padding: '32px 16px 80px' }}>
       <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#111827' }}>
+        <h1 style={{ fontSize: '24px', fontWeight: '750', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
           Settings
         </h1>
-        <p style={{ color: '#6B7280', marginTop: '4px' }}>
-          Manage your account security and preferences
+        <p style={{ color: 'var(--text-muted)', marginTop: '4px', fontSize: '14px' }}>
+          Manage your account appearance, security, and preferences
         </p>
       </div>
+
+      {/* Appearance Section */}
       <div style={{
-        background: '#fff',
-        border: '1px solid #E5E7EB',
+        background: 'var(--bg-surface)',
+        border: '1px solid var(--border-color)',
         borderRadius: '12px',
         padding: '24px',
         marginBottom: '24px',
+        boxShadow: 'var(--shadow-sm)',
       }}>
-        <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#111827', marginBottom: '6px' }}>
+        <h2 style={{ fontSize: '16px', fontWeight: '650', color: 'var(--text-primary)', marginBottom: '4px' }}>
+          Appearance
+        </h2>
+        <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '18px' }}>
+          Customize your workspace interface theme
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+          {[
+            { id: 'light', label: 'Light', icon: '☀️', desc: 'Clean paper style' },
+            { id: 'dark', label: 'Dark', icon: '🌙', desc: 'Easy on the eyes' },
+            { id: 'system', label: 'System', icon: '💻', desc: 'Sync with OS' },
+          ].map(opt => (
+            <button
+              key={opt.id}
+              onClick={() => setTheme(opt.id)}
+              style={{
+                padding: '16px 12px',
+                borderRadius: '10px',
+                border: theme === opt.id ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                background: theme === opt.id ? 'var(--accent-subtle)' : 'var(--bg-secondary)',
+                cursor: 'pointer',
+                textAlign: 'center',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <div style={{ fontSize: '24px', marginBottom: '6px' }}>{opt.icon}</div>
+              <div style={{
+                fontSize: '14px',
+                fontWeight: '600',
+                color: theme === opt.id ? 'var(--accent-primary)' : 'var(--text-primary)',
+              }}>
+                {opt.label}
+              </div>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                {opt.desc}
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{
+        background: 'var(--bg-surface)',
+        border: '1px solid var(--border-color)',
+        borderRadius: '12px',
+        padding: '24px',
+        marginBottom: '24px',
+        boxShadow: 'var(--shadow-sm)',
+      }}>
+        <h2 style={{ fontSize: '16px', fontWeight: '650', color: 'var(--text-primary)', marginBottom: '6px' }}>
           Change password
         </h2>
-        <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '20px' }}>
+        <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '20px' }}>
           Use a strong password with at least 6 characters
         </p>
         <form onSubmit={handlePasswordSubmit}>
@@ -135,15 +189,16 @@ function SettingsPage() {
         </form>
       </div>
       <div style={{
-        background: '#fff',
-        border: '1.5px solid #FCA5A5',
+        background: 'var(--bg-surface)',
+        border: '1.5px solid var(--danger-border)',
         borderRadius: '12px',
         padding: '24px',
+        boxShadow: 'var(--shadow-sm)',
       }}>
-        <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#DC2626', marginBottom: '6px' }}>
+        <h2 style={{ fontSize: '16px', fontWeight: '650', color: 'var(--danger-primary)', marginBottom: '6px' }}>
           Danger zone
         </h2>
-        <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '20px' }}>
+        <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '20px' }}>
           Permanently delete your account and all your documents. This cannot be undone.
         </p>
         {!showDeleteConfirm ? (
@@ -155,15 +210,15 @@ function SettingsPage() {
           </Button>
         ) : (
           <div style={{
-            background: '#FEF2F2',
-            border: '1px solid #FECACA',
+            background: 'var(--danger-bg)',
+            border: '1px solid var(--danger-border)',
             borderRadius: '10px',
             padding: '16px',
           }}>
             <p style={{
               fontSize: '14px',
               fontWeight: '500',
-              color: '#991B1B',
+              color: 'var(--danger-text)',
               marginBottom: '12px',
             }}>
               Are you absolutely sure? Enter your password to confirm deletion.

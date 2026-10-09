@@ -9,9 +9,9 @@ function Input({ label, type = 'text', value, onChange, placeholder, error, name
           style={{
             display: 'block',
             marginBottom: '6px',
-            fontSize: '14px',
-            fontWeight: '500',
-            color: '#374151',
+            fontSize: '13px',
+            fontWeight: '550',
+            color: 'var(--text-secondary)',
           }}
         >
           {label}
@@ -30,21 +30,21 @@ function Input({ label, type = 'text', value, onChange, placeholder, error, name
           width: '100%',
           padding: '10px 14px',
           borderRadius: '8px',
-          border: `1.5px solid ${error ? '#EF4444' : '#D1D5DB'}`,
+          border: `1px solid ${error ? 'var(--danger-primary)' : 'var(--border-color)'}`,
           fontSize: '14px',
           outline: 'none',
-          transition: 'border-color 0.2s',
-          background: '#fff',
-          color: '#111',
+          transition: 'all 0.15s ease',
+          background: 'var(--bg-surface)',
+          color: 'var(--text-primary)',
         }}
-        onFocus={e => e.target.style.borderColor = '#4F46E5'}
-        onBlur={e => e.target.style.borderColor = error ? '#EF4444' : '#D1D5DB'}
+        onFocus={e => e.target.style.borderColor = 'var(--accent-primary)'}
+        onBlur={e => e.target.style.borderColor = error ? 'var(--danger-primary)' : 'var(--border-color)'}
       />
       {error && (
         <p
           id={`${inputId}-error`}
           role="alert"
-          style={{ color: '#EF4444', fontSize: '12px', marginTop: '4px' }}
+          style={{ color: 'var(--danger-primary)', fontSize: '12px', marginTop: '4px' }}
         >
           {error}
         </p>

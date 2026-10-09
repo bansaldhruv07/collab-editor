@@ -1,6 +1,7 @@
 import { lazy, Suspense, useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import { SocketProvider } from "./context/SocketContext";
 import { ToastProvider } from "./components/Toast";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -26,15 +27,15 @@ function PageLoader() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "#F9FAFB",
+        background: "var(--bg-primary, #F9FAFB)",
       }}
     >
       <div
         style={{
           width: "36px",
           height: "36px",
-          border: "3px solid #E5E7EB",
-          borderTop: "3px solid #4F46E5",
+          border: "3px solid var(--border-color, #E5E7EB)",
+          borderTop: "3px solid var(--accent-primary, #4F46E5)",
           borderRadius: "50%",
           animation: "spin 0.8s linear infinite",
         }}
@@ -71,80 +72,82 @@ function AppContent() {
 }
 function App() {
   return (
-    <AuthProvider>
-      <SocketProvider>
-        <ToastProvider>
-          {}
-          <ErrorBoundary fullPage>
-            <BrowserRouter>
-              <AppContent />
-              <OfflineBanner />
-              <Layout>
-                <Suspense fallback={<PageLoader />}>
-                  <Routes>
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/register" element={<RegisterPage />} />
-                    <Route
-                      path="/dashboard"
-                      element={
-                        <ProtectedRoute>
-                          {}
-                          <ErrorBoundary>
-                            <DashboardPage />
-                          </ErrorBoundary>
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/document/:id"
-                      element={
-                        <ProtectedRoute>
-                          <ErrorBoundary>
-                            <EditorPage />
-                          </ErrorBoundary>
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/profile"
-                      element={
-                        <ProtectedRoute>
-                          <ErrorBoundary>
-                            <ProfilePage />
-                          </ErrorBoundary>
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/settings"
-                      element={
-                        <ProtectedRoute>
-                          <ErrorBoundary>
-                            <SettingsPage />
-                          </ErrorBoundary>
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/trash"
-                      element={
-                        <ProtectedRoute>
-                          <ErrorBoundary>
-                            <TrashPage />
-                          </ErrorBoundary>
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                    <Route path="*" element={<NotFoundPage />} />
-                  </Routes>
-                </Suspense>
-              </Layout>
-            </BrowserRouter>
-          </ErrorBoundary>
-        </ToastProvider>
-      </SocketProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <SocketProvider>
+          <ToastProvider>
+            {}
+            <ErrorBoundary fullPage>
+              <BrowserRouter>
+                <AppContent />
+                <OfflineBanner />
+                <Layout>
+                  <Suspense fallback={<PageLoader />}>
+                    <Routes>
+                      <Route path="/login" element={<LoginPage />} />
+                      <Route path="/register" element={<RegisterPage />} />
+                      <Route
+                        path="/dashboard"
+                        element={
+                          <ProtectedRoute>
+                            {}
+                            <ErrorBoundary>
+                              <DashboardPage />
+                            </ErrorBoundary>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/document/:id"
+                        element={
+                          <ProtectedRoute>
+                            <ErrorBoundary>
+                              <EditorPage />
+                            </ErrorBoundary>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/profile"
+                        element={
+                          <ProtectedRoute>
+                            <ErrorBoundary>
+                              <ProfilePage />
+                            </ErrorBoundary>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/settings"
+                        element={
+                          <ProtectedRoute>
+                            <ErrorBoundary>
+                              <SettingsPage />
+                            </ErrorBoundary>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/trash"
+                        element={
+                          <ProtectedRoute>
+                            <ErrorBoundary>
+                              <TrashPage />
+                            </ErrorBoundary>
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                      <Route path="*" element={<NotFoundPage />} />
+                    </Routes>
+                  </Suspense>
+                </Layout>
+              </BrowserRouter>
+            </ErrorBoundary>
+          </ToastProvider>
+        </SocketProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 export default App;

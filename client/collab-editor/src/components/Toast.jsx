@@ -20,21 +20,21 @@ export function ToastProvider({ children }) {
   };
   const typeStyles = {
     success: {
-      background: "#F0FDF4",
-      color: "#166534",
-      border: "1px solid #BBF7D0",
+      background: "var(--bg-surface)",
+      color: "var(--success-text)",
+      border: "1px solid var(--success-border)",
       icon: "✓",
     },
     error: {
-      background: "#FEF2F2",
-      color: "#991B1B",
-      border: "1px solid #FECACA",
+      background: "var(--bg-surface)",
+      color: "var(--danger-text)",
+      border: "1px solid var(--danger-border)",
       icon: "✕",
     },
     info: {
-      background: "#EFF6FF",
-      color: "#1E40AF",
-      border: "1px solid #BFDBFE",
+      background: "var(--bg-surface)",
+      color: "var(--accent-text)",
+      border: "1px solid var(--accent-border)",
       icon: "ℹ",
     },
   };
@@ -59,20 +59,22 @@ export function ToastProvider({ children }) {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "10px",
+              gap: "12px",
               padding: "12px 16px",
               borderRadius: "10px",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
-              animation: "slideIn 0.2s ease-out",
+              boxShadow: "var(--shadow-lg, 0 10px 15px -3px rgba(0,0,0,0.2))",
+              animation: "slideIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
               cursor: "pointer",
               ...typeStyles[toast.type],
             }}
             onClick={() => removeToast(toast.id)}
           >
-            <span style={{ fontWeight: "700", fontSize: "14px" }}>
+            <span style={{ fontWeight: "700", fontSize: "14px", flexShrink: 0 }}>
               {typeStyles[toast.type].icon}
             </span>
-            <span style={{ fontSize: "14px", flex: 1 }}>{toast.message}</span>
+            <span style={{ fontSize: "14px", flex: 1, color: "var(--text-primary)", fontWeight: "500" }}>
+              {toast.message}
+            </span>
           </div>
         ))}
       </div>

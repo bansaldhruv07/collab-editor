@@ -93,25 +93,23 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose, showVers
       position: 'fixed',
       right: isMobile ? 0 : 0,
       bottom: isMobile ? 0 : 0,
-      top: isMobile ? 'auto' : '60px',
+      top: isMobile ? 'auto' : 'var(--nav-height, 56px)',
       left: isMobile ? 0 : 'auto',
       width: isMobile ? '100%' : '320px',
-      height: isMobile ? '60vh' : 'auto',
-      background: '#fff',
-      borderLeft: isMobile ? 'none' : '1px solid #E5E7EB',
-      borderTop: isMobile ? '1px solid #E5E7EB' : 'none',
+      height: isMobile ? '65vh' : 'auto',
+      background: 'var(--bg-surface)',
+      borderLeft: isMobile ? 'none' : '1px solid var(--border-color)',
+      borderTop: isMobile ? '1px solid var(--border-color)' : 'none',
       borderRadius: isMobile ? '16px 16px 0 0' : '0',
       display: 'flex',
       flexDirection: 'column',
       zIndex: 40,
-      boxShadow: isMobile
-        ? '0 -4px 16px rgba(0,0,0,0.1)'
-        : '-4px 0 16px rgba(0,0,0,0.06)',
+      boxShadow: 'var(--shadow-xl)',
     }}>
       <div
         style={{
           padding: "20px",
-          borderBottom: "1px solid #E5E7EB",
+          borderBottom: "1px solid var(--border-color)",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
@@ -119,10 +117,10 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose, showVers
         }}
       >
         <div>
-          <h3 style={{ fontSize: "16px", fontWeight: "600", color: "#111827" }}>
+          <h3 style={{ fontSize: "15px", fontWeight: "650", color: "var(--text-primary)", letterSpacing: "-0.01em" }}>
             Version history
           </h3>
-          <p style={{ fontSize: "12px", color: "#6B7280", marginTop: "2px" }}>
+          <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "2px" }}>
             {versions.length} saved version{versions.length !== 1 ? "s" : ""}
           </p>
         </div>
@@ -134,8 +132,8 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose, showVers
             border: "none",
             fontSize: "18px",
             cursor: "pointer",
-            color: "#9CA3AF",
-            padding: "4px",
+            color: "var(--text-muted)",
+            padding: "2px 6px",
           }}
         >
           ✕
@@ -148,7 +146,7 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose, showVers
             style={{
               textAlign: "center",
               padding: "40px 20px",
-              color: "#6B7280",
+              color: "var(--text-muted)",
             }}
           >
             <div style={{ fontSize: "32px", marginBottom: "8px" }}>📋</div>
@@ -164,8 +162,8 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose, showVers
             style={{
               border:
                 previewVersion?._id === version._id
-                  ? "1.5px solid #4F46E5"
-                  : "1px solid #E5E7EB",
+                  ? "1.5px solid var(--accent-primary)"
+                  : "1px solid var(--border-color)",
               borderRadius: "10px",
               marginBottom: "8px",
               overflow: "hidden",
@@ -178,17 +176,17 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose, showVers
                 padding: "12px 14px",
                 cursor: "pointer",
                 background:
-                  previewVersion?._id === version._id ? "#F5F3FF" : "#fff",
+                  previewVersion?._id === version._id ? "var(--accent-subtle)" : "var(--bg-surface)",
                 transition: "background 0.15s",
               }}
               onMouseEnter={(e) => {
                 if (previewVersion?._id !== version._id) {
-                  e.currentTarget.style.background = "#F9FAFB";
+                  e.currentTarget.style.background = "var(--bg-hover)";
                 }
               }}
               onMouseLeave={(e) => {
                 if (previewVersion?._id !== version._id) {
-                  e.currentTarget.style.background = "#fff";
+                  e.currentTarget.style.background = "var(--bg-surface)";
                 }
               }}
             >
@@ -203,8 +201,8 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose, showVers
                   <p
                     style={{
                       fontSize: "13px",
-                      fontWeight: "500",
-                      color: "#111827",
+                      fontWeight: "600",
+                      color: "var(--text-primary)",
                       marginBottom: "3px",
                     }}
                   >
@@ -215,8 +213,8 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose, showVers
                           marginLeft: "6px",
                           fontSize: "10px",
                           padding: "1px 6px",
-                          background: "#EEF2FF",
-                          color: "#4F46E5",
+                          background: "var(--accent-subtle)",
+                          color: "var(--accent-primary)",
                           borderRadius: "10px",
                           fontWeight: "600",
                         }}
@@ -225,7 +223,7 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose, showVers
                       </span>
                     )}
                   </p>
-                  <p style={{ fontSize: "12px", color: "#6B7280" }}>
+                  <p style={{ fontSize: "12px", color: "var(--text-muted)" }}>
                     {version.savedBy?.name || "Unknown"} ·{" "}
                     {timeAgo(version.savedAt)}
                   </p>
@@ -233,7 +231,7 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose, showVers
                 <span
                   style={{
                     fontSize: "12px",
-                    color: "#9CA3AF",
+                    color: "var(--text-faint)",
                     transform:
                       previewVersion?._id === version._id
                         ? "rotate(180deg)"
@@ -250,9 +248,9 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose, showVers
             {previewVersion?._id === version._id && (
               <div
                 style={{
-                  borderTop: "1px solid #E5E7EB",
+                  borderTop: "1px solid var(--border-color)",
                   padding: "12px 14px",
-                  background: "#FAFAF9",
+                  background: "var(--bg-secondary)",
                 }}
               >
                 {previewLoading ? (
@@ -262,8 +260,8 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose, showVers
                     <p
                       style={{
                         fontSize: "11px",
-                        fontWeight: "500",
-                        color: "#6B7280",
+                        fontWeight: "600",
+                        color: "var(--text-muted)",
                         marginBottom: "6px",
                         textTransform: "uppercase",
                         letterSpacing: "0.05em",
@@ -274,9 +272,9 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose, showVers
                     <div
                       style={{
                         fontSize: "12px",
-                        color: "#374151",
-                        background: "#fff",
-                        border: "1px solid #E5E7EB",
+                        color: "var(--text-primary)",
+                        background: "var(--bg-surface)",
+                        border: "1px solid var(--border-color)",
                         borderRadius: "6px",
                         padding: "8px",
                         maxHeight: "100px",
@@ -288,23 +286,13 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose, showVers
                       dangerouslySetInnerHTML={{
                         __html:
                           previewVersion.htmlContent ||
-                          '<em style="color:#9CA3AF">No preview available</em>',
-                      }}
-                    />
-                    <div
-                      style={{
-                        height: "30px",
-                        background: "linear-gradient(transparent, #fff)",
-                        marginTop: "-38px",
-                        marginBottom: "8px",
-                        position: "relative",
-                        pointerEvents: "none",
+                          '<em style="color:var(--text-faint)">No preview available</em>',
                       }}
                     />
                     <p
                       style={{
                         fontSize: "11px",
-                        color: "#6B7280",
+                        color: "var(--text-muted)",
                         marginBottom: "10px",
                       }}
                     >
@@ -317,7 +305,7 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose, showVers
                         style={{
                           width: "100%",
                           padding: "8px",
-                          background: "#4F46E5",
+                          background: "var(--accent-primary)",
                           color: "#fff",
                           border: "none",
                           borderRadius: "6px",
@@ -334,7 +322,7 @@ function VersionHistoryPanel({ documentId, isOwner, onRestore, onClose, showVers
                       <p
                         style={{
                           fontSize: "12px",
-                          color: "#9CA3AF",
+                          color: "var(--text-muted)",
                           textAlign: "center",
                         }}
                       >

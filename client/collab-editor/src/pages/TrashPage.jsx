@@ -76,7 +76,7 @@ function TrashPage() {
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 24px' }}>
 
-      {}
+      {/* Header */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -84,10 +84,14 @@ function TrashPage() {
         marginBottom: '32px',
       }}>
         <div>
-          <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#111827' }}>
-            🗑️ Recycle bin
+          <h1 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            </svg>
+            Recycle bin
           </h1>
-          <p style={{ color: '#6B7280', marginTop: '4px', fontSize: '14px' }}>
+          <p style={{ color: 'var(--text-secondary)', marginTop: '4px', fontSize: '14px' }}>
             Documents are permanently deleted after 30 days
           </p>
         </div>
@@ -100,18 +104,36 @@ function TrashPage() {
 
       {loading && <Spinner />}
 
-      {}
+      {/* Empty State */}
       {!loading && documents.length === 0 && (
         <div style={{
           textAlign: 'center',
           padding: '80px 24px',
-          color: '#9CA3AF',
+          color: 'var(--text-muted)',
+          background: 'var(--bg-surface)',
+          border: '1px dashed var(--border-color)',
+          borderRadius: '16px',
         }}>
-          <div style={{ fontSize: '56px', marginBottom: '16px' }}>🗑️</div>
-          <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#374151' }}>
+          <div style={{
+            width: '56px',
+            height: '56px',
+            borderRadius: '14px',
+            background: 'var(--bg-primary)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: '16px',
+            color: 'var(--text-muted)',
+          }}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            </svg>
+          </div>
+          <h3 style={{ fontSize: '18px', fontWeight: '600', color: 'var(--text-primary)' }}>
             Trash is empty
           </h3>
-          <p style={{ marginTop: '8px', fontSize: '14px' }}>
+          <p style={{ marginTop: '8px', fontSize: '14px', color: 'var(--text-secondary)' }}>
             Deleted documents appear here for 30 days
           </p>
           <button
@@ -119,12 +141,13 @@ function TrashPage() {
             style={{
               marginTop: '20px',
               padding: '10px 20px',
-              background: 'none',
-              border: '1px solid #E5E7EB',
+              background: 'var(--bg-primary)',
+              border: '1px solid var(--border-color)',
               borderRadius: '8px',
               cursor: 'pointer',
               fontSize: '14px',
-              color: '#374151',
+              color: 'var(--text-primary)',
+              fontWeight: '500',
             }}
           >
             ← Back to dashboard
@@ -132,37 +155,45 @@ function TrashPage() {
         </div>
       )}
 
-      {}
+      {/* Document List */}
       {!loading && documents.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {documents.map(doc => (
             <div
               key={doc._id}
               style={{
-                background: '#fff',
-                border: '1px solid #E5E7EB',
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-color)',
                 borderRadius: '12px',
                 padding: '16px 20px',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '16px',
+                boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.05))',
               }}
             >
-              {}
               <div style={{
-                fontSize: '28px',
+                width: '36px',
+                height: '36px',
+                borderRadius: '8px',
+                background: 'var(--bg-primary)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 flexShrink: 0,
-                opacity: 0.5,
+                color: 'var(--text-secondary)',
               }}>
-                📄
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                </svg>
               </div>
 
-              {}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{
                   fontSize: '15px',
                   fontWeight: '500',
-                  color: '#374151',
+                  color: 'var(--text-primary)',
                   marginBottom: '4px',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
@@ -170,13 +201,13 @@ function TrashPage() {
                 }}>
                   {doc.title}
                 </p>
-                <div style={{ display: 'flex', gap: '12px' }}>
-                  <span style={{ fontSize: '12px', color: '#9CA3AF' }}>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
                     Deleted {formatDeletedDate(doc.deletedAt)}
                   </span>
                   <span style={{
                     fontSize: '12px',
-                    color: doc.daysRemaining <= 3 ? '#EF4444' : '#9CA3AF',
+                    color: doc.daysRemaining <= 3 ? '#EF4444' : 'var(--text-muted)',
                     fontWeight: doc.daysRemaining <= 3 ? '500' : '400',
                   }}>
                     {doc.daysRemaining} day{doc.daysRemaining !== 1 ? 's' : ''} until permanent deletion
@@ -184,15 +215,14 @@ function TrashPage() {
                 </div>
               </div>
 
-              {}
               <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
                 <button
                   onClick={() => handleRestore(doc._id)}
                   style={{
                     padding: '7px 14px',
-                    background: '#EEF2FF',
-                    color: '#4F46E5',
-                    border: 'none',
+                    background: 'rgba(79, 70, 229, 0.1)',
+                    color: 'var(--accent-primary)',
+                    border: '1px solid rgba(79, 70, 229, 0.2)',
                     borderRadius: '7px',
                     fontSize: '13px',
                     fontWeight: '500',
@@ -207,7 +237,7 @@ function TrashPage() {
                     padding: '7px 14px',
                     background: 'none',
                     color: '#EF4444',
-                    border: '1px solid #FECACA',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
                     borderRadius: '7px',
                     fontSize: '13px',
                     cursor: 'pointer',
